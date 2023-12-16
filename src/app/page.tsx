@@ -127,17 +127,17 @@ export default function Home() {
               <div className="shiba-2-star-5"></div>
             </div>
             <h1 className="text-4xl font-bold tracking-tighter text-yellow-950 sm:text-6xl mt-10">Lend a helping paw!</h1>
-            <div className="justify-center grid grid-cols-3 lg:grid-cols-3 gap-4 text-center my-4 mt-8">
+            <div className="justify-center grid grid-cols-1 lg:grid-cols-3 gap-4 text-center my-4 mt-8">
               <div className="flex flex-col items-center justify-center border border-yellow-900 bg-yellow-950 bg-opacity-5 border-opacity-10 rounded-lg p-2 px-3">
-                <h2 className="text-lg font-bold tracking-tight text-yellow-900 sm:text-2xl truncate w-full">{(donated).toLocaleString()}</h2>
+                <h2 className="text-2xl font-bold tracking-tight text-yellow-900 sm:text-2xl truncate w-full">{(donated).toLocaleString()}</h2>
                 <p className="text-gray-700" >Donated</p>
               </div>
               <div className="flex flex-col items-center justify-center border border-yellow-900 bg-yellow-950 bg-opacity-5 border-opacity-10 rounded-lg p-2 px-3">
-                <h2 className="text-lg font-bold tracking-tight text-yellow-900 sm:text-2xl">{ (donated / 100).toLocaleString()}</h2>
+                <h2 className="text-2xl font-bold tracking-tight text-yellow-900 sm:text-2xl">{ (donated / 100).toLocaleString()}</h2>
                 <p className="text-gray-700">Burnt</p>
               </div>
               <div className="flex flex-col items-center justify-center border border-yellow-900 bg-yellow-950 bg-opacity-5 border-opacity-10 rounded-lg p-2 px-3">
-                <h2 className="text-lg font-bold tracking-tight text-yellow-900 sm:text-2xl">24</h2>
+                <h2 className="text-2xl font-bold tracking-tight text-yellow-900 sm:text-2xl">24</h2>
                 <p className="text-gray-700">Countries</p>
               </div>
             </div>
