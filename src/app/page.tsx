@@ -161,6 +161,28 @@ export default function Home() {
                 <p className="text-gray-700">Charities</p>
               </div>
             </div>
+<<<<<<< HEAD
+=======
+            <p className="my-6 text-lg leading-8 text-gray-600">
+              We&apos;re matching <span className="text-red-500 font-bold">{donated.toLocaleString()}</span> BONK in charitable donations to help Shibas all around the world. Donate with BONK today to match your donation and we&apos;ll also burn an additional 1%, making your donation worth even more.</p>
+            { publicKey ? null : <WalletButton onClick={openWalletModal} /> }
+          </div>
+        </div>
+      </div>
+      <div className="flex flex-wrap justify-center grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:px-20">
+        {
+          organizations.map((organization) => (
+            <OrganizationCard 
+              key={organization.id} 
+              organization={organization} 
+              onClick={() => {
+                setModalOrganization(organization)
+                setIsOpen(true)
+              }} />
+          ))
+        }
+      </div>
+>>>>>>> 1094d3190cb633d8b586596667971250917f1a50
     </main>
   );
 }  
