@@ -2,9 +2,28 @@
 
 import { Organization } from "@/types";
 import React from "react";
+import axios from "axios";
 
 const Modal:React.FC<{organization?: Organization}> = ({ organization }) => {
   const [showModal, setShowModal] = React.useState(false);
+  const [quoteLoading, setQuoteloading] = React.useState(false);
+  const [quoteAmount, setQuoteAmount] = React.useState(0);
+  
+  const getSwapQuote = async (amount: number) => {
+    if(!quoteLoading) {
+      setQuoteloading(true);
+      try {
+        const { data: quote } = await axios.get(`https://quote-api.jup.ag/v6/quote?inputMint=DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263&outputMint=So11111111111111111111111111111111111111112&amount=${amount}&slippageBps=50`);
+        setQuoteAmount(quote.outAmount);
+        setQuoteloading(false);
+      } catch(e) {
+        console.error(e);
+        setQuoteAmount(0);
+        setQuoteloading(false);
+      }
+    }
+  }
+
   return (
     <>
       {organization ? (

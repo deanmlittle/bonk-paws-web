@@ -9,16 +9,13 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "react": "^18",
-    "react-dom": "^18",
-    "next": "14.0.4",
     "@coral-xyz/anchor": "^0.29.0",
+    "@solana/spl-token": "0.3.9",
     "@solana/wallet-adapter-base": "^0.9.23",
     "@solana/wallet-adapter-react": "^0.15.35",
     "@solana/wallet-adapter-react-ui": "^0.9.34",
     "@solana/wallet-adapter-wallets": "^0.19.22",
     "@solana/web3.js": "^1.78.5",
-    "@solana/spl-token": "0.3.9",
     "@types/node": "20.6.2",
     "@types/react": "18.2.22",
     "@types/react-dom": "18.2.7",
@@ -26,11 +23,15 @@
     "bn.js": "^5.2.1",
     "eslint": "8.49.0",
     "eslint-config-next": "13.4.19",
+    "next": "14.0.4",
     "postcss": "8.4.29",
+    "react": "^18",
+    "react-dom": "^18",
     "tailwindcss": "3.3.3",
     "typescript": "5.2.2"
   },
   "devDependencies": {
+    "@types/axios": "^0.14.0",
     "@types/bn.js": "^5.1.2"
   }
 }
