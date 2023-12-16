@@ -123,7 +123,9 @@ export default function Home() {
           </div>
         </div>
       </div>
-      <h1 id="top" className="text-4xl font-bold tracking-tighter text-yellow-950 sm:text-6xl mt-10">Help our furry friends!</h1>
+      <div className="mx-auto max-w-2xl py-32 sm:py-0 lg:py-20">
+        <h1 id="top" className="text-4xl font-bold tracking-tighter text-yellow-950 sm:text-6xl mt-10">Help our furry friends!</h1>
+      </div>
       <div className="flex flex-wrap justify-center grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:px-20">
         {
           organizations.map((organization) => (
