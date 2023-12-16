@@ -4,12 +4,13 @@ import Modal from '@/app/components/Modal';
 import OrganizationCard from '@/app/components/OrganizationCard';
 import { Organization } from '@/types';
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
-import React from 'react';
+import React, { useState } from 'react';
 import WalletButton from './components/WalletButton';
 import { useWallet } from '@solana/wallet-adapter-react';
 
 export default function Home() {
   const [modalOrganization, setModalOrganization] = React.useState<Organization | undefined>(undefined);
+  const [isOpen, setIsOpen] = useState(true);
   const { publicKey, connected } = useWallet();
   const { setVisible: setModalVisible } = useWalletModal()
   const openWalletModal = () => {
@@ -100,7 +101,7 @@ export default function Home() {
   ];
   return (
     <main className="flex min-h-screen flex-col items-center justify-between">
-      <Modal organization={modalOrganization} />
+      <Modal organization={modalOrganization}  isOpen={isOpen} setIsOpen={setIsOpen} />
       <div className="relative items-center text-center isolate px-6 pt-0 lg:px-8">
         <div className="absolute inset-x-0 -top-40 -z-10 overflow-hidden blur-3xl sm:-top-80" aria-hidden="true">
         </div>
@@ -116,18 +117,26 @@ export default function Home() {
               <img src="shiba-1-body.png" />
             </div>
             <h1 className="text-4xl font-bold tracking-tighter text-yellow-950 sm:text-6xl mt-10">Lend a helping paw!</h1>
-            <div className="flex flex-wrap justify-center grid grid-cols-3 lg:grid-cols-3 gap-6 px-20">
-              <h2 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-4xl mt-10">{ (donated).toLocaleString()}</h2>
-              <p>Donated</p>
-              <h2 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-4xl mt-10">40b</h2>
-              <p>Burnt</p>
+            <div className="justify-center grid grid-cols-3 lg:grid-cols-3 gap-4 text-center my-4 mt-8">
+              <div className="flex flex-col items-center justify-center border border-yellow-900 bg-yellow-950 bg-opacity-5 border-opacity-10 rounded-lg p-2 px-3">
+                <h2 className="text-lg font-bold tracking-tight text-yellow-900 sm:text-2xl truncate w-full">{(donated).toLocaleString()}</h2>
+                <p className="text-gray-700" >Donated</p>
+              </div>
+              <div className="flex flex-col items-center justify-center border border-yellow-900 bg-yellow-950 bg-opacity-5 border-opacity-10 rounded-lg p-2 px-3">
+                <h2 className="text-lg font-bold tracking-tight text-yellow-900 sm:text-2xl">{ (donated / 100).toLocaleString()}</h2>
+                <p className="text-gray-700">Burnt</p>
+              </div>
+              <div className="flex flex-col items-center justify-center border border-yellow-900 bg-yellow-950 bg-opacity-5 border-opacity-10 rounded-lg p-2 px-3">
+                <h2 className="text-lg font-bold tracking-tight text-yellow-900 sm:text-2xl">24</h2>
+                <p className="text-gray-700">Countries</p>
+              </div>
             </div>
-            <p className="mt-6 text-lg leading-8 text-gray-600">We're donating <span className="text-red-500 font-bold">{donated.toLocaleString()}</span> BONK and counting to animals,  to is donations to animal-related charities, with an additional 1% token burn.</p>
+            <p className="my-6 text-lg leading-8 text-gray-600">We're donating <span className="text-red-500 font-bold">{donated.toLocaleString()}</span> BONK and counting to animals,  to is donations to animal-related charities, with an additional 1% token burn.</p>
             { publicKey ? "" : <WalletButton onClick={openWalletModal} /> }
           </div>
         </div>
       </div>
-      <div className="flex flex-wrap justify-center grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-20">
+      <div className="flex flex-wrap justify-center grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:px-20">
         {
           organizations.map((organization) => (
             <OrganizationCard 
@@ -135,6 +144,7 @@ export default function Home() {
               organization={organization} 
               onClick={() => {
                 setModalOrganization(organization)
+                setIsOpen(true)
               }} />
           ))
         }

@@ -1,13 +1,16 @@
-'use client';
-
 import { Organization } from "@/types";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
-const Modal:React.FC<{organization?: Organization}> = ({ organization }) => {
-  const [showModal, setShowModal] = React.useState(false);
+interface ModalProps {
+  organization?: Organization;
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+}
+
+const Modal: React.FC<ModalProps> = ({ organization, isOpen, setIsOpen }) => {
   return (
     <>
-      {organization ? (
+      {organization && isOpen ? (
         <>
           <div
             className="justify-center text-black items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none"
@@ -15,10 +18,11 @@ const Modal:React.FC<{organization?: Organization}> = ({ organization }) => {
             <div className="relative w-auto my-6 mx-auto max-w-3xl">
               <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
                 {/*header*/}
-                <div className="flex p-5 border-b border-solid border-blueGray-200 rounded-t">
+                <div className="flex p-5 border-b border-solid border-blueGray-200 rounded-t relative">
                   <h3 className="text-xl text-center mx-auto font-semibold">
                     {organization.name}
                   </h3>
+                  <button className="absolute right-4 top-4" onClick={() => setIsOpen(false)}>Close</button>
                 </div>
                 {/*body*/}
                 <div className="relative p-6 flex-auto">
@@ -56,28 +60,7 @@ const Modal:React.FC<{organization?: Organization}> = ({ organization }) => {
                       </button>
                     </div>
                   </form>
-
-                  {/* <form> */}
-                    {/* <input  */}
-                  {/* // </form> */}
                 </div>
-                {/*footer*/}
-                {/* <div className="flex items-center justify-end p-6 border-t border-solid border-blueGray-200 rounded-b">
-                  <button
-                    className="text-red-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
-                    type="button"
-                    onClick={() => setShowModal(false)}
-                  >
-                    Close
-                  </button>
-                  <button
-                    className="bg-orange-500 text-white active:bg-orange-600 font-bold text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
-                    type="button"
-                    onClick={() => setShowModal(false)}
-                  >
-                    Save Changes
-                  </button>
-                </div> */}
               </div>
             </div>
           </div>
