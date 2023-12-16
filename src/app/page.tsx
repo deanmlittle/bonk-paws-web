@@ -118,15 +118,13 @@ export default function Home() {
             </div>
             <h1 id="top" className="text-4xl font-bold tracking-tighter text-yellow-950 sm:text-6xl mt-10">Lend a helping paw!</h1>
             <p className="my-6 text-lg leading-8 text-gray-600">
-              We&apos;re matching <span className="text-red-500 font-bold">{donated.toLocaleString()}</span> BONK in charitable donations to help Shibas all around the world. Donate with BONK today to match your donation and we&apos;ll also burn an additional 1%, making your donation worth even more.</p>
-            { publicKey ? null : <WalletButton onClick={openWalletModal} /> }
+              We&apos;re partnering with <a href="https://thegivingblock.com" className="text-bold text-red-500" target="_blank">The Giving Block</a> to match BONK donations to dog-related charities <span className="text-bold text-red-500">100%</span>. We&apos;re also burning <span className="text-bold text-red-500">1%</span> of your donation amount from our treasury, making your generous donations go even further!</p>
+            { publicKey ? <a className="bg-red-500 hover:bg-red-400 text-white font-semibold py-3 px-5 border border-red-600 hover:border-red-600 rounded-lg" href="#charities">Get started!</a>
+: <WalletButton onClick={openWalletModal} /> }
           </div>
         </div>
       </div>
-      <div className="mx-auto max-w-2xl py-32 sm:py-0 lg:py-20">
-        <h1 id="top" className="text-4xl font-bold tracking-tighter text-yellow-950 sm:text-6xl mt-10">Help our furry friends!</h1>
-      </div>
-      <div className="flex flex-wrap justify-center grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:px-20">
+      <div id="charities" className="flex flex-wrap justify-center grid grid-cols-1 mt-20 md:grid-cols-2 lg:grid-cols-4 gap-6 md:px-20">
         {
           organizations.map((organization) => (
             <OrganizationCard 
@@ -140,7 +138,7 @@ export default function Home() {
         }
       </div>
 
-      <div className="relative items-center text-center isolate px-6 pt-0 lg:px-8">
+      <div className="relative items-center text-center isolate px-6 mt-20 pt-0 lg:px-8">
         <div className="absolute inset-x-0 -top-40 -z-10 overflow-hidden blur-3xl sm:-top-80" aria-hidden="true">
         </div>
         <div className="mx-auto max-w-2xl py-32 sm:py-0 lg:py-20">
