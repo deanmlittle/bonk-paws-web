@@ -9,7 +9,7 @@ const OrganizationCard: React.FC<{ organization: Organization, onClick: (organiz
   
 
     return (
-      <div className="custom-orange-bg border border-yellow-300 p-4 transition-all rounded-lg shadow hover:shadow-yellow-200 hover:shadow-lg" onClick={() => {
+      <div className="hover:scale-105 hover:cursor-pointer custom-orange-bg border border-yellow-300 p-4 transition-all rounded-lg shadow hover:shadow-yellow-200 hover:shadow-lg" onClick={() => {
         onClick(organization)
         }}>
         <div className="col-span-1 text-center border-top border-left border-right border-yellow-400 rounded-lg transition-all">
