@@ -122,7 +122,7 @@ export default function Home() {
               <h2 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-4xl mt-10">40b</h2>
               <p>Burnt</p>
             </div>
-            <p className="mt-6 text-lg leading-8 text-gray-600">We're donating <span className="text-orange-500 font-bold">{donated.toLocaleString()}</span> BONK and counting to animals,  to is donations to animal-related charities, with an additional 1% token burn.</p>
+            <p className="mt-6 text-lg leading-8 text-gray-600">We're donating <span className="text-red-500 font-bold">{donated.toLocaleString()}</span> BONK and counting to animals,  to is donations to animal-related charities, with an additional 1% token burn.</p>
             { publicKey ? "" : <WalletButton onClick={openWalletModal} /> }
           </div>
         </div>

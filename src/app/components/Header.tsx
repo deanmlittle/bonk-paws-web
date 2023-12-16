@@ -11,7 +11,7 @@ import Loader from "./Loader";
 const Balance = () => {
     const { connection } = useConnection();
     const { publicKey, connected } = useWallet();
-    const [ isLoading, setIsLoading ] = useState(true);
+    const [ isLoading, setIsLoading ] = useState(false);
     const [ balance, setBalance ] = useState(0);
     const getBalance = async (publicKey: PublicKey) => {
         if(!isLoading) {
