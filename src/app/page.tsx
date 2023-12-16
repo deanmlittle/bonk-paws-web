@@ -141,8 +141,9 @@ export default function Home() {
                 <p className="text-gray-700">Charities</p>
               </div>
             </div>
-            <p className="my-6 text-lg leading-8 text-gray-600">We're matching <span className="text-red-500 font-bold">{donated.toLocaleString()}</span> BONK in charitable donations to help Shibas all around the world. Donate with BONK today to match your donation and we'll also burn an additional 1%, making your donation worth even more.</p>
-            { publicKey ? "" : <WalletButton onClick={openWalletModal} /> }
+            <p className="my-6 text-lg leading-8 text-gray-600">
+              We&apos;re matching <span className="text-red-500 font-bold">{donated.toLocaleString()}</span> BONK in charitable donations to help Shibas all around the world. Donate with BONK today to match your donation and we&apos;ll also burn an additional 1%, making your donation worth even more.</p>
+            { publicKey ? null : <WalletButton onClick={openWalletModal} /> }
           </div>
         </div>
       </div>

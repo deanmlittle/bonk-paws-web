@@ -50,6 +50,9 @@ const Modal: React.FC<ModalProps> = ({ organization, isOpen, setIsOpen }) => {
                 </div>
                 {/*body*/}
                 <div className="relative p-6 flex-auto">
+                  <div className="flex">
+                    <img className="h-20" src="money.png" alt="Donation" />
+                  </div>
                   <p className="my-4 text-slate-500 text-md leading-relaxed">
                     Donating to <span className="font-bold text-slate-900">{organization.name}</span>
                   </p>
