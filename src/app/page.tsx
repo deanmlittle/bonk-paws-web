@@ -1,0 +1,137 @@
+'use client';
+
+import Modal from '@/app/components/Modal';
+import OrganizationCard from '@/app/components/OrganizationCard';
+import { Organization } from '@/types';
+import { useWalletModal } from "@solana/wallet-adapter-react-ui";
+import React from 'react';
+import WalletButton from './components/WalletButton';
+import { useWallet } from '@solana/wallet-adapter-react';
+
+export default function Home() {
+  const [modalOrganization, setModalOrganization] = React.useState<Organization | undefined>(undefined);
+  const { publicKey, connected } = useWallet();
+  const { setVisible: setModalVisible } = useWalletModal()
+  const openWalletModal = () => {
+    setModalVisible(true)
+  }
+  const organizations: Organization[] = [
+    {
+      "id": 127733,
+      "logo": "https://static.tgbwidget.com/organization_logo%2Fe6ddf427-f982-4076-96bf-c0d32fd3c874.jpeg",
+      "name": "Dogs for Better Lives"
+    },
+    {
+      "id": 127877,
+      "logo": "https://static.tgbwidget.com/organization_logo%2Fab74194c-26fc-41ca-a49a-2510f61e6eaa.jpg",
+      "name": "Guide Dogs for the Blind"
+    },
+    {
+      "id": 127887,
+      "logo": "https://static.tgbwidget.com/organization_logo%2Fff2be8e6-eaf4-4026-9d2a-6833a5f5f9bc.jpg",
+      "name": "Life Saver Dogs"
+    },
+    {
+      "id": 128860,
+      "logo": "https://static.tgbwidget.com/organization_logo/4ebf256d-9476-4a24-9cc9-32ad56bb8807.jpg",
+      "name": "Operation Delta Dog"
+    },
+    {
+      "id": 129703,
+      "logo": "https://static.tgbwidget.com/organization_logo/c4b87168-2245-44a9-9310-3badf6349e9a.jpg",
+      "name": "Royal Guide Dogs Australia"
+    },
+    {
+      "id": 132647,
+      "logo": "https://static.tgbwidget.com/organization_logo/98b96ba4-6193-4c6d-80a5-cedd5912c4f2.jpg",
+      "name": "Seeing Eye Dogs Australia"
+    },
+    {
+      "id": 133396,
+      "logo": "https://static.tgbwidget.com/organization_logo/f34a87a9-736e-4a5a-aba3-9e0eb97a984c.jpeg",
+      "name": "Edinburgh Dog and Cat Home"
+    },
+    {
+      "id": 133777,
+      "logo": "https://static.tgbwidget.com/MuttvilleSenior.jpg",
+      "name": "Muttville Senior Dog Rescue"
+    },
+    {
+      "id": 133921,
+      "logo": "https://static.tgbwidget.com/organization_logo%2F05936f18-3557-4fb0-9e55-487c47444466.jpg",
+      "name": "Semper K9 Assistance Dogs"
+    },
+    {
+      "id": 134108,
+      "logo": "https://static.tgbwidget.com/organization_logo%2F153ad16d-414d-4058-8339-fe4d4299c379.jpeg",
+      "name": "Southeastern Guide Dogs, Inc."
+    },
+    {
+      "id": 127621,
+      "logo": "https://static.tgbwidget.com/ForgottenAnimals.jpg",
+      "name": "Forgotten Animals"
+    },
+    {
+      "id": 127691,
+      "logo": "https://static.tgbwidget.com/organization_logo%2F39e4df7a-8661-495c-8a07-8feaebac55c0.jpg",
+      "name": "Fund for Wild Nature"
+    },
+    {
+      "id": 127725,
+      "logo": "https://static.tgbwidget.com/organization_logo%2F5631253d-953f-4bcc-a105-c63f1eb860d4.jpg",
+      "name": "PAWS"
+    },
+    {
+      "id": 127749,
+      "logo": "https://static.tgbwidget.com/organization_logo%2F19b4c12e-cf21-4dab-9b06-d84d54449803.jpg",
+      "name": "Berkeley-East Bay Humane Society"
+    },
+    {
+      "id": 127793,
+      "logo": "https://static.tgbwidget.com/organization_logo%2F8e1f50fa-9166-400e-94db-d98ee90e39c6.jpeg",
+      "name": "San Diego Humane Society"
+    },
+    {
+      "id": 127979,
+      "logo": "https://static.tgbwidget.com/organization_logo%2F3d3cbe44-13ef-491e-9612-7f3876333605.jpg",
+      "name": "K9s For Warriors"
+    }
+  ];
+  return (
+    <main className="flex min-h-screen flex-col items-center justify-between">
+      <Modal organization={modalOrganization} />
+      <div className="relative items-center text-center isolate px-6 pt-0 lg:px-8">
+        <div className="absolute inset-x-0 -top-40 -z-10 overflow-hidden blur-3xl sm:-top-80" aria-hidden="true">
+        </div>
+        <div className="mx-auto max-w-2xl py-32 sm:py-0 lg:py-20">
+          {/* <div className="hidden sm:mb-8 sm:flex sm:justify-center"> */}
+            {/* <div className="relative rounded-full px-3 py-1 text-sm leading-6 text-gray-600 ring-1 ring-gray-900/10 hover:ring-gray-900/20">
+              BONK for Paws is matching all BONK donations to animal-related causes 100% <a href="#" className="font-semibold text-orange-400"><span className="absolute inset-0" aria-hidden="true"></span>Read more <span aria-hidden="true">&rarr;</span></a>
+            </div> */}
+          {/* </div> */}
+          <div className="mx-auto ">
+            <div className="shiba-1 mx-auto w-40 max-w-40">
+              <img className="shiba-1-head" src="shiba-1-head.png" />
+              <img src="shiba-1-body.png" />
+            </div>
+            <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl mt-10">Lend a helping paw!</h1>
+            <p className="mt-6 text-lg leading-8 text-gray-600">BONK is matching donations to animal-related charities, with an additional 1% token burn.</p>
+            { publicKey ? "" : <WalletButton onClick={openWalletModal} /> }
+          </div>
+        </div>
+      </div>
+      <div className="flex flex-wrap justify-center grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-20">
+        {
+          organizations.map((organization) => (
+            <OrganizationCard 
+              key={organization.id} 
+              organization={organization} 
+              onClick={() => {
+                setModalOrganization(organization)
+              }} />
+          ))
+        }
+      </div>
+    </main>
+  );
+}  

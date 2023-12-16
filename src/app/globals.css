@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background-color: #ffecb8;
+  /* background-color: rgb(245, 245, 220); */
+  /* background-image: linear-gradient(rgba(254, 249, 211, 1) 0%, rgba(254, 249, 211, 0.8) 100%), url("../../public/bg.jpg"); */
+  background-size: 400px auto;
+  background-attachment: fixed;
+  max-height: 100vh;
+  max-width: 100vw;
+  animation: scroll-bg linear infinite 120s; /* Increased animation duration */
+
+  /* Remove !important from keyframes */
+}
+
+@keyframes scroll-bg {
+  from {
+    background-position: 999999px bottom;
+  }
+  to {
+    background-position: 0px bottom;
+  }
+}
+
+.shiba-1 {
+  position: relative;
+}
+
+.shiba-1-head {
+  margin-bottom: -10%;
+  margin-left:6%;
+  animation:cubic-bezier(0.6, -0.28, 0.735, 0.045) roll infinite 3s;
+}
+
+@keyframes roll {
+  0% {
+    transform: rotate(20deg);
+  }
+  50% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(20deg);
+  }
+}
+
+.modal {
+  transition: opacity 0.25s ease;
+}
+body.modal-active {
+  overflow-x: hidden;
+  overflow-y: visible !important;
+}
+
+.custom-orange-bg {
+  background: rgb(255, 250, 230)
+}
