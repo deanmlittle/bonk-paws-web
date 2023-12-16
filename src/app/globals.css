@@ -17,6 +17,7 @@
 }
 
 body {
+  scroll-behavior: smooth !important;
   color: rgb(var(--foreground-rgb));
   background-color: #ffecb8;
   /* background-color: rgb(245, 245, 220); */
