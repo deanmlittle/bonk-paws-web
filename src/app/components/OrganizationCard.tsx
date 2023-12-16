@@ -14,11 +14,10 @@ const OrganizationCard: React.FC<{ organization: Organization, onClick: (organiz
         <div className="col-span-1 text-center border-top border-left border-right border-yellow-400 rounded-lg transition-all">
           <div className="border-b border-orange-100 h-48 bg-white rounded-lg w-90 h-48">
             <img className="object-contain h-48 w-96 py-5" width={320} height={180} src={organization.logo} alt={organization.name} />
-            {/* <Image className="object-contain h-48 w-96 py-5" width={320} height={180} src={organization.logo} alt={organization.name} /> */}
           </div>
           <div className="px-6 py-4">
-            <div className="font-bold text-xl mb-2 text-slate-900">{organization.name}</div>
-            <button className="bg-red-500 hover:bg-red-400 text-white font-bold py-2 px-4 rounded">
+            <div className="font-bold tracking-tighter text-xl mb-2 text-yellow-950">{organization.name}</div>
+            <button className="bg-red-500 hover:bg-red-400 text-white font-bold mt-10 py-2 px-4 rounded">
               Donate
             </button>
           </div>

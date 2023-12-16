@@ -15,6 +15,7 @@ export default function Home() {
   const openWalletModal = () => {
     setModalVisible(true)
   }
+  const donated = 4303201250;
   const organizations: Organization[] = [
     {
       "id": 127733,
@@ -114,8 +115,14 @@ export default function Home() {
               <img className="shiba-1-head" src="shiba-1-head.png" />
               <img src="shiba-1-body.png" />
             </div>
-            <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl mt-10">Lend a helping paw!</h1>
-            <p className="mt-6 text-lg leading-8 text-gray-600">BONK is matching donations to animal-related charities, with an additional 1% token burn.</p>
+            <h1 className="text-4xl font-bold tracking-tighter text-yellow-950 sm:text-6xl mt-10">Lend a helping paw!</h1>
+            <div className="flex flex-wrap justify-center grid grid-cols-3 lg:grid-cols-3 gap-6 px-20">
+              <h2 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-4xl mt-10">{ (donated).toLocaleString()}</h2>
+              <p>Donated</p>
+              <h2 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-4xl mt-10">40b</h2>
+              <p>Burnt</p>
+            </div>
+            <p className="mt-6 text-lg leading-8 text-gray-600">We're donating <span className="text-orange-500 font-bold">{donated.toLocaleString()}</span> BONK and counting to animals,  to is donations to animal-related charities, with an additional 1% token burn.</p>
             { publicKey ? "" : <WalletButton onClick={openWalletModal} /> }
           </div>
         </div>
