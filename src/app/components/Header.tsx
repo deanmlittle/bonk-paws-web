@@ -25,7 +25,7 @@ const Balance = () => {
                 setBalance(0);
             }
             setIsLoading(false);
-            setTimeout(async () => { await getBalance(publicKey) }, 4000);
+            setTimeout(async () => { await getBalance(publicKey) }, 15000);
         }
     }
 
