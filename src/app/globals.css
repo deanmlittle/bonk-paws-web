@@ -43,10 +43,107 @@ body {
   position: relative;
 }
 
+.shiba-2-eye {
+  background-position: center center;
+  width:30px;
+  height: 30px;
+  position: absolute;
+  top:29%;
+  left:56%;
+  background: url("../../public/shiba-2-eye.png");
+  background-repeat: no-repeat;
+  background-size: 50% auto;
+  animation: blink infinite 2s;
+}
+
+.shiba-2-star-1, .shiba-2-star-2, .shiba-2-star-3, .shiba-2-star-4, .shiba-2-star-5 {
+  background-repeat: no-repeat;
+  background-size: 50% auto;
+  animation: twinkle infinite 0.9s linear;
+}
+
+.shiba-2-star-1 {
+  width:40px;
+  height: 40px;
+  position: absolute;
+  top:6%;
+  left:3%;
+  opacity: 0;
+  background-image: url("../../public/sparkle-1.png");
+  animation-delay: 0.5s;
+}
+.shiba-2-star-2 {
+  width:30px;
+  height: 30px;
+  position: absolute;
+  top:24%;
+  left:0%;
+  opacity: 0;
+  background-image: url("../../public/sparkle-2.png");
+  animation-delay: 0.25s;
+}
+.shiba-2-star-3 {
+  width:22px;
+  height: 22px;
+  position: absolute;
+  top:43%;
+  left:8%;
+  opacity: 0;
+  background-image: url("../../public/sparkle-3.png");
+}
+.shiba-2-star-4 {
+  width:40px;
+  height: 40px;
+  position: absolute;
+  top:23%;
+  left:92%;
+  opacity: 0;
+  background-image: url("../../public/sparkle-1.png");
+  animation-delay: 0.2s;
+}
+.shiba-2-star-5 {
+  width:22px;
+  height: 22px;
+  position: absolute;
+  top:45%;
+  left:88%;
+  opacity: 0;
+  background-image: url("../../public/sparkle-3.png");
+  animation-delay: 0.4s;
+}
+
+
 .shiba-1-head {
   margin-bottom: -10%;
   margin-left:6%;
   animation:cubic-bezier(0.6, -0.28, 0.735, 0.045) roll infinite 3s;
+}
+
+@keyframes blink {
+  0% {
+    margin-top: 0%;
+    background-image: url("../../public/shiba-2-eye.png");
+  }
+  49% {
+    margin-top: 0%;
+    background-image: url("../../public/shiba-2-eye.png");
+  }
+  50% {
+    margin-top: 1%;
+    background-image: url("../../public/shiba-2-wink.png");
+  }
+  59% {
+    margin-top: 1%;
+    background-image: url("../../public/shiba-2-wink.png");
+  }
+  60% {
+    margin-top: 0%;
+    background-image: url("../../public/shiba-2-eye.png");
+  }
+  61% {
+    margin-top: 0%;
+    background-image: url("../../public/shiba-2-eye.png");
+  }
 }
 
 @keyframes roll {
@@ -58,6 +155,21 @@ body {
   }
   100% {
     transform: rotate(20deg);
+  }
+}
+
+@keyframes twinkle {
+  0% {
+    opacity: 0;
+    margin-top: 3%;
+  }
+  30% {
+    opacity: 1;
+    margin-top: 0%;
+  }
+  60% {
+    opacity: 0;
+    margin-top: -3%;
   }
 }
 

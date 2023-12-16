@@ -116,6 +116,16 @@ export default function Home() {
               <img className="shiba-1-head" src="shiba-1-head.png" />
               <img src="shiba-1-body.png" />
             </div>
+
+            <div className="shiba-2 mx-auto w-40 max-w-40">
+              <img className="" src="shiba-2-body.png" />
+              <div className="shiba-2-eye"></div>
+              <div className="shiba-2-star-1"></div>
+              <div className="shiba-2-star-2"></div>
+              <div className="shiba-2-star-3"></div>
+              <div className="shiba-2-star-4"></div>
+              <div className="shiba-2-star-5"></div>
+            </div>
             <h1 className="text-4xl font-bold tracking-tighter text-yellow-950 sm:text-6xl mt-10">Lend a helping paw!</h1>
             <div className="justify-center grid grid-cols-3 lg:grid-cols-3 gap-4 text-center my-4 mt-8">
               <div className="flex flex-col items-center justify-center border border-yellow-900 bg-yellow-950 bg-opacity-5 border-opacity-10 rounded-lg p-2 px-3">
