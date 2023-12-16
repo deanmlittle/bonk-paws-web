@@ -115,6 +115,16 @@ export default function Home() {
               <img className="shiba-1-head" src="shiba-1-head.png" />
               <img src="shiba-1-body.png" />
             </div>
+
+            <div className="shiba-2 mx-auto w-40 max-w-40">
+              <img className="" src="shiba-2-body.png" />
+              <div className="shiba-2-eye"></div>
+              <div className="shiba-2-star-1"></div>
+              <div className="shiba-2-star-2"></div>
+              <div className="shiba-2-star-3"></div>
+              <div className="shiba-2-star-4"></div>
+              <div className="shiba-2-star-5"></div>
+            </div>
             <h1 className="text-4xl font-bold tracking-tighter text-yellow-950 sm:text-6xl mt-10">Lend a helping paw!</h1>
             <div className="flex flex-wrap justify-center grid grid-cols-3 lg:grid-cols-3 gap-6 px-20">
               <h2 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-4xl mt-10">{ (donated).toLocaleString()}</h2>
