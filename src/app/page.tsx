@@ -7,6 +7,7 @@ import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import React, { useState } from 'react';
 import WalletButton from './components/WalletButton';
 import { useWallet } from '@solana/wallet-adapter-react';
+import OrganizationList from './components/OrganizationList';
 
 export default function Home() {
   const [modalOrganization, setModalOrganization] = React.useState<Organization | undefined>(undefined);
@@ -17,88 +18,6 @@ export default function Home() {
     setModalVisible(true)
   }
   const donated = 4303201250;
-  const organizations: Organization[] = [
-    {
-      "id": 127733,
-      "logo": "https://static.tgbwidget.com/organization_logo%2Fe6ddf427-f982-4076-96bf-c0d32fd3c874.jpeg",
-      "name": "Dogs for Better Lives"
-    },
-    {
-      "id": 127877,
-      "logo": "https://static.tgbwidget.com/organization_logo%2Fab74194c-26fc-41ca-a49a-2510f61e6eaa.jpg",
-      "name": "Guide Dogs for the Blind"
-    },
-    {
-      "id": 127887,
-      "logo": "https://static.tgbwidget.com/organization_logo%2Fff2be8e6-eaf4-4026-9d2a-6833a5f5f9bc.jpg",
-      "name": "Life Saver Dogs"
-    },
-    {
-      "id": 128860,
-      "logo": "https://static.tgbwidget.com/organization_logo/4ebf256d-9476-4a24-9cc9-32ad56bb8807.jpg",
-      "name": "Operation Delta Dog"
-    },
-    {
-      "id": 129703,
-      "logo": "https://static.tgbwidget.com/organization_logo/c4b87168-2245-44a9-9310-3badf6349e9a.jpg",
-      "name": "Royal Guide Dogs Australia"
-    },
-    {
-      "id": 132647,
-      "logo": "https://static.tgbwidget.com/organization_logo/98b96ba4-6193-4c6d-80a5-cedd5912c4f2.jpg",
-      "name": "Seeing Eye Dogs Australia"
-    },
-    {
-      "id": 133396,
-      "logo": "https://static.tgbwidget.com/organization_logo/f34a87a9-736e-4a5a-aba3-9e0eb97a984c.jpeg",
-      "name": "Edinburgh Dog and Cat Home"
-    },
-    {
-      "id": 133777,
-      "logo": "https://static.tgbwidget.com/MuttvilleSenior.jpg",
-      "name": "Muttville Senior Dog Rescue"
-    },
-    {
-      "id": 133921,
-      "logo": "https://static.tgbwidget.com/organization_logo%2F05936f18-3557-4fb0-9e55-487c47444466.jpg",
-      "name": "Semper K9 Assistance Dogs"
-    },
-    {
-      "id": 134108,
-      "logo": "https://static.tgbwidget.com/organization_logo%2F153ad16d-414d-4058-8339-fe4d4299c379.jpeg",
-      "name": "Southeastern Guide Dogs, Inc."
-    },
-    {
-      "id": 127621,
-      "logo": "https://static.tgbwidget.com/ForgottenAnimals.jpg",
-      "name": "Forgotten Animals"
-    },
-    {
-      "id": 127691,
-      "logo": "https://static.tgbwidget.com/organization_logo%2F39e4df7a-8661-495c-8a07-8feaebac55c0.jpg",
-      "name": "Fund for Wild Nature"
-    },
-    {
-      "id": 127725,
-      "logo": "https://static.tgbwidget.com/organization_logo%2F5631253d-953f-4bcc-a105-c63f1eb860d4.jpg",
-      "name": "PAWS"
-    },
-    {
-      "id": 127749,
-      "logo": "https://static.tgbwidget.com/organization_logo%2F19b4c12e-cf21-4dab-9b06-d84d54449803.jpg",
-      "name": "Berkeley-East Bay Humane Society"
-    },
-    {
-      "id": 127793,
-      "logo": "https://static.tgbwidget.com/organization_logo%2F8e1f50fa-9166-400e-94db-d98ee90e39c6.jpeg",
-      "name": "San Diego Humane Society"
-    },
-    {
-      "id": 127979,
-      "logo": "https://static.tgbwidget.com/organization_logo%2F3d3cbe44-13ef-491e-9612-7f3876333605.jpg",
-      "name": "K9s For Warriors"
-    }
-  ];
   return (
     <main className="flex min-h-screen flex-col items-center justify-between">
       <Modal organization={modalOrganization}  isOpen={isOpen} setIsOpen={setIsOpen} />
@@ -124,19 +43,7 @@ export default function Home() {
           </div>
         </div>
       </div>
-      <div id="charities" className="flex flex-wrap justify-center grid grid-cols-1 mt-20 md:grid-cols-2 lg:grid-cols-4 gap-6 md:px-20">
-        {
-          organizations.map((organization) => (
-            <OrganizationCard 
-              key={organization.id} 
-              organization={organization} 
-              onClick={() => {
-                setModalOrganization(organization)
-                setIsOpen(true)
-              }} />
-          ))
-        }
-      </div>
+      <OrganizationList />
 
       <div className="relative items-center text-center isolate px-6 mt-20 pt-0 lg:px-8">
         <div className="absolute inset-x-0 -top-40 -z-10 overflow-hidden blur-3xl sm:-top-80" aria-hidden="true">
