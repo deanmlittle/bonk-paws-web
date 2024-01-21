@@ -1,8 +1,4 @@
 'use client';
-
-import Modal from '@/app/components/Modal';
-import OrganizationCard from '@/app/components/OrganizationCard';
-import { Organization } from '@/types';
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import React, { useState } from 'react';
 import WalletButton from './components/WalletButton';
@@ -10,8 +6,6 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import OrganizationList from './components/OrganizationList';
 
 export default function Home() {
-  const [modalOrganization, setModalOrganization] = React.useState<Organization | undefined>(undefined);
-  const [isOpen, setIsOpen] = useState(true);
   const { publicKey, connected } = useWallet();
   const { setVisible: setModalVisible } = useWalletModal()
   const openWalletModal = () => {
@@ -20,7 +14,6 @@ export default function Home() {
   const donated = 4303201250;
   return (
     <main className="flex min-h-screen flex-col items-center justify-between">
-      <Modal organization={modalOrganization}  isOpen={isOpen} setIsOpen={setIsOpen} />
       <div className="relative items-center text-center isolate px-6 pt-0 lg:px-8">
         <div className="absolute inset-x-0 -top-40 -z-10 overflow-hidden blur-3xl sm:-top-80" aria-hidden="true">
         </div>
