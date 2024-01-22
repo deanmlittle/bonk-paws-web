@@ -5,6 +5,12 @@ export type Listing = {
     image: string
 }
 
+export interface ShortOrganization {
+    id: number;
+    name: string;
+    logo: string;
+}
+
 export interface Organization {
     id: number;
     name: string;
