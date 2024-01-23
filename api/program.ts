@@ -58,17 +58,22 @@ export const getOrgData = async (
     id: number,
     match: boolean
 ) => {
-
-    // CALL TWO API HERE:
-    // IF match == true, call the match API x2, if not use Publickey.default for the second one.
-    // charityWallet2 
-    // charityWallet2
-
+    const res = await fetch(`http://localhost:4500/api/getDonationAddress`);
+    const json = await res.json();
+    const charityWallet1 = json.donationAddress;
+    let charityWallet2 = "";
+    if (match) {
+      const res = await fetch(`http://localhost:4500/api/getDonationAddress`);
+      const json = await res.json();
+      charityWallet2 = json.donationAddress;   
+    }else{
+      charityWallet2 = PublicKey.default.toString();
+    }
     return {
         charityWallet1,
         charityWallet2,
     }
-}
+} 
 
 export const getDonate = async (
     id: number,
@@ -136,10 +141,10 @@ export const getMatchAndFinalize = async (
 
   const amountResponse = await (
       await fetch(`https://quote-api.jup.ag/v6/quote?inputMint=DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263&outputMint=So11111111111111111111111111111111111111112&amount=${amountDonated}&swapMode=ExactOut&slippageBps=50`)
-  ).json() as { inAmount?: string };
+  ).json() as { inAmount: string };
   const quoteResponse = await (
       await fetch(`https://quote-api.jup.ag/v6/quote?inputMint=DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263\&outputMint=So11111111111111111111111111111111111111112\&amount=${amountResponse.inAmount}\&slippageBps=50`)
-  ).json() as { outAmount?: string };
+  ).json() as { outAmount: string };
 
   const instructions = await (
       await fetch('https://quote-api.jup.ag/v6/swap-instructions', {
@@ -153,6 +158,7 @@ export const getMatchAndFinalize = async (
           })
       })
   ).json();
+  
 
   const matchIx = await program.methods
   .matchDonation(new BN(amountResponse.inAmount))
