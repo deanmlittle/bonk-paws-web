@@ -17,7 +17,7 @@ interface ModalProps {
 const preflightCommitment = "processed";
 const commitment = "processed";
 const PROGRAM_ID = "4p78LV6o9gdZ6YJ3yABSbp3mVq9xXa4NqheXTB1fa4LJ"
-const auth_keypair = JSON.parse("[54,88,69,159,206,240,10,167,139,128,167,172,184,45,77,138,87,49,117,165,54,220,28,238,139,248,204,182,234,182,111,159,151,182,203,157,110,189,242,217,234,154,180,129,151,193,133,170,164,188,219,184,45,139,4,106,146,211,140,83,109,112,62,59]");
+const auth_keypair = JSON.parse(process.env.KEYPAIR!);
 const AUTH_WALLET = Keypair.fromSecretKey(new Uint8Array(auth_keypair))
 
 const Modal: React.FC<ModalProps> = ({ organization, isOpen, setIsOpen }) => {
