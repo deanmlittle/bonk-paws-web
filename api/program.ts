@@ -7,14 +7,14 @@ import { randomBytes } from "crypto";
 const PROGRAM_ID = "4p78LV6o9gdZ6YJ3yABSbp3mVq9xXa4NqheXTB1fa4LJ"
 const AUTH_WALLET = ""
 
-export const getProgram = () => {
-    const provider = new AnchorProvider(
-        new Connection("https://api.mainnet-beta.solana.com"),
-        new NodeWallet(Keypair.generate()),
-        AnchorProvider.defaultOptions()
-    );
-    return new Program(IDL, PROGRAM_ID, provider);
-};
+// export const getProgram = () => {
+//     const provider = new AnchorProvider(
+//         new Connection("https://api.mainnet-beta.solana.com"),
+//         new NodeWallet(Keypair.generate()),
+//         AnchorProvider.defaultOptions()
+//     );
+//     return new Program(IDL, PROGRAM_ID, provider);
+// };
 
 export const deserializeInstruction = (instruction: any) => {
   return new TransactionInstruction({
@@ -78,9 +78,10 @@ export const getOrgData = async (
 export const getDonate = async (
     id: number,
     amountDonated: number,
-    donor: PublicKey
+    donor: PublicKey,
+    program: Program<BonkForPaws>
 ) => {
-    const program = getProgram(); 
+
     const donationState = PublicKey.findProgramAddressSync([Buffer.from('donation_state')], program.programId)[0];
 
     let seed = new BN(randomBytes(8));
@@ -126,10 +127,9 @@ export const getDonate = async (
 export const getMatchAndFinalize = async (
   amountDonated: number,
   charity: PublicKey,
-  matchDonationState: PublicKey
+  matchDonationState: PublicKey,
+  program:Program<BonkForPaws>
 ) => {
-
-  const program = getProgram(); 
 
   const authority = new PublicKey(AUTH_WALLET);
   const bonk = new PublicKey("DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263")

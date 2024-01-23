@@ -1,16 +1,22 @@
 import { Organization } from "@/types";
 import React, { useEffect, useState } from "react";
-import { getDonate, getMatchAndFinalize } from "../../../api/program";
+import { getDonate, getMatchAndFinalize, IDL } from "../../../api/program";
 import axios from "axios";
 import { publicKey } from "@coral-xyz/anchor/dist/cjs/utils";
+import { Address, AnchorProvider, BN, Program } from "@coral-xyz/anchor";
 import { Connection, PublicKey, Transaction, TransactionMessage, VersionedTransaction } from "@solana/web3.js";
-import { useWallet } from "@solana/wallet-adapter-react";
+import { useConnection, useWallet, useAnchorWallet} from '@solana/wallet-adapter-react';
+import { WalletNotConnectedError } from '@solana/wallet-adapter-base';
 
 interface ModalProps {
-  organization?: Organization;
+  organization: Organization;
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
 }
+
+const preflightCommitment = "processed";
+const commitment = "processed";
+const PROGRAM_ID = "4p78LV6o9gdZ6YJ3yABSbp3mVq9xXa4NqheXTB1fa4LJ"
 
 const Modal: React.FC<ModalProps> = ({ organization, isOpen, setIsOpen }) => {
   const [quoteLoading, setQuoteloading] = React.useState(false);
@@ -18,7 +24,19 @@ const Modal: React.FC<ModalProps> = ({ organization, isOpen, setIsOpen }) => {
   const [fromAmount, setFromAmount] = useState<number>(0);
 
   const connection = new Connection("https://api.mainnet-beta.solana.com");
-  const wallet = useWallet();
+  const { publicKey, sendTransaction } = useWallet();
+  const wallet = useAnchorWallet();
+
+  if(!wallet) return
+  if (!publicKey) throw new WalletNotConnectedError();
+
+  const provider = new AnchorProvider(connection, wallet, {
+    preflightCommitment,
+    commitment,
+  });
+
+  const program = new Program(IDL, PROGRAM_ID, provider);
+
   
   const getSwapQuote = async (amount: number) => {
     if(!quoteLoading) {
@@ -41,18 +59,12 @@ const Modal: React.FC<ModalProps> = ({ organization, isOpen, setIsOpen }) => {
   }
 
 const donate = async () => {
-  const {signatureIx, donateIx, charityWallet2, matchDonationState} = await getDonate(organization.id, fromAmount, new PublicKey(publicKey));
+  const {signatureIx, donateIx, charityWallet2, matchDonationState} = await getDonate(organization.id, fromAmount, new PublicKey(publicKey), program);
   const tx = new Transaction().add(signatureIx).add(donateIx);
   const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
   tx.recentBlockhash = blockhash;
   tx.lastValidBlockHeight = lastValidBlockHeight;
-  const signedTx = await wallet.signTransaction(tx);
-  const signature = await connection.sendRawTransaction(
-      signedTx.serialize(),
-      {
-          skipPreflight: false,
-      }
-  );
+  const signature = await sendTransaction(tx, connection);
   const result = await connection.confirmTransaction(
       {
           signature,
@@ -66,7 +78,7 @@ const donate = async () => {
   }
 
   if (fromAmount >= 1 && matchDonationState) {
-    const matchAndFinalizeSignature = await matchAndFinalize(charityWallet2, matchDonationState);
+    const matchAndFinalizeSignature = await matchAndFinalize(new PublicKey(charityWallet2), matchDonationState);
     return signature && matchAndFinalizeSignature;
   } else {
     return signature;
@@ -74,9 +86,9 @@ const donate = async () => {
 };
 
 const matchAndFinalize = async (charityWallet2: PublicKey, matchDonationState: PublicKey) => {
-      const {matchIx, swapIx, finalizeIx, addressLookupTableAccounts} = await getMatchAndFinalize(fromAmount, charityWallet2, matchDonationState);
+      const {matchIx, swapIx, finalizeIx, addressLookupTableAccounts} = await getMatchAndFinalize(fromAmount, charityWallet2, matchDonationState, program);
       const connection = new Connection("https://api.mainnet-beta.solana.com");
-      const blockhash = (await connection.getLatestBlockhash()).blockhash;
+      const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
       const messageV0 = new TransactionMessage({
           payerKey: authority.publicKey,
           recentBlockhash: blockhash,
