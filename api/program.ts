@@ -1,20 +1,10 @@
 import { Address, AnchorProvider, BN, Program } from "@coral-xyz/anchor";
-import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
 import { ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, getAssociatedTokenAddressSync } from "@solana/spl-token";
 import { AddressLookupTableAccount, Connection, Ed25519Program, Keypair, LAMPORTS_PER_SOL, PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY, SystemProgram, TransactionInstruction } from "@solana/web3.js";
 import { randomBytes } from "crypto";
 
-const PROGRAM_ID = "4p78LV6o9gdZ6YJ3yABSbp3mVq9xXa4NqheXTB1fa4LJ"
-const AUTH_WALLET = ""
-
-// export const getProgram = () => {
-//     const provider = new AnchorProvider(
-//         new Connection("https://api.mainnet-beta.solana.com"),
-//         new NodeWallet(Keypair.generate()),
-//         AnchorProvider.defaultOptions()
-//     );
-//     return new Program(IDL, PROGRAM_ID, provider);
-// };
+const auth_keypair = JSON.parse(process.env.KEYPAIR!);
+const AUTH_WALLET = Keypair.fromSecretKey(new Uint8Array(auth_keypair))
 
 export const deserializeInstruction = (instruction: any) => {
   return new TransactionInstruction({
@@ -55,24 +45,38 @@ const addressLookupTableAccounts: AddressLookupTableAccount[] = [];
 
 // @resiquent: do this
 export const getOrgData = async (
-    id: number,
-    match: boolean
+  id: number,
+  match: boolean,
+  amountDonated: number,
 ) => {
-    const res = await fetch(`http://localhost:4500/api/getDonationAddress`);
+  //need to fill thisdata with actual values
+  const data = {
+    organizationId: id,
+    isAnon: true,
+    pledgeCurrency: "SOL",
+    pledgeAmount: amountDonated.toString(),
+    receiptEmail: "test-email-address@thegivingblock.com"
+  }
+  const options = {
+    method: 'POST',
+    headers: {
+    'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+    };
+  const res = await fetch(`http://localhost:4500/api/getDonationAddress`, options);
+  const json = await res.json();
+  const charityWallet1 = new PublicKey(json.donationAddress);
+  let charityWallet2 = PublicKey.default;;
+  if (match) {
+    const res = await fetch(`http://localhost:4500/api/getDonationAddress`,options);
     const json = await res.json();
-    const charityWallet1 = json.donationAddress;
-    let charityWallet2 = "";
-    if (match) {
-      const res = await fetch(`http://localhost:4500/api/getDonationAddress`);
-      const json = await res.json();
-      charityWallet2 = json.donationAddress;   
-    }else{
-      charityWallet2 = PublicKey.default.toString();
-    }
-    return {
-        charityWallet1,
-        charityWallet2,
-    }
+    charityWallet2 = new PublicKey(json.donationAddress);   
+  }
+  return {
+      charityWallet1,
+      charityWallet2,
+  }
 } 
 
 export const getDonate = async (
@@ -95,11 +99,11 @@ export const getDonate = async (
         matchDonationState = null;
     }
 
-    const { charityWallet1, charityWallet2 } = await getOrgData(id, match);
+    const { charityWallet1, charityWallet2 } = await getOrgData(id, match, amountDonated);
 
     const signatureIx = Ed25519Program.createInstructionWithPrivateKey({
         // ADD THE PRIVATE KEY SIGNER HERE
-        privateKey: ,
+        privateKey: AUTH_WALLET.secretKey,
         message: Buffer.concat([new BN(id).toBuffer('le', 8), charityWallet1.toBuffer(), charityWallet2.toBuffer()]),
     });
 

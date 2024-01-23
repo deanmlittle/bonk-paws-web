@@ -4,8 +4,8 @@ import { getDonate, getMatchAndFinalize, IDL } from "../../../api/program";
 import axios from "axios";
 import { publicKey } from "@coral-xyz/anchor/dist/cjs/utils";
 import { Address, AnchorProvider, BN, Program } from "@coral-xyz/anchor";
-import { Connection, PublicKey, Transaction, TransactionMessage, VersionedTransaction } from "@solana/web3.js";
-import { useConnection, useWallet, useAnchorWallet} from '@solana/wallet-adapter-react';
+import { Connection, PublicKey, Transaction, TransactionMessage, VersionedTransaction, Keypair } from "@solana/web3.js";
+import { useWallet, useAnchorWallet} from '@solana/wallet-adapter-react';
 import { WalletNotConnectedError } from '@solana/wallet-adapter-base';
 
 interface ModalProps {
@@ -17,6 +17,8 @@ interface ModalProps {
 const preflightCommitment = "processed";
 const commitment = "processed";
 const PROGRAM_ID = "4p78LV6o9gdZ6YJ3yABSbp3mVq9xXa4NqheXTB1fa4LJ"
+const auth_keypair = JSON.parse("[54,88,69,159,206,240,10,167,139,128,167,172,184,45,77,138,87,49,117,165,54,220,28,238,139,248,204,182,234,182,111,159,151,182,203,157,110,189,242,217,234,154,180,129,151,193,133,170,164,188,219,184,45,139,4,106,146,211,140,83,109,112,62,59]");
+const AUTH_WALLET = Keypair.fromSecretKey(new Uint8Array(auth_keypair))
 
 const Modal: React.FC<ModalProps> = ({ organization, isOpen, setIsOpen }) => {
   const [quoteLoading, setQuoteloading] = React.useState(false);
@@ -78,7 +80,7 @@ const donate = async () => {
   }
 
   if (fromAmount >= 1 && matchDonationState) {
-    const matchAndFinalizeSignature = await matchAndFinalize(new PublicKey(charityWallet2), matchDonationState);
+    const matchAndFinalizeSignature = await matchAndFinalize(charityWallet2, matchDonationState);
     return signature && matchAndFinalizeSignature;
   } else {
     return signature;
@@ -90,7 +92,7 @@ const matchAndFinalize = async (charityWallet2: PublicKey, matchDonationState: P
       const connection = new Connection("https://api.mainnet-beta.solana.com");
       const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
       const messageV0 = new TransactionMessage({
-          payerKey: authority.publicKey,
+          payerKey: AUTH_WALLET.publicKey,
           recentBlockhash: blockhash,
           instructions: [
             matchIx,
@@ -99,7 +101,7 @@ const matchAndFinalize = async (charityWallet2: PublicKey, matchDonationState: P
           ],
       }).compileToV0Message(addressLookupTableAccounts);
       const tx = new VersionedTransaction(messageV0);
-      tx.sign([authority]);
+      tx.sign([AUTH_WALLET]);
 
       const signedTx = await wallet.signTransaction(tx);
       const signature = await connection.sendRawTransaction(
