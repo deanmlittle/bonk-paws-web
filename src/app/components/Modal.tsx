@@ -5,7 +5,7 @@ import axios from "axios";
 import { publicKey } from "@coral-xyz/anchor/dist/cjs/utils";
 import { Address, AnchorProvider, BN, Program } from "@coral-xyz/anchor";
 import { Connection, PublicKey, Transaction, TransactionMessage, VersionedTransaction, Keypair } from "@solana/web3.js";
-import { useWallet, useAnchorWallet} from '@solana/wallet-adapter-react';
+import { useWallet, useAnchorWallet, useConnection} from '@solana/wallet-adapter-react';
 import { WalletNotConnectedError } from '@solana/wallet-adapter-base';
 
 interface ModalProps {
@@ -25,7 +25,8 @@ const Modal: React.FC<ModalProps> = ({ organization, isOpen, setIsOpen }) => {
   const [quoteAmount, setQuoteAmount] =useState<number>(0);
   const [fromAmount, setFromAmount] = useState<number>(0);
 
-  const connection = new Connection("https://api.mainnet-beta.solana.com");
+  // const connection = new Connection("https://api.mainnet-beta.solana.com");
+  const {connection} = useConnection();
   const { publicKey, sendTransaction } = useWallet();
   const wallet = useAnchorWallet();
 
@@ -79,12 +80,12 @@ const donate = async () => {
       throw Error(JSON.stringify(result.value.err));
   }
 
-  if (fromAmount >= 1 && matchDonationState) {
-    const matchAndFinalizeSignature = await matchAndFinalize(charityWallet2, matchDonationState);
-    return signature && matchAndFinalizeSignature;
-  } else {
-    return signature;
-  }
+  // if (fromAmount >= 1 && matchDonationState) {
+  //   const matchAndFinalizeSignature = await matchAndFinalize(charityWallet2, matchDonationState);
+  //   return signature && matchAndFinalizeSignature;
+  // } else {
+  //   return signature;
+  // }
 };
 
 const matchAndFinalize = async (charityWallet2: PublicKey, matchDonationState: PublicKey) => {
@@ -180,6 +181,7 @@ const matchAndFinalize = async (charityWallet2: PublicKey, matchDonationState: P
                         className={`bg-red-500 hover:bg-red-400 text-white font-semibold w-full py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline ${quoteLoading || fromAmount === 0 ? 'opacity-20' : ''}`}
                         type="button"
                         disabled={fromAmount === 0 || quoteLoading}
+                        onClick={donate}
                       >
                         Donate
                       </button>

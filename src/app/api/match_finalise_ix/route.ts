@@ -1,7 +1,8 @@
 import { Address, AnchorProvider, BN, Program } from "@coral-xyz/anchor";
 import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
 import { ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, getAssociatedTokenAddressSync } from "@solana/spl-token";
-import { AddressLookupTableAccount, Connection, Ed25519Program, Keypair, LAMPORTS_PER_SOL, PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY, SystemProgram, TransactionInstruction } from "@solana/web3.js";
+import { AddressLookupTableAccount, Connection, Ed25519Program, Keypair, LAMPORTS_PER_SOL, PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY, SystemProgram, TransactionInstruction, TransactionMessage,  VersionedTransaction} from "@solana/web3.js";
+
 import { randomBytes } from "crypto";
 import { NextResponse } from "next/server";
 
@@ -61,12 +62,10 @@ const addressLookupTableAccounts: AddressLookupTableAccount[] = [];
 
 const getMatchAndFinalize = async (
     amountDonated: number,
-    charity_str: string,
-    matchDonationState_str: string,
+    charity: PublicKey,
+    matchDonationState: PublicKey,
   ) => {
     const program = getProgram(); 
-    const charity = new PublicKey(charity_str);
-    const matchDonationState = new PublicKey(matchDonationState_str);
     const authority = new PublicKey(AUTH_WALLET);
     const bonk = new PublicKey("DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263")
     const authorityBonk = getAssociatedTokenAddressSync(bonk, authority,);
@@ -165,13 +164,54 @@ const getMatchAndFinalize = async (
     };
   };
 
+  const matchAndFinalize = async (amountDonated: number, charityWallet2_str: string, matchDonationState_str: string) => {
+    const charityWallet2 = new PublicKey(charityWallet2_str);
+    const matchDonationState = new PublicKey(matchDonationState_str);
+    const {matchIx, swapIx, finalizeIx, addressLookupTableAccounts} = await getMatchAndFinalize(amountDonated, charityWallet2, matchDonationState);
+    const connection = new Connection("https://api.mainnet-beta.solana.com");
+    const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+    const messageV0 = new TransactionMessage({
+        payerKey: AUTH_WALLET.publicKey,
+        recentBlockhash: blockhash,
+        instructions: [
+          matchIx,
+          swapIx,
+          finalizeIx,
+        ],
+    }).compileToV0Message(addressLookupTableAccounts);
+    const tx = new VersionedTransaction(messageV0);
+    tx.sign([AUTH_WALLET]);
+
+    const signedTx = await wallet.signTransaction(tx);
+    const signature = await connection.sendRawTransaction(
+        signedTx.serialize(),
+        {
+            skipPreflight: false,
+        }
+    );
+    const result = await connection.confirmTransaction(
+        {
+            signature,
+            blockhash,
+            lastValidBlockHeight,
+        },
+        `confirmed`
+    );
+
+    return signature
+// if (result && result.value && result.value.err) {
+//     throw Error(JSON.stringify(result.value.err));
+// }
+
+}
+
 export async function POST(request:any){
   const {
     amountDonated,
     charity,
     matchDonationState,
   } = await request.json();
-  const match_finalise_ixs =  await getMatchAndFinalize(amountDonated, charity, matchDonationState);
+  const match_finalise_ixs =  await matchAndFinalize(amountDonated, charity, matchDonationState);
   const match_finalise_ixs_json = JSON.stringify(match_finalise_ixs);
   return NextResponse.json(match_finalise_ixs_json,{status:201})
 }

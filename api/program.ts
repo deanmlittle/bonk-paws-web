@@ -66,6 +66,7 @@ export const getOrgData = async (
     };
   const res = await fetch(`http://localhost:4500/api/getDonationAddress`, options);
   const json = await res.json();
+  console.log(json);
   const charityWallet1 = new PublicKey(json.donationAddress);
   let charityWallet2 = PublicKey.default;;
   if (match) {
@@ -100,12 +101,37 @@ export const getDonate = async (
     }
 
     const { charityWallet1, charityWallet2 } = await getOrgData(id, match, amountDonated);
+    const bufid = new BN(id);
+    console.log(Buffer.from(bufid.toString()));
 
     const signatureIx = Ed25519Program.createInstructionWithPrivateKey({
         // ADD THE PRIVATE KEY SIGNER HERE
         privateKey: AUTH_WALLET.secretKey,
-        message: Buffer.concat([new BN(id).toBuffer('le', 8), charityWallet1.toBuffer(), charityWallet2.toBuffer()]),
+        message: Buffer.concat([Buffer.from(bufid.toString()), charityWallet1.toBuffer(), charityWallet2.toBuffer()]),
     });
+
+    // fetch to avoid using env
+    // const data =  {
+    //   charityWallet1,
+    //   charityWallet2,
+    //   id
+    // }
+    // const signoptions = {
+    //   method: 'POST',
+    //   headers: {
+    //   'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify(data),
+    //   };
+    // const res = await fetch("http://localhost:3000/api/signsig", signoptions);
+
+    // if (res.ok) {
+    //   const json = res.json();
+    //   console.log(json);
+    // } else {
+    //   throw new Error("Failed to create a topic");
+    // }
+    
 
     const donateIx = await program.methods
     .donate(seed, new BN(amountDonated * LAMPORTS_PER_SOL))
