@@ -13,27 +13,31 @@ const Balance = () => {
     const { publicKey, connected } = useWallet();
     const [ isLoading, setIsLoading ] = useState(false);
     const [ balance, setBalance ] = useState(0);
-    const getBalance = async (publicKey: PublicKey) => {
-        if(!isLoading) {
-            setIsLoading(true);
-            try {
-                const ata = getAssociatedTokenAddressSync(new PublicKey("DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263"), publicKey);
-                const balance = await connection.getTokenAccountBalance(ata);
-                setBalance(balance.value.uiAmount || 0)
-            } catch(e) {
-                console.log(e);
-                setBalance(0);
-            }
-            setIsLoading(false);
-            setTimeout(async () => { await getBalance(publicKey) }, 15000);
-        }
-    }
+   
 
     useEffect(() => {
-        if (publicKey) {        
-          getBalance(publicKey);
+        const getBalance = async (publicKey: PublicKey) => {
+            if(!isLoading) {
+                setIsLoading(true);
+                try {
+                    const ata = console.log(getAssociatedTokenAddressSync(new PublicKey("DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263"), publicKey));
+                    const balance = undefined
+                    setBalance(balance?.value?.uiAmount || 0)
+                } catch(e) {
+                    console.log(e);
+                    setBalance(0);
+                }
+                setIsLoading(false);
+            }
         }
-    }, [publicKey]);
+        if (publicKey) {        
+            let timer = setTimeout(async () => { await getBalance(publicKey) }, 15000);
+
+            return () => {
+                clearTimeout(timer);
+              };
+        }
+    }, [isLoading, publicKey]);
 
     if (!publicKey) return
 

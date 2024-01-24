@@ -22,8 +22,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <WalletAdapter>
-        <Header />
+  
         <body className={inter.className}>{children}
+        <Header />
         <Footer/></body>
       </WalletAdapter>
     </html>
