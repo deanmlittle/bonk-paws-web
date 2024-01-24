@@ -33,12 +33,7 @@ const Modal: React.FC<ModalProps> = ({ organization, isOpen, setIsOpen }) => {
   if(!wallet) return
   if (!publicKey) throw new WalletNotConnectedError();
 
-  const provider = new AnchorProvider(connection, wallet, {
-    preflightCommitment,
-    commitment,
-  });
-
-  const program = new Program(IDL, PROGRAM_ID, provider);
+  
 
   
   const getSwapQuote = async (amount: number) => {
@@ -62,6 +57,12 @@ const Modal: React.FC<ModalProps> = ({ organization, isOpen, setIsOpen }) => {
   }
 
 const donate = async () => {
+  const provider = new AnchorProvider(connection, wallet, {
+    preflightCommitment,
+    commitment,
+  });
+
+  const program = new Program(IDL, PROGRAM_ID, provider);
   const {signatureIx, donateIx, charityWallet2, matchDonationState} = await getDonate(organization.id, fromAmount, new PublicKey(publicKey), program);
   const tx = new Transaction().add(signatureIx).add(donateIx);
   const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
@@ -88,42 +89,48 @@ const donate = async () => {
   // }
 };
 
-const matchAndFinalize = async (charityWallet2: PublicKey, matchDonationState: PublicKey) => {
-      const {matchIx, swapIx, finalizeIx, addressLookupTableAccounts} = await getMatchAndFinalize(fromAmount, charityWallet2, matchDonationState, program);
-      const connection = new Connection("https://api.mainnet-beta.solana.com");
-      const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
-      const messageV0 = new TransactionMessage({
-          payerKey: AUTH_WALLET.publicKey,
-          recentBlockhash: blockhash,
-          instructions: [
-            matchIx,
-            swapIx,
-            finalizeIx,
-          ],
-      }).compileToV0Message(addressLookupTableAccounts);
-      const tx = new VersionedTransaction(messageV0);
-      tx.sign([AUTH_WALLET]);
+// const matchAndFinalize = async (charityWallet2: PublicKey, matchDonationState: PublicKey) => {
+//   const provider = new AnchorProvider(connection, wallet, {
+//     preflightCommitment,
+//     commitment,
+//   });
 
-      const signedTx = await wallet.signTransaction(tx);
-      const signature = await connection.sendRawTransaction(
-          signedTx.serialize(),
-          {
-              skipPreflight: false,
-          }
-      );
-      const result = await connection.confirmTransaction(
-          {
-              signature,
-              blockhash,
-              lastValidBlockHeight,
-          },
-          `confirmed`
-      );
-  if (result && result.value && result.value.err) {
-      throw Error(JSON.stringify(result.value.err));
-  }
+//   const program = new Program(IDL, PROGRAM_ID, provider);
+//       const {matchIx, swapIx, finalizeIx, addressLookupTableAccounts} = await getMatchAndFinalize(fromAmount, charityWallet2, matchDonationState, program);
+//       const connection = new Connection("https://api.mainnet-beta.solana.com");
+//       const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+//       const messageV0 = new TransactionMessage({
+//           payerKey: AUTH_WALLET.publicKey,
+//           recentBlockhash: blockhash,
+//           instructions: [
+//             matchIx,
+//             swapIx,
+//             finalizeIx,
+//           ],
+//       }).compileToV0Message(addressLookupTableAccounts);
+//       const tx = new VersionedTransaction(messageV0);
+//       tx.sign([AUTH_WALLET]);
 
-}
+//       const signedTx = await wallet.signTransaction(tx);
+//       const signature = await connection.sendRawTransaction(
+//           signedTx.serialize(),
+//           {
+//               skipPreflight: false,
+//           }
+//       );
+//       const result = await connection.confirmTransaction(
+//           {
+//               signature,
+//               blockhash,
+//               lastValidBlockHeight,
+//           },
+//           `confirmed`
+//       );
+//   if (result && result.value && result.value.err) {
+//       throw Error(JSON.stringify(result.value.err));
+//   }
+
+// }
   return (
     <>
       {organization && isOpen ? (

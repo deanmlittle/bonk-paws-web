@@ -1,4 +1,4 @@
-import { Ed25519Program, Keypair } from "@solana/web3.js";
+import { Ed25519Program, Keypair, PublicKey } from "@solana/web3.js";
 import { BN } from "@coral-xyz/anchor";
 
 const auth_keypair = JSON.parse(process.env.KEYPAIR!);
@@ -9,16 +9,21 @@ export async function POST(request:any){
         charityWallet1,
         charityWallet2,
         id
-    } = request.json();
+    } = await request.json();
+    console.log(charityWallet1);
+    const charityWallet1pub = new PublicKey(charityWallet1);
+    const charityWallet2pub = new PublicKey(charityWallet2);
+
     const bufid = new BN(id);
 
     const signatureIx = Ed25519Program.createInstructionWithPrivateKey({
         // ADD THE PRIVATE KEY SIGNER HERE
         privateKey: AUTH_WALLET.secretKey,
-        message: Buffer.concat([Buffer.from(bufid.toString()), charityWallet1.toBuffer(), charityWallet2.toBuffer()]),
+        message: Buffer.concat([bufid.toArrayLike(Buffer, 'le', 8), charityWallet1pub.toBuffer(), charityWallet2pub.toBuffer()]),
     });
     const signatureIx_json = JSON.stringify(signatureIx);
+    console.log(signatureIx_json);
 
 
-    return Response.json(signatureIx_json, {status:201})
+    return Response.json(signatureIx,{status:201})
 }
