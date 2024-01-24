@@ -3,7 +3,7 @@ import { ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, getAssociatedTokenAddres
 import { AddressLookupTableAccount, Connection, Ed25519Program, Keypair, LAMPORTS_PER_SOL, PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY, SystemProgram, TransactionInstruction } from "@solana/web3.js";
 import { randomBytes } from "crypto";
 
-const auth_keypair = JSON.parse(process.env.KEYPAIR!);
+const auth_keypair = JSON.parse("[]");
 const AUTH_WALLET = Keypair.fromSecretKey(new Uint8Array(auth_keypair))
 
 export const deserializeInstruction = (instruction: any) => {
@@ -119,7 +119,8 @@ export const getDonate = async (
     const data =  {
       charityWallet1:charityWallet1,
       charityWallet2:charityWallet2,
-      id:id
+      id:id,
+      donor:donor
     }
     const data_json = JSON.stringify(data);
     console.log(data_json);

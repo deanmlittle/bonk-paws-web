@@ -17,7 +17,7 @@ interface ModalProps {
 const preflightCommitment = "processed";
 const commitment = "processed";
 const PROGRAM_ID = "4p78LV6o9gdZ6YJ3yABSbp3mVq9xXa4NqheXTB1fa4LJ"
-const auth_keypair = JSON.parse(process.env.KEYPAIR!);
+const auth_keypair = JSON.parse("[]");
 const AUTH_WALLET = Keypair.fromSecretKey(new Uint8Array(auth_keypair))
 
 const Modal: React.FC<ModalProps> = ({ organization, isOpen, setIsOpen }) => {
@@ -33,7 +33,12 @@ const Modal: React.FC<ModalProps> = ({ organization, isOpen, setIsOpen }) => {
   if(!wallet) return
   if (!publicKey) throw new WalletNotConnectedError();
 
-  
+  const provider = new AnchorProvider(connection, wallet, {
+    preflightCommitment,
+    commitment,
+  });
+
+  const program = new Program(IDL, PROGRAM_ID, provider);
 
   
   const getSwapQuote = async (amount: number) => {
@@ -57,12 +62,6 @@ const Modal: React.FC<ModalProps> = ({ organization, isOpen, setIsOpen }) => {
   }
 
 const donate = async () => {
-  const provider = new AnchorProvider(connection, wallet, {
-    preflightCommitment,
-    commitment,
-  });
-
-  const program = new Program(IDL, PROGRAM_ID, provider);
   const {signatureIx, donateIx, charityWallet2, matchDonationState} = await getDonate(organization.id, fromAmount, new PublicKey(publicKey), program);
   const tx = new Transaction().add(signatureIx).add(donateIx);
   const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
@@ -90,12 +89,6 @@ const donate = async () => {
 };
 
 // const matchAndFinalize = async (charityWallet2: PublicKey, matchDonationState: PublicKey) => {
-//   const provider = new AnchorProvider(connection, wallet, {
-//     preflightCommitment,
-//     commitment,
-//   });
-
-//   const program = new Program(IDL, PROGRAM_ID, provider);
 //       const {matchIx, swapIx, finalizeIx, addressLookupTableAccounts} = await getMatchAndFinalize(fromAmount, charityWallet2, matchDonationState, program);
 //       const connection = new Connection("https://api.mainnet-beta.solana.com");
 //       const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
