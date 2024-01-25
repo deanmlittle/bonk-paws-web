@@ -67,7 +67,7 @@ const donate = async () => {
   const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
   tx.recentBlockhash = blockhash;
   tx.lastValidBlockHeight = lastValidBlockHeight;
-  const signature = await sendTransaction(tx, connection);
+  const signature = await sendTransaction(tx, connection,{skipPreflight:true});
   const result = await connection.confirmTransaction(
       {
           signature,

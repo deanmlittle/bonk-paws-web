@@ -140,6 +140,7 @@ export const getDonate = async (
       throw new Error("Failed to create a sign ix");
     }
     console.log(amountDonated);
+    console.log(matchDonationState);
 
     const donateIx = await program.methods
     .donate(seed, new BN(amountDonated * LAMPORTS_PER_SOL))
