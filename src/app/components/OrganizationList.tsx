@@ -29,7 +29,7 @@ const OrganizationList: React.FC<{}> = () => {
     },[])
     return (
       <div>
-        <Modal organization={modalOrganization}  isOpen={isOpen} setIsOpen={setIsOpen} />
+        {modalOrganization && <Modal organization={modalOrganization}  isOpen={isOpen} setIsOpen={setIsOpen} />}
         <div className='flex flex-wrap justify-center'>
           <input className='text-black mx-20 sm:mt-10 lg:mt-0 p-3 rounded w-1/2' type="text" id = "search"  placeholder="Search for Charities..."
             onChange={(e)=>setSearch(e.target.value)}/>
