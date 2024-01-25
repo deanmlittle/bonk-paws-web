@@ -1,6 +1,6 @@
 import { Organization } from "@/types";
 import React, { useEffect, useState } from "react";
-import { getDonate, getMatchAndFinalize, IDL } from "../../../api/program";
+import { getDonate, IDL, getMatchAndFinalize } from "../../../api/program";
 import axios from "axios";
 import { publicKey } from "@coral-xyz/anchor/dist/cjs/utils";
 import { Address, AnchorProvider, BN, Program } from "@coral-xyz/anchor";
@@ -16,16 +16,13 @@ interface ModalProps {
 
 const preflightCommitment = "processed";
 const commitment = "processed";
-const PROGRAM_ID = "4p78LV6o9gdZ6YJ3yABSbp3mVq9xXa4NqheXTB1fa4LJ"
-const auth_keypair = JSON.parse("[]");
-const AUTH_WALLET = Keypair.fromSecretKey(new Uint8Array(auth_keypair))
+const PROGRAM_ID = "4p78LV6o9gdZ6YJ3yABSbp3mVq9xXa4NqheXTB1fa4LJ";
 
 const Modal: React.FC<ModalProps> = ({ organization, isOpen, setIsOpen }) => {
   const [quoteLoading, setQuoteloading] = React.useState(false);
   const [quoteAmount, setQuoteAmount] =useState<number>(0);
   const [fromAmount, setFromAmount] = useState<number>(0);
 
-  // const connection = new Connection("https://api.mainnet-beta.solana.com");
   const {connection} = useConnection();
   const { publicKey, sendTransaction } = useWallet();
   const wallet = useAnchorWallet();
@@ -45,6 +42,7 @@ const Modal: React.FC<ModalProps> = ({ organization, isOpen, setIsOpen }) => {
     if(!quoteLoading) {
       setQuoteloading(true);
       try {
+        amount = amount * 10_000
         const { data: quote } = await axios.get(`https://quote-api.jup.ag/v6/quote?inputMint=DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263&outputMint=So11111111111111111111111111111111111111112&amount=${amount}&swapMode=ExactOut&slippageBps=50`);
         setQuoteAmount((quote.inAmount));
         setQuoteloading(false);
@@ -62,8 +60,8 @@ const Modal: React.FC<ModalProps> = ({ organization, isOpen, setIsOpen }) => {
   }
 
 const donate = async () => {
-  const {signatureIx, donateIx, charityWallet2, matchDonationState} = await getDonate(organization.id, fromAmount, new PublicKey(publicKey), program);
-  const tx = new Transaction().add(signatureIx).add(donateIx);
+  const {txIx, donateIx, charityWallet2, matchDonationState} = await getDonate(organization.id, fromAmount, new PublicKey(publicKey), program);
+  const tx = new Transaction().add(txIx).add(donateIx);
   const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
   tx.recentBlockhash = blockhash;
   tx.lastValidBlockHeight = lastValidBlockHeight;
@@ -78,19 +76,41 @@ const donate = async () => {
   );
   if (result && result.value && result.value.err) {
       throw Error(JSON.stringify(result.value.err));
-  }
+  };
 
-  // if (fromAmount >= 1 && matchDonationState) {
-  //   const matchAndFinalizeSignature = await matchAndFinalize(charityWallet2, matchDonationState);
-  //   return signature && matchAndFinalizeSignature;
-  // } else {
-  //   return signature;
-  // }
+
+  if (fromAmount >= 0 && matchDonationState) {
+    // const matchAndFinalizeSignature = await matchAndFinalize(charityWallet2, matchDonationState);
+    // fetch to avoid using env
+    const data =  {
+      fromAmount:fromAmount,
+      charityWallet2:charityWallet2,
+      matchDonationState:matchDonationState
+    }
+    const data_json = JSON.stringify(data);
+    console.log(data_json);
+    const matchAndFinalizeoptions = {
+      method: 'POST',
+      headers: {
+      'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+      };
+    const res = await fetch("http://localhost:3000/api/matchFinaliseIx", matchAndFinalizeoptions);
+    
+
+    if (!res.ok) {
+      throw new Error("Failed to create with match and finalise");
+    } 
+    const matchAndFinalizeSignature = await res.json();
+    return signature && matchAndFinalizeSignature;
+  } else {
+    return signature;
+  }
 };
 
 // const matchAndFinalize = async (charityWallet2: PublicKey, matchDonationState: PublicKey) => {
 //       const {matchIx, swapIx, finalizeIx, addressLookupTableAccounts} = await getMatchAndFinalize(fromAmount, charityWallet2, matchDonationState, program);
-//       const connection = new Connection("https://api.mainnet-beta.solana.com");
 //       const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
 //       const messageV0 = new TransactionMessage({
 //           payerKey: AUTH_WALLET.publicKey,
@@ -101,27 +121,10 @@ const donate = async () => {
 //             finalizeIx,
 //           ],
 //       }).compileToV0Message(addressLookupTableAccounts);
-//       const tx = new VersionedTransaction(messageV0);
-//       tx.sign([AUTH_WALLET]);
+//       const transaction = new VersionedTransaction(messageV0);
+//       transaction.sign([AUTH_WALLET]);
 
-//       const signedTx = await wallet.signTransaction(tx);
-//       const signature = await connection.sendRawTransaction(
-//           signedTx.serialize(),
-//           {
-//               skipPreflight: false,
-//           }
-//       );
-//       const result = await connection.confirmTransaction(
-//           {
-//               signature,
-//               blockhash,
-//               lastValidBlockHeight,
-//           },
-//           `confirmed`
-//       );
-//   if (result && result.value && result.value.err) {
-//       throw Error(JSON.stringify(result.value.err));
-//   }
+//       const txid = await connection.sendTransaction(transaction, {skipPreflight:true});
 
 // }
   return (
