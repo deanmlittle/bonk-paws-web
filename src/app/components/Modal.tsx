@@ -14,19 +14,15 @@ interface ModalProps {
   setIsOpen: (isOpen: boolean) => void;
 }
 
-
 const preflightCommitment = "processed";
 const commitment = "processed";
-const PROGRAM_ID = "4p78LV6o9gdZ6YJ3yABSbp3mVq9xXa4NqheXTB1fa4LJ"
-const auth_keypair = JSON.parse("[]");
-const AUTH_WALLET = Keypair.fromSecretKey(new Uint8Array(auth_keypair))
+const PROGRAM_ID = "4p78LV6o9gdZ6YJ3yABSbp3mVq9xXa4NqheXTB1fa4LJ";
 
 const Modal: React.FC<ModalProps> = ({ organization, isOpen, setIsOpen }) => {
   const [quoteLoading, setQuoteloading] = React.useState(false);
   const [quoteAmount, setQuoteAmount] =useState<number>(0);
   const [fromAmount, setFromAmount] = useState<number>(0);
 
-  // const connection = new Connection("https://api.mainnet-beta.solana.com");
   const {connection} = useConnection();
   const { publicKey, sendTransaction } = useWallet();
   const wallet = useAnchorWallet();
@@ -84,31 +80,53 @@ const donate = async () => {
 
 
   if (fromAmount >= 0 && matchDonationState) {
-    const matchAndFinalizeSignature = await matchAndFinalize(charityWallet2, matchDonationState);
+    // const matchAndFinalizeSignature = await matchAndFinalize(charityWallet2, matchDonationState);
+    // fetch to avoid using env
+    const data =  {
+      fromAmount:fromAmount,
+      charityWallet2:charityWallet2,
+      matchDonationState:matchDonationState
+    }
+    const data_json = JSON.stringify(data);
+    console.log(data_json);
+    const matchAndFinalizeoptions = {
+      method: 'POST',
+      headers: {
+      'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+      };
+    const res = await fetch("http://localhost:3000/api/matchFinaliseIx", matchAndFinalizeoptions);
+    
+
+    if (!res.ok) {
+      throw new Error("Failed to create with match and finalise");
+    } 
+    const matchAndFinalizeSignature = await res.json();
     return signature && matchAndFinalizeSignature;
   } else {
     return signature;
   }
 };
 
-const matchAndFinalize = async (charityWallet2: PublicKey, matchDonationState: PublicKey) => {
-      const {matchIx, swapIx, finalizeIx, addressLookupTableAccounts} = await getMatchAndFinalize(fromAmount, charityWallet2, matchDonationState, program);
-      const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
-      const messageV0 = new TransactionMessage({
-          payerKey: AUTH_WALLET.publicKey,
-          recentBlockhash: blockhash,
-          instructions: [
-            matchIx,
-            swapIx,
-            finalizeIx,
-          ],
-      }).compileToV0Message(addressLookupTableAccounts);
-      const transaction = new VersionedTransaction(messageV0);
-      transaction.sign([AUTH_WALLET]);
+// const matchAndFinalize = async (charityWallet2: PublicKey, matchDonationState: PublicKey) => {
+//       const {matchIx, swapIx, finalizeIx, addressLookupTableAccounts} = await getMatchAndFinalize(fromAmount, charityWallet2, matchDonationState, program);
+//       const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+//       const messageV0 = new TransactionMessage({
+//           payerKey: AUTH_WALLET.publicKey,
+//           recentBlockhash: blockhash,
+//           instructions: [
+//             matchIx,
+//             swapIx,
+//             finalizeIx,
+//           ],
+//       }).compileToV0Message(addressLookupTableAccounts);
+//       const transaction = new VersionedTransaction(messageV0);
+//       transaction.sign([AUTH_WALLET]);
 
-      const txid = await connection.sendTransaction(transaction, {skipPreflight:true});
+//       const txid = await connection.sendTransaction(transaction, {skipPreflight:true});
 
-}
+// }
   return (
     <>
       {organization && isOpen ? (
