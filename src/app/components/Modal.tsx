@@ -1,6 +1,6 @@
 import { Organization } from "@/types";
 import React, { useEffect, useState } from "react";
-import { getDonate, IDL } from "../../../api/program";
+import { getDonate, IDL, getMatchAndFinalize } from "../../../api/program";
 import axios from "axios";
 import { publicKey } from "@coral-xyz/anchor/dist/cjs/utils";
 import { Address, AnchorProvider, BN, Program } from "@coral-xyz/anchor";
@@ -13,6 +13,7 @@ interface ModalProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
 }
+
 
 const preflightCommitment = "processed";
 const commitment = "processed";
@@ -45,6 +46,7 @@ const Modal: React.FC<ModalProps> = ({ organization, isOpen, setIsOpen }) => {
     if(!quoteLoading) {
       setQuoteloading(true);
       try {
+        amount = amount * 10_000
         const { data: quote } = await axios.get(`https://quote-api.jup.ag/v6/quote?inputMint=DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263&outputMint=So11111111111111111111111111111111111111112&amount=${amount}&swapMode=ExactOut&slippageBps=50`);
         setQuoteAmount((quote.inAmount));
         setQuoteloading(false);
@@ -78,52 +80,35 @@ const donate = async () => {
   );
   if (result && result.value && result.value.err) {
       throw Error(JSON.stringify(result.value.err));
-  }
+  };
 
-  // if (fromAmount >= 1 && matchDonationState) {
-  //   const matchAndFinalizeSignature = await matchAndFinalize(charityWallet2, matchDonationState);
-  //   return signature && matchAndFinalizeSignature;
-  // } else {
-  //   return signature;
-  // }
+
+  if (fromAmount >= 0 && matchDonationState) {
+    const matchAndFinalizeSignature = await matchAndFinalize(charityWallet2, matchDonationState);
+    return signature && matchAndFinalizeSignature;
+  } else {
+    return signature;
+  }
 };
 
-// const matchAndFinalize = async (charityWallet2: PublicKey, matchDonationState: PublicKey) => {
-//       const {matchIx, swapIx, finalizeIx, addressLookupTableAccounts} = await getMatchAndFinalize(fromAmount, charityWallet2, matchDonationState, program);
-//       const connection = new Connection("https://api.mainnet-beta.solana.com");
-//       const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
-//       const messageV0 = new TransactionMessage({
-//           payerKey: AUTH_WALLET.publicKey,
-//           recentBlockhash: blockhash,
-//           instructions: [
-//             matchIx,
-//             swapIx,
-//             finalizeIx,
-//           ],
-//       }).compileToV0Message(addressLookupTableAccounts);
-//       const tx = new VersionedTransaction(messageV0);
-//       tx.sign([AUTH_WALLET]);
+const matchAndFinalize = async (charityWallet2: PublicKey, matchDonationState: PublicKey) => {
+      const {matchIx, swapIx, finalizeIx, addressLookupTableAccounts} = await getMatchAndFinalize(fromAmount, charityWallet2, matchDonationState, program);
+      const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+      const messageV0 = new TransactionMessage({
+          payerKey: AUTH_WALLET.publicKey,
+          recentBlockhash: blockhash,
+          instructions: [
+            matchIx,
+            swapIx,
+            finalizeIx,
+          ],
+      }).compileToV0Message(addressLookupTableAccounts);
+      const transaction = new VersionedTransaction(messageV0);
+      transaction.sign([AUTH_WALLET]);
 
-//       const signedTx = await wallet.signTransaction(tx);
-//       const signature = await connection.sendRawTransaction(
-//           signedTx.serialize(),
-//           {
-//               skipPreflight: false,
-//           }
-//       );
-//       const result = await connection.confirmTransaction(
-//           {
-//               signature,
-//               blockhash,
-//               lastValidBlockHeight,
-//           },
-//           `confirmed`
-//       );
-//   if (result && result.value && result.value.err) {
-//       throw Error(JSON.stringify(result.value.err));
-//   }
+      const txid = await connection.sendTransaction(transaction, {skipPreflight:true});
 
-// }
+}
   return (
     <>
       {organization && isOpen ? (

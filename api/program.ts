@@ -18,7 +18,7 @@ export const deserializeInstruction = (instruction: any) => {
 export const getAddressLookupTableAccounts = async (
   keys: string[]
 ): Promise<AddressLookupTableAccount[]> => {
-  const connection = new Connection("https://api.mainnet-beta.solana.com");
+  const connection = new Connection("https://multi-compatible-dream.solana-mainnet.quiknode.pro/ab10715a148f3ffb855f7e7665821f318f1c2cb8/");
   const addressLookupTableAccountInfos =
     await connection.getMultipleAccountsInfo(
       keys.map((key) => new PublicKey(key))
@@ -90,7 +90,7 @@ export const getDonate = async (
 
     let match, matchDonationState;
     if (amountDonated > 0) {
-        matchDonationState = PublicKey.findProgramAddressSync([Buffer.from('match_donation'), seed.toBuffer("le", 8)], program.programId)[0];
+        matchDonationState = PublicKey.findProgramAddressSync([Buffer.from('match_donation'), seed.toArrayLike(Buffer, 'le', 8)], program.programId)[0];
         match = true;
     } else {
         match = false;
@@ -177,8 +177,10 @@ export const getMatchAndFinalize = async (
   const authorityWsol = getAssociatedTokenAddressSync(wsol, authority,);
 
   const donationState = PublicKey.findProgramAddressSync([Buffer.from('donation_state')], program.programId)[0];
+  amountDonated=amountDonated*10_000;
 
   const amountResponse = await (
+    
       await fetch(`https://quote-api.jup.ag/v6/quote?inputMint=DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263&outputMint=So11111111111111111111111111111111111111112&amount=${amountDonated}&swapMode=ExactOut&slippageBps=50`)
   ).json() as { inAmount: string };
   const quoteResponse = await (
