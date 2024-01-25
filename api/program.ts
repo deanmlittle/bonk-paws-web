@@ -3,9 +3,6 @@ import { ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, getAssociatedTokenAddres
 import { AddressLookupTableAccount, Connection, Ed25519Program, Keypair, LAMPORTS_PER_SOL, PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY, SystemProgram, TransactionInstruction } from "@solana/web3.js";
 import { randomBytes } from "crypto";
 
-const auth_keypair = JSON.parse("[]");
-const AUTH_WALLET = Keypair.fromSecretKey(new Uint8Array(auth_keypair))
-
 export const deserializeInstruction = (instruction: any) => {
   return new TransactionInstruction({
     programId: new PublicKey(instruction.programId),
@@ -92,7 +89,7 @@ export const getDonate = async (
     let seed = new BN(randomBytes(8));
 
     let match, matchDonationState;
-    if (amountDonated > 1) {
+    if (amountDonated > 0) {
         matchDonationState = PublicKey.findProgramAddressSync([Buffer.from('match_donation'), seed.toBuffer("le", 8)], program.programId)[0];
         match = true;
     } else {
@@ -108,12 +105,12 @@ export const getDonate = async (
     // console.log(bufid.toBuffer('le', 8));
 
 
-    const signatureIx = Ed25519Program.createInstructionWithPrivateKey({
-        // ADD THE PRIVATE KEY SIGNER HERE
-        privateKey: AUTH_WALLET.secretKey,
-        message: Buffer.concat([bufid.toArrayLike(Buffer, 'le', 8), charityWallet1.toBuffer(), charityWallet2.toBuffer()]),
-    });
-    console.log(signatureIx);
+    // const signatureIx = Ed25519Program.createInstructionWithPrivateKey({
+    //     // ADD THE PRIVATE KEY SIGNER HERE
+    //     privateKey: AUTH_WALLET.secretKey,
+    //     message: Buffer.concat([bufid.toArrayLike(Buffer, 'le', 8), charityWallet1.toBuffer(), charityWallet2.toBuffer()]),
+    // });
+    // console.log(signatureIx);
 
     // fetch to avoid using env
     const data =  {
@@ -132,13 +129,16 @@ export const getDonate = async (
       body: JSON.stringify(data),
       };
     const res = await fetch("http://localhost:3000/api/signsig", signoptions);
+    
 
-    if (res.ok) {
-      const json = await res.json();
-      console.log(json);
-    } else {
+    if (!res.ok) {
       throw new Error("Failed to create a sign ix");
-    }
+    } 
+    const ixdata = await res.text();
+      const parsed = JSON.parse(ixdata, (k, v) => k === 'programId' ? new PublicKey(v) : v);
+      parsed.data = new Uint8Array(parsed.data);
+      const txIx = new TransactionInstruction(parsed);
+      console.log(txIx);
     console.log(amountDonated);
     console.log(matchDonationState);
 
@@ -155,7 +155,7 @@ export const getDonate = async (
     .instruction()
     
     return {
-        signatureIx,
+        txIx,
         donateIx,
         charityWallet2,
         matchDonationState
@@ -170,7 +170,7 @@ export const getMatchAndFinalize = async (
   program:Program<BonkForPaws>
 ) => {
 
-  const authority = new PublicKey(AUTH_WALLET);
+  const authority = new PublicKey("BDEECMrE5dv4cc5na6Fi8sNkfzYxckd6ZjsuEzp7hXnJ");
   const bonk = new PublicKey("DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263")
   const authorityBonk = getAssociatedTokenAddressSync(bonk, authority,);
   const wsol = new PublicKey("So11111111111111111111111111111111111111112")

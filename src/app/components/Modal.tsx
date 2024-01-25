@@ -1,6 +1,6 @@
 import { Organization } from "@/types";
 import React, { useEffect, useState } from "react";
-import { getDonate, getMatchAndFinalize, IDL } from "../../../api/program";
+import { getDonate, IDL } from "../../../api/program";
 import axios from "axios";
 import { publicKey } from "@coral-xyz/anchor/dist/cjs/utils";
 import { Address, AnchorProvider, BN, Program } from "@coral-xyz/anchor";
@@ -62,8 +62,8 @@ const Modal: React.FC<ModalProps> = ({ organization, isOpen, setIsOpen }) => {
   }
 
 const donate = async () => {
-  const {signatureIx, donateIx, charityWallet2, matchDonationState} = await getDonate(organization.id, fromAmount, new PublicKey(publicKey), program);
-  const tx = new Transaction().add(signatureIx).add(donateIx);
+  const {txIx, donateIx, charityWallet2, matchDonationState} = await getDonate(organization.id, fromAmount, new PublicKey(publicKey), program);
+  const tx = new Transaction().add(txIx).add(donateIx);
   const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
   tx.recentBlockhash = blockhash;
   tx.lastValidBlockHeight = lastValidBlockHeight;
