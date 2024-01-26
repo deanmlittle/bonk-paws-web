@@ -76,7 +76,14 @@ const Header: React.FC<{}> = () => {
                 </a>
             </div>
             <div className="flex justify-end">
-                { publicKey ? <Balance /> : <WalletButton onClick={openWalletModal} />  }
+                {publicKey ? (
+                    <>
+                    <Balance />
+                    <button className="ml-4 bg-red-500 hover:bg-red-400 text-white font-semibold py-3 px-5 border border-red-600 hover:border-red-600 rounded-lg">Donation History</button>
+                    </>
+                ) : (
+                    <WalletButton onClick={openWalletModal} />
+                )}
             </div>
         </nav>
     </header>

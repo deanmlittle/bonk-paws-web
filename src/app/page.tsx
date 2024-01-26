@@ -2,16 +2,59 @@
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import React, { useState } from 'react';
 import WalletButton from './components/WalletButton';
-import { useWallet } from '@solana/wallet-adapter-react';
+import { useAnchorWallet, useConnection, useWallet } from '@solana/wallet-adapter-react';
 import OrganizationList from './components/OrganizationList';
+import DonationHistory from './components/donationHistory';
+import { IDL, BonkForPaws } from "../../api/program"
+import { Address, AnchorProvider, Program } from "@coral-xyz/anchor";
+import { PublicKey } from "@solana/web3.js";
+import { WalletNotConnectedError } from "@solana/wallet-adapter-base";
 
 export default function Home() {
   const { publicKey, connected } = useWallet();
-  const { setVisible: setModalVisible } = useWalletModal()
+  const { setVisible: setModalVisible } = useWalletModal();
   const openWalletModal = () => {
-    setModalVisible(true)
-  }
-  const donated = 4303201250;
+    setModalVisible(true);
+  };
+
+  const preflightCommitment = "processed";
+  const commitment = "processed";
+  const PROGRAM_ID = "4p78LV6o9gdZ6YJ3yABSbp3mVq9xXa4NqheXTB1fa4LJ";
+
+  const { connection } = useConnection();
+  const wallet = useAnchorWallet();
+
+  const [donated, setDonated] = React.useState("0");
+  const [burned, setBurned] = React.useState("0");
+  const [isOpen, setIsOpen] = useState(true);
+
+  if(!wallet) return
+  if (!publicKey) throw new WalletNotConnectedError();
+
+  const provider = new AnchorProvider(connection, wallet, {
+    preflightCommitment,
+    commitment,
+  });
+
+  const program = new Program(IDL, PROGRAM_ID, provider);
+
+  const getDonationState = async () => {
+    try {
+      let res = await program.account.donationState.fetch(new PublicKey("7tciFdrfQajryTTZ5ujdZTEJPB6PftKGr4BYyFvYSB4j"));
+      const donatedAmount = res.bonkDonated.toNumber() + res.bonkMatched.toNumber();
+      setDonated(donatedAmount.toString());
+      setBurned(res.bonkBurned.toString());
+    } catch (e) {
+      console.error(e);
+      setDonated("0");
+      setBurned("0");
+    }
+  };
+
+  React.useEffect(() => {
+    getDonationState();
+  }, [program]);
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-between">
       <div className="relative items-center text-center isolate px-6 pt-0 lg:px-8">
@@ -37,6 +80,7 @@ export default function Home() {
         </div>
       </div>
       <OrganizationList />
+      <DonationHistory isOpen={isOpen} setIsOpen={setIsOpen}/>
 
       <div className="relative items-center text-center isolate px-6 mt-20 pt-0 lg:px-8">
         <div className="absolute inset-x-0 -top-40 -z-10 overflow-hidden blur-3xl sm:-top-80" aria-hidden="true">
@@ -53,16 +97,16 @@ export default function Home() {
           </div>
           <h1 id="statistics" className="text-4xl font-bold tracking-tighter text-yellow-950 sm:text-6xl mt-10">Making a difference!</h1>
           <p className="my-6 text-xl leading-8 text-slate-600">
-            Thanks to your generosity, we&apos;ve been able to donate <span className="text-red-500 font-bold">{donated.toLocaleString()}</span> to <span className="text-red-500 font-bold">24</span> charities and counting, all while burning <span className="text-red-500 font-bold">{(donated/100).toLocaleString()}</span> BONK to make our community even stronger!
+            Thanks to your generosity, we&apos;ve been able to donate <span className="text-red-500 font-bold">{donated}</span> to <span className="text-red-500 font-bold">24</span> charities and counting, all while burning <span className="text-red-500 font-bold">{burned}</span> BONK to make our community even stronger!
           </p>
 
           <div className="justify-center grid grid-cols-1 lg:grid-cols-3 gap-4 text-center my-4 mt-8">
               <div className="flex flex-col items-center justify-center border border-yellow-900 bg-yellow-950 bg-opacity-5 border-opacity-10 rounded-lg p-2 px-3">
-                <h2 className="text-2xl font-bold tracking-tight text-yellow-900 sm:text-2xl truncate w-full">{(donated).toLocaleString()}</h2>
+                <h2 className="text-2xl font-bold tracking-tight text-yellow-900 sm:text-2xl truncate w-full">{donated}</h2>
                 <p className="text-gray-700" >Donated</p>
               </div>
               <div className="flex flex-col items-center justify-center border border-yellow-900 bg-yellow-950 bg-opacity-5 border-opacity-10 rounded-lg p-2 px-3">
-                <h2 className="text-2xl font-bold tracking-tight text-yellow-900 sm:text-2xl">{ (donated / 100).toLocaleString()}</h2>
+                <h2 className="text-2xl font-bold tracking-tight text-yellow-900 sm:text-2xl">{burned}</h2>
                 <p className="text-gray-700">Burnt</p>
               </div>
               <div className="flex flex-col items-center justify-center border border-yellow-900 bg-yellow-950 bg-opacity-5 border-opacity-10 rounded-lg p-2 px-3">
