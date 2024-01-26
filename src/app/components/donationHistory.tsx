@@ -14,49 +14,47 @@ const commitment = "processed";
 const PROGRAM_ID = "4p78LV6o9gdZ6YJ3yABSbp3mVq9xXa4NqheXTB1fa4LJ";
 
 const DonationHistory: React.FC<DonationProps> = ({isOpen, setIsOpen }) => {
-  const {connection} = useConnection();
-  const { publicKey } = useWallet();
-  const wallet = useAnchorWallet();
+    const { publicKey, connected } = useWallet();
+    const [donationHistory, setDonationHistory] = useState<{ id: BN; donationAmount: BN; }[]>([]);
+    const { connection } = useConnection();
+    const wallet = useAnchorWallet();
 
-  if (!wallet) return
-  if (!publicKey) throw new WalletNotConnectedError();
+    useEffect(()=>{
+        const getDonationHistory = async () => {
+            if (publicKey) {
+                try {
+                    const provider = new AnchorProvider(connection, wallet!, {
+                    preflightCommitment,
+                    commitment,
+                    });
+                
+                    const program = new Program(IDL, PROGRAM_ID, provider);
 
-  const provider = new AnchorProvider(connection, wallet, {
-    preflightCommitment,
-    commitment,
-  });
-
-  const program = new Program(IDL, PROGRAM_ID, provider);
-
-  const [donationHistory, setDonationHistory] = useState<{ id: BN; donationAmount: BN; }[]>([]);
-
-  useEffect(() => {
-      getDonationHistory();
-  }, []);
-
-  const getDonationHistory = async () => {
-        try {
-            let fetchedHistory = await program.account.donationHistory.all([
-                {
-                memcmp: {
-                    offset: 8,
-                    bytes: publicKey.toBase58(),
-                },
-                },
-            ]);
-            const history = fetchedHistory.map((item) => ({
-                id: item.account.id,
-                donationAmount: item.account.donationAmount,
-            }));
-            setDonationHistory(history);      
-        } catch(e) {
-            console.error(e);
-        }
-    }
+                    let fetchedHistory = await program.account.donationHistory.all([
+                        {
+                        memcmp: {
+                            offset: 8,
+                            bytes: publicKey.toBase58(),
+                        },
+                        },
+                    ]);
+                    const history = fetchedHistory.map((item) => ({
+                        id: item.account.id,
+                        donationAmount: item.account.donationAmount,
+                    }));
+                    setDonationHistory(history);      
+                } catch (e) {
+                    console.error(e);
+                    setDonationHistory([])
+                }
+            }
+        };
+        getDonationHistory();
+    }, [])
 
   return (
     <>
-      {isOpen ? (
+      {isOpen && publicKey? (
         <>
             <div className="justify-center text-black items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none" >
                 <div className="relative max-w-sm w-full my-6 mx-auto">
