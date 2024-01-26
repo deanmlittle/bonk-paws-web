@@ -126,6 +126,7 @@ export const getDonate = async (
       console.log(txIx);
     console.log(amountDonated);
     console.log(matchDonationState);
+    const historyDonationState = PublicKey.findProgramAddressSync([Buffer.from('donation_history'), seed.toArrayLike(Buffer, 'le', 8), donor.toBuffer()], program.programId)[0];
 
     const donateIx = await program.methods
     .donate(seed, new BN(amountDonated * LAMPORTS_PER_SOL))
@@ -134,6 +135,7 @@ export const getDonate = async (
         charity: charityWallet1,
         donationState:donationState, 
         matchDonationState:matchDonationState,
+        donationHistory:historyDonationState,
         instructions: SYSVAR_INSTRUCTIONS_PUBKEY,
         systemProgram: SystemProgram.programId,
     })
