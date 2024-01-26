@@ -42,15 +42,36 @@ const addressLookupTableAccounts: AddressLookupTableAccount[] = [];
 
 export const getOrgData = async (
   id: number,
+  onlyAnon : boolean,
+  email:string,
+  firstName:string,
+  lastName:string,
+  address1:string,
+  address2:string,
+  country:string,
+  state:string,
+  city:string,
+  zipCode:string,
+
   match: boolean,
   amountDonated: number,
+
 ) => {
   const data = {
     organizationId: id,
-    isAnon: true,
+    isAnon: onlyAnon,
     pledgeCurrency: "SOL",
     pledgeAmount: amountDonated.toString(),
-    receiptEmail: "test-email-address@thegivingblock.com"
+    receiptEmail: email,
+    firstName: firstName,
+    lastName: lastName,
+    addressLine1: address1,
+    addressLine2: address2 ,
+    country: country,
+    state: state,
+    city:city,
+    zipcode:zipCode
+
   }
   const options = {
     method: 'POST',
@@ -77,6 +98,17 @@ export const getOrgData = async (
 
 export const getDonate = async (
     id: number,
+    onlyAnon : boolean,
+    email:string,
+    firstName:string,
+    lastName:string,
+    address1:string,
+    address2:string,
+    country:string,
+    state:string,
+    city:string,
+    zipCode:string,
+
     amountDonated: number,
     donor: PublicKey,
     program: Program<BonkForPaws>
@@ -95,7 +127,7 @@ export const getDonate = async (
         matchDonationState = null;
     }
 
-    const { charityWallet1, charityWallet2 } = await getOrgData(id, match, amountDonated);
+    const { charityWallet1, charityWallet2 } = await getOrgData(id, onlyAnon,email, firstName, lastName, address1, address2, country, state, city, zipCode, match, amountDonated);
     const bufid = new BN(id);
 
     const data =  {

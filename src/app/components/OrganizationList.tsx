@@ -12,6 +12,8 @@ const OrganizationList: React.FC<{}> = () => {
     const [organizations, setOrganizations] = useState([]);
     const [search, setSearch] = useState("");
     const [wantReceipt, setWantReceipt] = useState(false);
+    const [onlyAnon, setOnlyAnon] = useState(false);
+
     const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
     const [firstName, setFirstName] = useState('');
@@ -42,30 +44,45 @@ const OrganizationList: React.FC<{}> = () => {
     },[])
     return (
       <div>
-        {modalOrganization && <Modal organization={modalOrganization}  isOpen={isOpen} setIsOpen={setIsOpen} wantReceipt={wantReceipt} />}
-        {/* <DonationHistory isOpen={isHistoryOpen} setIsOpen={setIsHistoryOpen}/> */}
+        {modalOrganization && <Modal organization={modalOrganization}  isOpen={isOpen} setIsOpen={setIsOpen} wantReceipt={wantReceipt} onlyAnon = {onlyAnon} />}
+        <DonationHistory isOpen={isHistoryOpen} setIsOpen={setIsHistoryOpen}/>
 
         <div className='flex flex-nowrap justify-center items-center'>
           <input className='text-black p-3 rounded w-[600px]' type="text" id="search" placeholder="Search for Charities..." onChange={(e) => setSearch(e.target.value)} />
           <button className="ml-4 bg-red-500 hover:bg-red-400 text-white font-semibold py-3 px-5 border border-red-600 hover:border-red-600 rounded-lg" onClick={() => setIsHistoryOpen(true)}>Donation History</button>
         </div>
-        <div className='mt-2 flex flex-nowrap justify-center items-center'>
-          <label className="flex items-center">
-            <input 
-              type="checkbox" 
-              checked={wantReceipt} 
-              onChange={(e) => setWantReceipt(e.target.checked)} 
-              className="form-checkbox" 
-            />
-            <span className="ml-2 text-gray-600">Do you need a Receipt?</span>
-          </label>
+        
+        <div className='flex justify-center'>
+          <div className='mt-2 flex flex-nowrap justify-center items-center m-3'>
+            <label className="flex items-center">
+              <input 
+                type="checkbox" 
+                checked={wantReceipt} 
+                onChange={(e) => setWantReceipt(e.target.checked)} 
+                className="form-checkbox" 
+              />
+              <span className="ml-2 text-gray-600">Do you need a Receipt?</span>
+            </label>
+          </div>
+          <div className='mt-2 flex flex-nowrap justify-center items-center m-3'>
+            <label className="flex items-center">
+              <input 
+                type="checkbox" 
+                checked={onlyAnon} 
+                onChange={(e) => setOnlyAnon(e.target.checked)} 
+                className="form-checkbox" 
+              />
+              <span className="ml-2 text-gray-600">Do you want to be anonymous?</span>
+            </label>
+          </div>
         </div>
+        
 
         <div id="charities" className="grid grid-cols-1 mt-20 md:grid-cols-2 lg:grid-cols-4 gap-6 md:px-20">
-          {organizations.map((organization: ShortOrganization) => {
+          {/* {organizations.filter((organization: ShortOrganization) => {
             const shouldShow = wantReceipt ? 
-              organization.isReceiptEnabled === true: 
-              organization.allowsAnon === true;
+              organization.isReceiptEnabled === "true": 
+              organization.allowsAnon === "true";
             return shouldShow ? (
               <OrganizationCard 
                 key={organization.id}
@@ -76,7 +93,63 @@ const OrganizationList: React.FC<{}> = () => {
                 }}
               />
             ) : null;
-          })}
+          })} */}
+          {organizations.filter((organization:ShortOrganization)=>{
+            return organization.isReceiptEnabled === "true" && wantReceipt
+          }).filter((organizations: ShortOrganization)=> {
+            return search.toLowerCase() === '' ? organizations : organizations.name.toLowerCase().includes(search);
+          }).map((organization) => (
+            <OrganizationCard 
+              key= {organization["id"]}
+              organization={organization} 
+              onClick={() => {
+                setModalOrganization(organization)
+                setIsOpen(true)
+              }} />
+          ))
+          }
+          {organizations.filter((organization:ShortOrganization)=>{
+            return organization.allowsAnon === "true" && onlyAnon
+          }).filter((organizations: ShortOrganization)=> {
+            return search.toLowerCase() === '' ? organizations : organizations.name.toLowerCase().includes(search);
+          }).map((organization) => (
+            <OrganizationCard 
+              key= {organization["id"]}
+              organization={organization} 
+              onClick={() => {
+                setModalOrganization(organization)
+                setIsOpen(true)
+              }} />
+          ))
+          }
+          {organizations.filter((organization:ShortOrganization)=>{
+            return organization.isReceiptEnabled === "true" && organization.allowsAnon === "true" && wantReceipt && onlyAnon
+          }).filter((organizations: ShortOrganization)=> {
+            return search.toLowerCase() === '' ? organizations : organizations.name.toLowerCase().includes(search);
+          }).map((organization) => (
+            <OrganizationCard 
+              key= {organization["id"]}
+              organization={organization} 
+              onClick={() => {
+                setModalOrganization(organization)
+                setIsOpen(true)
+              }} />
+          ))
+          }
+          {
+              organizations.filter((organizations: ShortOrganization)=> {
+                return search.toLowerCase() === '' ? organizations : organizations.name.toLowerCase().includes(search);
+              }).map((organization) => (
+                <OrganizationCard 
+                  key= {organization["id"]}
+                  organization={organization} 
+                  onClick={() => {
+                    setModalOrganization(organization)
+                    setIsOpen(true)
+                  }} />
+              ))
+            }
+
         </div>
       </div>
     )

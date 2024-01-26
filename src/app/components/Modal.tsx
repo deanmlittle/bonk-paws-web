@@ -13,13 +13,14 @@ interface ModalProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   wantReceipt: boolean;
+  onlyAnon: boolean;
 }
 
 const preflightCommitment = "processed";
 const commitment = "processed";
 const PROGRAM_ID = "4p78LV6o9gdZ6YJ3yABSbp3mVq9xXa4NqheXTB1fa4LJ";
 
-const Modal: React.FC<ModalProps> = ({ organization, isOpen, setIsOpen, wantReceipt }) => {
+const Modal: React.FC<ModalProps> = ({ organization, isOpen, setIsOpen, wantReceipt, onlyAnon }) => {
   const [quoteLoading, setQuoteloading] = React.useState(false);
   const [quoteAmount, setQuoteAmount] =useState<number>(0);
   const [fromAmount, setFromAmount] = useState<number>(0);
@@ -71,7 +72,7 @@ const Modal: React.FC<ModalProps> = ({ organization, isOpen, setIsOpen, wantRece
   }
 
 const donate = async () => {
-  const {txIx, donateIx, charityWallet2, matchDonationState} = await getDonate(organization.id, fromAmount, new PublicKey(publicKey), program);
+  const {txIx, donateIx, charityWallet2, matchDonationState} = await getDonate(organization.id, onlyAnon, email, firstName, lastName, address1, address2, country, state, city, zipCode,  fromAmount, new PublicKey(publicKey), program);
   const tx = new Transaction().add(txIx).add(donateIx);
   const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
   tx.recentBlockhash = blockhash;
@@ -176,14 +177,14 @@ const donate = async () => {
                   </div>
 
                   <p className="text-slate-700 text-sm mb-1 mt-4">Burn Amount</p>
-                  <div className="flex items-center border border-slate-200 py-2 rounded-xl">
+                  <div className="flex items-center border border-slate-200 py-2 rounded-xl mb-4">
                     <p className="bg-transparent ml-3 font-raleway text-slate-900 font-regular !outline-none" style={{ flex: 1 }}>
                       {fromAmount >= 1 ? quoteAmount*0.01 : 0}
                       </p>
                     <img className="w-6 h-6 mr-2" src="logo.png" />
                   </div>
 
-                  {wantReceipt ? (
+                  {!onlyAnon ? (
                     <form className="space-y-4">
                       <div className="flex gap-4">
                         <input 
@@ -203,14 +204,8 @@ const donate = async () => {
                           required 
                         />
                       </div>
-                      <input 
-                        className="border p-2 rounded w-full" 
-                        type="email" 
-                        placeholder="Email *" 
-                        value={email} 
-                        onChange={(e) => setEmail(e.target.value)} 
-                        required 
-                      />
+                      
+                      
                       <input 
                         className="border p-2 rounded w-full" 
                         type="text" 
@@ -263,6 +258,18 @@ const donate = async () => {
                       </div>
                     </form>
                   ) : null}
+                  {
+                    wantReceipt ? (
+                      <input 
+                      className="border p-2 rounded w-full mt-4" 
+                      type="email" 
+                      placeholder="Email *" 
+                      value={email} 
+                      onChange={(e) => setEmail(e.target.value)} 
+                      required 
+                    />
+                    ) : null
+                  }
 
                   <p className="text-slate-700 text-sm mb-1 mt-4">Charity Receives</p>
                   <div className="flex border items-center border-slate-200 py-2 rounded-xl">
