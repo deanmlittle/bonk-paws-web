@@ -1,6 +1,6 @@
 'use client';
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import WalletButton from './components/WalletButton';
 import { useAnchorWallet, useConnection, useWallet } from '@solana/wallet-adapter-react';
 import OrganizationList from './components/OrganizationList';
@@ -10,17 +10,16 @@ import { Address, AnchorProvider, Program } from "@coral-xyz/anchor";
 import { PublicKey } from "@solana/web3.js";
 import { WalletNotConnectedError } from "@solana/wallet-adapter-base";
 
+const preflightCommitment = "processed";
+const commitment = "processed";
+const PROGRAM_ID = "4p78LV6o9gdZ6YJ3yABSbp3mVq9xXa4NqheXTB1fa4LJ";
+
 export default function Home() {
   const { publicKey, connected } = useWallet();
   const { setVisible: setModalVisible } = useWalletModal();
   const openWalletModal = () => {
     setModalVisible(true);
   };
-
-  const preflightCommitment = "processed";
-  const commitment = "processed";
-  const PROGRAM_ID = "4p78LV6o9gdZ6YJ3yABSbp3mVq9xXa4NqheXTB1fa4LJ";
-
   const { connection } = useConnection();
   const wallet = useAnchorWallet();
 
@@ -28,32 +27,29 @@ export default function Home() {
   const [burned, setBurned] = React.useState("0");
   const [isOpen, setIsOpen] = useState(true);
 
-  // if(!wallet) return
-  // if (!publicKey) throw new WalletNotConnectedError();
+  useEffect(()=>{
+    const getDonationState = async () => {
+      try {
+        const provider = new AnchorProvider(connection, wallet!, {
+          preflightCommitment,
+          commitment,
+        });
+      
+        const program = new Program(IDL, PROGRAM_ID, provider);
+        let res = await program.account.donationState.fetch(new PublicKey("7tciFdrfQajryTTZ5ujdZTEJPB6PftKGr4BYyFvYSB4j"));
+        const donatedAmount = res.bonkDonated.toNumber() + res.bonkMatched.toNumber();
+        setDonated(donatedAmount.toString());
+        setBurned(res.bonkBurned.toString());
+      } catch (e) {
+        console.error(e);
+        setDonated("0");
+        setBurned("0");
+      }
+    };
 
-  // const provider = new AnchorProvider(connection, wallet, {
-  //   preflightCommitment,
-  //   commitment,
-  // });
+    getDonationState();
 
-  // const program = new Program(IDL, PROGRAM_ID, provider);
-
-  // const getDonationState = async () => {
-  //   try {
-  //     let res = await program.account.donationState.fetch(new PublicKey("7tciFdrfQajryTTZ5ujdZTEJPB6PftKGr4BYyFvYSB4j"));
-  //     const donatedAmount = res.bonkDonated.toNumber() + res.bonkMatched.toNumber();
-  //     setDonated(donatedAmount.toString());
-  //     setBurned(res.bonkBurned.toString());
-  //   } catch (e) {
-  //     console.error(e);
-  //     setDonated("0");
-  //     setBurned("0");
-  //   }
-  // };
-
-  // React.useEffect(() => {
-  //   getDonationState();
-  // }, [program]);
+},[])
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between">
