@@ -12,16 +12,27 @@ interface ModalProps {
   organization: Organization;
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
+  wantReceipt: boolean;
 }
 
 const preflightCommitment = "processed";
 const commitment = "processed";
 const PROGRAM_ID = "4p78LV6o9gdZ6YJ3yABSbp3mVq9xXa4NqheXTB1fa4LJ";
 
-const Modal: React.FC<ModalProps> = ({ organization, isOpen, setIsOpen }) => {
+const Modal: React.FC<ModalProps> = ({ organization, isOpen, setIsOpen, wantReceipt }) => {
   const [quoteLoading, setQuoteloading] = React.useState(false);
   const [quoteAmount, setQuoteAmount] =useState<number>(0);
   const [fromAmount, setFromAmount] = useState<number>(0);
+
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [address1, setAddress1] = useState("");
+  const [address2, setAddress2] = useState("");
+  const [country, setCountry] = useState("");
+  const [state, setState] = useState("");
+  const [city, setCity] = useState("");
+  const [zipCode, setZipCode] = useState("");
 
   const {connection} = useConnection();
   const { publicKey, sendTransaction } = useWallet();
@@ -171,6 +182,87 @@ const donate = async () => {
                       </p>
                     <img className="w-6 h-6 mr-2" src="logo.png" />
                   </div>
+
+                  {wantReceipt ? (
+                    <form className="space-y-4">
+                      <div className="flex gap-4">
+                        <input 
+                          className="border p-2 rounded w-full" 
+                          type="text" 
+                          placeholder="First name *" 
+                          value={firstName} 
+                          onChange={(e) => setFirstName(e.target.value)} 
+                          required 
+                        />
+                        <input 
+                          className="border p-2 rounded w-full" 
+                          type="text" 
+                          placeholder="Last name *" 
+                          value={lastName} 
+                          onChange={(e) => setLastName(e.target.value)} 
+                          required 
+                        />
+                      </div>
+                      <input 
+                        className="border p-2 rounded w-full" 
+                        type="email" 
+                        placeholder="Email *" 
+                        value={email} 
+                        onChange={(e) => setEmail(e.target.value)} 
+                        required 
+                      />
+                      <input 
+                        className="border p-2 rounded w-full" 
+                        type="text" 
+                        placeholder="Address 1 *" 
+                        value={address1} 
+                        onChange={(e) => setAddress1(e.target.value)} 
+                        required 
+                      />
+                      <input 
+                        className="border p-2 rounded w-full" 
+                        type="text" 
+                        placeholder="Address 2" 
+                        value={address2} 
+                        onChange={(e) => setAddress2(e.target.value)} 
+                      />
+                      <div className="flex gap-4">
+                        <input 
+                          className="border p-2 rounded w-full" 
+                          type="text" 
+                          placeholder="Country *" 
+                          value={country} 
+                          onChange={(e) => setCountry(e.target.value)} 
+                          required 
+                        />
+                        <input 
+                          className="border p-2 rounded w-full" 
+                          type="text" 
+                          placeholder="State/Province" 
+                          value={state} 
+                          onChange={(e) => setState(e.target.value)} 
+                        />
+                      </div>
+                      <div className="flex gap-4">
+                        <input 
+                          className="border p-2 rounded w-full" 
+                          type="text" 
+                          placeholder="City *" 
+                          value={city} 
+                          onChange={(e) => setCity(e.target.value)} 
+                          required 
+                        />
+                        <input 
+                          className="border p-2 rounded w-full" 
+                          type="text" 
+                          placeholder="ZIP/Postal Code *" 
+                          value={zipCode} 
+                          onChange={(e) => setZipCode(e.target.value)} 
+                          required 
+                        />
+                      </div>
+                    </form>
+                  ) : null}
 
                   <p className="text-slate-700 text-sm mb-1 mt-4">Charity Receives</p>
                   <div className="flex border items-center border-slate-200 py-2 rounded-xl">

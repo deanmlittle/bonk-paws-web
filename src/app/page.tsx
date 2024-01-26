@@ -76,7 +76,6 @@ export default function Home() {
         </div>
       </div>
       <OrganizationList />
-      {/* <DonationHistory isOpen={isOpen} setIsOpen={setIsOpen}/> */}
 
       <div className="relative items-center text-center isolate px-6 mt-20 pt-0 lg:px-8">
         <div className="absolute inset-x-0 -top-40 -z-10 overflow-hidden blur-3xl sm:-top-80" aria-hidden="true">

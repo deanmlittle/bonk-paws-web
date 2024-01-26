@@ -9,6 +9,8 @@ export interface ShortOrganization {
     id: number;
     name: string;
     logo: string;
+    allowsAnon: boolean;
+    isReceiptEnabled: boolean;
 }
 
 export interface Organization {

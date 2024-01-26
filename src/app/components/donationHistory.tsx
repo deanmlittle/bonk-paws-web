@@ -15,7 +15,7 @@ const PROGRAM_ID = "4p78LV6o9gdZ6YJ3yABSbp3mVq9xXa4NqheXTB1fa4LJ";
 
 const DonationHistory: React.FC<DonationProps> = ({isOpen, setIsOpen }) => {
   const {connection} = useConnection();
-  const { publicKey, sendTransaction } = useWallet();
+  const { publicKey } = useWallet();
   const wallet = useAnchorWallet();
 
   if (!wallet) return
@@ -76,7 +76,7 @@ const DonationHistory: React.FC<DonationProps> = ({isOpen, setIsOpen }) => {
                                 <div className="flex flex-col border items-center border-slate-200 py-2 rounded-xl">
                                     {donationHistory.map((donation) => (
                                     <div key={donation.id.toString()} className="flex justify-between p-2">
-                                        <span>ID: {donation.id.toString()}</span>
+                                        <span>Id: {donation.id.toString()}</span>
                                         <span>Amount: {donation.donationAmount.toString()}</span>
                                     </div>
                                     ))}
