@@ -9,6 +9,8 @@ export interface ShortOrganization {
     id: number;
     name: string;
     logo: string;
+    allowsAnon: string;
+    isReceiptEnabled: string;
 }
 
 export interface Organization {
@@ -16,10 +18,10 @@ export interface Organization {
     name: string;
     logo: string;
     country?: string;
-    allowsAnon?: boolean;
+    allowsAnon?: string;
     nonprofitTaxID?: string;
     areNotesEnabled?: boolean;
-    isReceiptEnabled?: boolean;
+    isReceiptEnabled?: string;
     createdAt?: string;
     state?: string;
     city?: string;
