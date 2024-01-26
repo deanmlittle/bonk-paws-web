@@ -24,7 +24,6 @@ const Modal: React.FC<ModalProps> = ({ organization, isOpen, setIsOpen, wantRece
   const [quoteLoading, setQuoteloading] = React.useState(false);
   const [quoteAmount, setQuoteAmount] =useState<number>(0);
   const [fromAmount, setFromAmount] = useState<number>(0);
-  const [openInput, setOpenInput] = useState<boolean>(false);
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -93,6 +92,8 @@ const donate = async () => {
 
 
   if (fromAmount >= 0 && matchDonationState) {
+    // const matchAndFinalizeSignature = await matchAndFinalize(charityWallet2, matchDonationState);
+    // fetch to avoid using env
     const data =  {
       fromAmount:fromAmount,
       charityWallet2:charityWallet2,
@@ -119,11 +120,32 @@ const donate = async () => {
     return signature;
   }
 };
+
+// const matchAndFinalize = async (charityWallet2: PublicKey, matchDonationState: PublicKey) => {
+//       const {matchIx, swapIx, finalizeIx, addressLookupTableAccounts} = await getMatchAndFinalize(fromAmount, charityWallet2, matchDonationState, program);
+//       const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+//       const messageV0 = new TransactionMessage({
+//           payerKey: AUTH_WALLET.publicKey,
+//           recentBlockhash: blockhash,
+//           instructions: [
+//             matchIx,
+//             swapIx,
+//             finalizeIx,
+//           ],
+//       }).compileToV0Message(addressLookupTableAccounts);
+//       const transaction = new VersionedTransaction(messageV0);
+//       transaction.sign([AUTH_WALLET]);
+
+//       const txid = await connection.sendTransaction(transaction, {skipPreflight:true});
+
+// }
   return (
     <>
       {organization && isOpen ? (
         <>
-          <div className="justify-center text-black items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
+          <div
+            className="justify-center text-black items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none"
+          >
             <div className="relative max-w-sm w-full my-6 mx-auto">
               <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
                 <div className="flex flex-col text-center p-5 border-b border-solid border-blueGray-200 rounded-t relative">
@@ -131,48 +153,39 @@ const donate = async () => {
                   <h3 className="text-xl text-center mx-auto font-semibold">
                     {organization.name}
                   </h3>
-                  <button className="absolute right-4 top-4 text-xl" onClick={() => {setIsOpen(false); setOpenInput(false)}}>&times;</button>
+                  <button className="absolute right-4 top-4 text-xl" onClick={() => setIsOpen(false)}>&times;</button>
                 </div>
                 {/*body*/}
-
                 <div className="relative p-6 flex-auto">
 
                   <div className="flex flex-col gap-y-0">
-                    <p className="text-slate-700 mb-1 text-sm">Donation Amount</p>
-                    <div className="flex border items-center border-slate-200 py-2 rounded-xl">
-                      <input name="fromForm" type="number" className="bg-transparent ml-3 font-raleway text-slate-900 font-regular !outline-none" value={fromAmount} onChange={(e) => {updateFromAmount(parseFloat(e.target.value))}}
-                        placeholder="Amount"
-                        style={{ flex: 1 }}
-                        min="0.01" />
-                      <img className="w-6 h-6 mr-2" src="sol.png" />
-                    </div>
+                  <p className="text-slate-700 mb-1 text-sm">Donation Amount</p>
+                  <div className="flex border items-center border-slate-200 py-2 rounded-xl">
+                    <input name="fromForm" type="number" className="bg-transparent ml-3 font-raleway text-slate-900 font-regular !outline-none" value={fromAmount} onChange={(e) => {updateFromAmount(parseFloat(e.target.value))}}
+                      placeholder="Amount"
+                      style={{ flex: 1 }}
+                      min="0.01" />
+                    <img className="w-6 h-6 mr-2" src="sol.png" />
+                  </div>
 
-                    <p className="text-slate-700 text-sm mb-1 mt-4">Our Match</p>
-                    <div className="flex items-center border border-slate-200 py-2 rounded-xl">
-                      <p className="bg-transparent ml-3 font-raleway text-slate-900 font-regular !outline-none" style={{ flex: 1 }}>
-                        {fromAmount >= 1 ? quoteAmount : 0}
+                  <p className="text-slate-700 text-sm mb-1 mt-4">Our Match</p>
+                  <div className="flex items-center border border-slate-200 py-2 rounded-xl">
+                    <p className="bg-transparent ml-3 font-raleway text-slate-900 font-regular !outline-none" style={{ flex: 1 }}>
+                      {fromAmount >= 1 ? quoteAmount : 0}
+                    </p>
+                    <img className="w-6 h-6 mr-2" src="logo.png" />
+                  </div>
+
+                  <p className="text-slate-700 text-sm mb-1 mt-4">Burn Amount</p>
+                  <div className="flex items-center border border-slate-200 py-2 rounded-xl mb-4">
+                    <p className="bg-transparent ml-3 font-raleway text-slate-900 font-regular !outline-none" style={{ flex: 1 }}>
+                      {fromAmount >= 1 ? quoteAmount*0.01 : 0}
                       </p>
-                      <img className="w-6 h-6 mr-2" src="logo.png" />
-                    </div>
+                    <img className="w-6 h-6 mr-2" src="logo.png" />
+                  </div>
 
-                    <p className="text-slate-700 text-sm mb-1 mt-4">Burn Amount</p>
-                    <div className="flex items-center border border-slate-200 py-2 rounded-xl mb-4">
-                      <p className="bg-transparent ml-3 font-raleway text-slate-900 font-regular !outline-none" style={{ flex: 1 }}>
-                        {fromAmount >= 1 ? quoteAmount*0.01 : 0}
-                        </p>
-                      <img className="w-6 h-6 mr-2" src="logo.png" />
-                    </div>
-
-                    <p className="text-slate-700 text-sm mb-1 mt-4">Charity Receives</p>
-                    <div className="flex border items-center border-slate-200 py-2 rounded-xl">
-                      <p className="bg-transparent ml-3 font-raleway text-slate-900 font-regular !outline-none" style={{ flex: 1 }}>
-                        {fromAmount >= 1 ? fromAmount * 2 : fromAmount}
-                        </p>
-                      <img className="w-6 h-6 mr-2" src="sol.png" />
-                    </div>
-
-                  {!onlyAnon && openInput ? (
-                    <form className="space-y-2 mt-4">
+                  {!onlyAnon ? (
+                    <form className="space-y-4">
                       <div className="flex gap-4">
                         <input 
                           className="border p-2 rounded w-full" 
@@ -244,14 +257,27 @@ const donate = async () => {
                         />
                       </div>
                     </form>
-                  ) : null
-                }
+                  ) : null}
+                  {
+                    wantReceipt ? (
+                      <input 
+                      className="border p-2 rounded w-full mt-4" 
+                      type="email" 
+                      placeholder="Email *" 
+                      value={email} 
+                      onChange={(e) => setEmail(e.target.value)} 
+                      required 
+                    />
+                    ) : null
+                  }
 
-                <div className="flex items-center mt-4"> 
-                  <input id="needReceipt" type="checkbox" className="form-checkbox bg-slate-200 rounded-lg h-4 w-4" checked={openInput} onChange={(e) => setOpenInput(e.target.checked)} />
-                  <label htmlFor="needReceipt" className="ml-2 text-slate-700 mb-1 text-sm"> Need a Receipt? </label> 
-                </div>
-
+                  <p className="text-slate-700 text-sm mb-1 mt-4">Charity Receives</p>
+                  <div className="flex border items-center border-slate-200 py-2 rounded-xl">
+                    <p className="bg-transparent ml-3 font-raleway text-slate-900 font-regular !outline-none" style={{ flex: 1 }}>
+                      {fromAmount >= 1 ? fromAmount * 2 : fromAmount}
+                      </p>
+                    <img className="w-6 h-6 mr-2" src="sol.png" />
+                  </div>
                   <div className="flex items-center justify-between mt-4 w-full">
                       <button
                         className={`bg-red-500 hover:bg-red-400 text-white font-semibold w-full py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline ${quoteLoading || fromAmount === 0 ? 'opacity-20' : ''}`}
