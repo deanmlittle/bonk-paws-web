@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { getDonate, IDL, getMatchAndFinalize } from "../../../api/program";
-import axios from "axios";
-import { publicKey } from "@coral-xyz/anchor/dist/cjs/utils";
-import { Address, AnchorProvider, BN, Program } from "@coral-xyz/anchor";
-import { Connection, PublicKey, Transaction, TransactionMessage, VersionedTransaction, Keypair } from "@solana/web3.js";
+import {  IDL } from "../../../api/program";
+import { AnchorProvider, BN, Program } from "@coral-xyz/anchor";
 import { useWallet, useAnchorWallet, useConnection} from '@solana/wallet-adapter-react';
 import { WalletNotConnectedError } from '@solana/wallet-adapter-base';
 
@@ -31,16 +28,31 @@ const DonationHistory: React.FC<DonationProps> = ({isOpen, setIsOpen }) => {
 
   const program = new Program(IDL, PROGRAM_ID, provider);
 
-  
-//   const donationHistory = async (amount: number) => {
-//       try {
-//         setQuoteAmount((quote.inAmount));
-//       } catch(e) {
-//         console.error(e);
-//         setQuoteAmount(0);
-//       }
-//     }
-//   }
+  const [donationHistory, setDonationHistory] = useState<{ id: BN; donationAmount: BN; }[]>([]);
+
+  useEffect(() => {
+      getDonationHistory();
+  }, []);
+
+  const getDonationHistory = async () => {
+        try {
+            let fetchedHistory = await program.account.donationHistory.all([
+                {
+                memcmp: {
+                    offset: 8,
+                    bytes: publicKey.toBase58(),
+                },
+                },
+            ]);
+            const history = fetchedHistory.map((item) => ({
+                id: item.account.id,
+                donationAmount: item.account.donationAmount,
+            }));
+            setDonationHistory(history);      
+        } catch(e) {
+            console.error(e);
+        }
+    }
 
   return (
     <>
@@ -55,14 +67,19 @@ const DonationHistory: React.FC<DonationProps> = ({isOpen, setIsOpen }) => {
                         </div>
                         {/*body*/}
                         <div className="relative p-6 flex-auto">
-                        <div className="flex flex-col gap-y-0">
-                                <p className="text-slate-700 mb-1 text-sm">User Publickey</p>
+                            <div className="flex flex-col gap-y-0 mb-4">
+                                <p className="text-black mb-2 font-semibold">User Publickey</p>
                                 <p className="text-slate-700 mb-1 text-sm">{publicKey.toString()}</p>
                             </div>
                             <div className="flex flex-col gap-y-0">
-                                <p className="text-slate-700 mb-1 text-sm">Transaction History</p>
-                                <div className="flex border items-center border-slate-200 py-2 rounded-xl">
-                                    {/* Put a transaction history card: Id - Amount */}
+                                <p className="text-black mb-2 font-semibold">Transaction History</p>
+                                <div className="flex flex-col border items-center border-slate-200 py-2 rounded-xl">
+                                    {donationHistory.map((donation) => (
+                                    <div key={donation.id.toString()} className="flex justify-between p-2">
+                                        <span>ID: {donation.id.toString()}</span>
+                                        <span>Amount: {donation.donationAmount.toString()}</span>
+                                    </div>
+                                    ))}
                                 </div>
                             </div>
                         </div>

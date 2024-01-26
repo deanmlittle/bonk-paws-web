@@ -28,32 +28,32 @@ export default function Home() {
   const [burned, setBurned] = React.useState("0");
   const [isOpen, setIsOpen] = useState(true);
 
-  if(!wallet) return
-  if (!publicKey) throw new WalletNotConnectedError();
+  // if(!wallet) return
+  // if (!publicKey) throw new WalletNotConnectedError();
 
-  const provider = new AnchorProvider(connection, wallet, {
-    preflightCommitment,
-    commitment,
-  });
+  // const provider = new AnchorProvider(connection, wallet, {
+  //   preflightCommitment,
+  //   commitment,
+  // });
 
-  const program = new Program(IDL, PROGRAM_ID, provider);
+  // const program = new Program(IDL, PROGRAM_ID, provider);
 
-  const getDonationState = async () => {
-    try {
-      let res = await program.account.donationState.fetch(new PublicKey("7tciFdrfQajryTTZ5ujdZTEJPB6PftKGr4BYyFvYSB4j"));
-      const donatedAmount = res.bonkDonated.toNumber() + res.bonkMatched.toNumber();
-      setDonated(donatedAmount.toString());
-      setBurned(res.bonkBurned.toString());
-    } catch (e) {
-      console.error(e);
-      setDonated("0");
-      setBurned("0");
-    }
-  };
+  // const getDonationState = async () => {
+  //   try {
+  //     let res = await program.account.donationState.fetch(new PublicKey("7tciFdrfQajryTTZ5ujdZTEJPB6PftKGr4BYyFvYSB4j"));
+  //     const donatedAmount = res.bonkDonated.toNumber() + res.bonkMatched.toNumber();
+  //     setDonated(donatedAmount.toString());
+  //     setBurned(res.bonkBurned.toString());
+  //   } catch (e) {
+  //     console.error(e);
+  //     setDonated("0");
+  //     setBurned("0");
+  //   }
+  // };
 
-  React.useEffect(() => {
-    getDonationState();
-  }, [program]);
+  // React.useEffect(() => {
+  //   getDonationState();
+  // }, [program]);
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between">
