@@ -21,9 +21,9 @@ const DonationHistory: React.FC<DonationProps> = ({isOpen, setIsOpen }) => {
 
     useEffect(()=>{
         const getDonationHistory = async () => {
-            if (publicKey) {
+            if (publicKey && wallet) {
                 try {
-                    const provider = new AnchorProvider(connection, wallet!, {
+                    const provider = new AnchorProvider(connection, wallet, {
                     preflightCommitment,
                     commitment,
                     });
@@ -50,7 +50,7 @@ const DonationHistory: React.FC<DonationProps> = ({isOpen, setIsOpen }) => {
             }
         };
         getDonationHistory();
-    }, [])
+    }, [wallet, publicKey])
 
   return (
     <>
