@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import WalletButton from './components/WalletButton';
 import { useAnchorWallet, useConnection, useWallet } from '@solana/wallet-adapter-react';
 import OrganizationList from './components/OrganizationList';
-import DonationHistory from './components/donationHistory';
+// import DonationHistory from './components/donationHistory';
 import { IDL, BonkForPaws } from "../../api/program"
 import { Address, AnchorProvider, Program } from "@coral-xyz/anchor";
 import { PublicKey } from "@solana/web3.js";
@@ -76,7 +76,7 @@ export default function Home() {
         </div>
       </div>
       <OrganizationList />
-      <DonationHistory isOpen={isOpen} setIsOpen={setIsOpen}/>
+      {/* <DonationHistory isOpen={isOpen} setIsOpen={setIsOpen}/> */}
 
       <div className="relative items-center text-center isolate px-6 mt-20 pt-0 lg:px-8">
         <div className="absolute inset-x-0 -top-40 -z-10 overflow-hidden blur-3xl sm:-top-80" aria-hidden="true">
