@@ -171,17 +171,24 @@ const donate = async () => {
                   <p className="text-slate-700 text-sm mb-1 mt-4">Our Match</p>
                   <div className="flex items-center border border-slate-200 py-2 rounded-xl">
                     <p className="bg-transparent ml-3 font-raleway text-slate-900 font-regular !outline-none" style={{ flex: 1 }}>
-                      {fromAmount >= 1 ? quoteAmount : 0}
+                      {fromAmount >= 0 ? quoteAmount : 0}
                     </p>
                     <img className="w-6 h-6 mr-2" src="logo.png" />
                   </div>
 
                   <p className="text-slate-700 text-sm mb-1 mt-4">Burn Amount</p>
-                  <div className="flex items-center border border-slate-200 py-2 rounded-xl mb-4">
+                  <div className="flex items-center border border-slate-200 py-2 rounded-xl">
                     <p className="bg-transparent ml-3 font-raleway text-slate-900 font-regular !outline-none" style={{ flex: 1 }}>
-                      {fromAmount >= 1 ? quoteAmount*0.01 : 0}
+                      {fromAmount >= 0 ? (quoteAmount*0.01).toFixed(2) : 0}
                       </p>
                     <img className="w-6 h-6 mr-2" src="logo.png" />
+                  </div>
+                  <p className="text-slate-700 text-sm mb-1 mt-4">Charity Receives</p>
+                  <div className="flex border items-center border-slate-200 py-2 rounded-xl mb-4">
+                    <p className="bg-transparent ml-3 font-raleway text-slate-900 font-regular !outline-none" style={{ flex: 1 }}>
+                      {fromAmount >= 1 ? fromAmount * 2 : fromAmount}
+                      </p>
+                    <img className="w-6 h-6 mr-2" src="sol.png" />
                   </div>
 
                   {!onlyAnon ? (
@@ -271,13 +278,7 @@ const donate = async () => {
                     ) : null
                   }
 
-                  <p className="text-slate-700 text-sm mb-1 mt-4">Charity Receives</p>
-                  <div className="flex border items-center border-slate-200 py-2 rounded-xl">
-                    <p className="bg-transparent ml-3 font-raleway text-slate-900 font-regular !outline-none" style={{ flex: 1 }}>
-                      {fromAmount >= 1 ? fromAmount * 2 : fromAmount}
-                      </p>
-                    <img className="w-6 h-6 mr-2" src="sol.png" />
-                  </div>
+                  
                   <div className="flex items-center justify-between mt-4 w-full">
                       <button
                         className={`bg-red-500 hover:bg-red-400 text-white font-semibold w-full py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline ${quoteLoading || fromAmount === 0 ? 'opacity-20' : ''}`}
