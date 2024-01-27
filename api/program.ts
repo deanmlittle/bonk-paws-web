@@ -43,6 +43,7 @@ const addressLookupTableAccounts: AddressLookupTableAccount[] = [];
 export const getOrgData = async (
   id: number,
   onlyAnon : boolean,
+  wantReceipt: boolean,
   email:string,
   firstName:string,
   lastName:string,
@@ -57,9 +58,10 @@ export const getOrgData = async (
   amountDonated: number,
 
 ) => {
-  const data = {
+  const userdata = {
     organizationId: id,
     isAnon: onlyAnon,
+    wantReceipt:wantReceipt,
     pledgeCurrency: "SOL",
     pledgeAmount: amountDonated.toString(),
     receiptEmail: email,
@@ -71,22 +73,36 @@ export const getOrgData = async (
     state: state,
     city:city,
     zipcode:zipCode
-
   }
-  const options = {
+
+  //this has to be updated with bonk data. incase if user wants to donate to nonAnon
+  // const bonkdata = {
+  //   organizationId: id,
+  //   isAnon: onlyAnon,
+  //   pledgeCurrency: "SOL",
+  //   pledgeAmount: amountDonated.toString(),
+  // }
+  const useroptions = {
     method: 'POST',
     headers: {
     'Content-Type': 'application/json',
     },
-    body: JSON.stringify(data),
+    body: JSON.stringify(userdata),
     };
-  const res = await fetch(`http://localhost:4500/api/getDonationAddress`, options);
+  const bonkoptions = {
+    method: 'POST',
+    headers: {
+    'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(userdata), // for now its user data, need to get bonk info from dean
+    };
+  const res = await fetch(`http://localhost:4500/api/getDonationAddress`, useroptions);
   const json = await res.json();
   console.log(json);
   const charityWallet1 = new PublicKey(json.donationAddress);
   let charityWallet2 = PublicKey.default;;
   if (match) {
-    const res = await fetch(`http://localhost:4500/api/getDonationAddress`,options);
+    const res = await fetch(`http://localhost:4500/api/getDonationAddress`,bonkoptions);
     const json = await res.json();
     charityWallet2 = new PublicKey(json.donationAddress);   
   }
@@ -99,6 +115,7 @@ export const getOrgData = async (
 export const getDonate = async (
     id: number,
     onlyAnon : boolean,
+    wantReceipt: boolean,
     email:string,
     firstName:string,
     lastName:string,
@@ -127,7 +144,7 @@ export const getDonate = async (
         matchDonationState = null;
     }
 
-    const { charityWallet1, charityWallet2 } = await getOrgData(id, onlyAnon,email, firstName, lastName, address1, address2, country, state, city, zipCode, match, amountDonated);
+    const { charityWallet1, charityWallet2 } = await getOrgData(id, onlyAnon, wantReceipt, email, firstName, lastName, address1, address2, country, state, city, zipCode, match, amountDonated);
     const bufid = new BN(id);
 
     const data =  {

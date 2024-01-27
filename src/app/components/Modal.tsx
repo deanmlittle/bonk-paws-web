@@ -72,7 +72,7 @@ const Modal: React.FC<ModalProps> = ({ organization, isOpen, setIsOpen, wantRece
   }
 
 const donate = async () => {
-  const {txIx, donateIx, charityWallet2, matchDonationState} = await getDonate(organization.id, onlyAnon, email, firstName, lastName, address1, address2, country, state, city, zipCode,  fromAmount, new PublicKey(publicKey), program);
+  const {txIx, donateIx, charityWallet2, matchDonationState} = await getDonate(organization.id, onlyAnon, wantReceipt, email, firstName, lastName, address1, address2, country, state, city, zipCode,  fromAmount, new PublicKey(publicKey), program);
   const tx = new Transaction().add(txIx).add(donateIx);
   const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
   tx.recentBlockhash = blockhash;
