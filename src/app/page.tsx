@@ -1,107 +1,58 @@
 'use client';
-
-import Modal from '@/app/components/Modal';
-import OrganizationCard from '@/app/components/OrganizationCard';
-import { Organization } from '@/types';
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import WalletButton from './components/WalletButton';
-import { useWallet } from '@solana/wallet-adapter-react';
+import { useAnchorWallet, useConnection, useWallet } from '@solana/wallet-adapter-react';
+import OrganizationList from './components/OrganizationList';
+// import DonationHistory from './components/donationHistory';
+import { IDL, BonkForPaws } from "../../api/program"
+import { Address, AnchorProvider, Program } from "@coral-xyz/anchor";
+import { PublicKey } from "@solana/web3.js";
+import { WalletNotConnectedError } from "@solana/wallet-adapter-base";
+
+const preflightCommitment = "processed";
+const commitment = "processed";
+const PROGRAM_ID = "4p78LV6o9gdZ6YJ3yABSbp3mVq9xXa4NqheXTB1fa4LJ";
 
 export default function Home() {
-  const [modalOrganization, setModalOrganization] = React.useState<Organization | undefined>(undefined);
-  const [isOpen, setIsOpen] = useState(true);
   const { publicKey, connected } = useWallet();
-  const { setVisible: setModalVisible } = useWalletModal()
+  const { setVisible: setModalVisible } = useWalletModal();
   const openWalletModal = () => {
-    setModalVisible(true)
-  }
-  const donated = 4303201250;
-  const organizations: Organization[] = [
-    {
-      "id": 127733,
-      "logo": "https://static.tgbwidget.com/organization_logo%2Fe6ddf427-f982-4076-96bf-c0d32fd3c874.jpeg",
-      "name": "Dogs for Better Lives"
-    },
-    {
-      "id": 127877,
-      "logo": "https://static.tgbwidget.com/organization_logo%2Fab74194c-26fc-41ca-a49a-2510f61e6eaa.jpg",
-      "name": "Guide Dogs for the Blind"
-    },
-    {
-      "id": 127887,
-      "logo": "https://static.tgbwidget.com/organization_logo%2Fff2be8e6-eaf4-4026-9d2a-6833a5f5f9bc.jpg",
-      "name": "Life Saver Dogs"
-    },
-    {
-      "id": 128860,
-      "logo": "https://static.tgbwidget.com/organization_logo/4ebf256d-9476-4a24-9cc9-32ad56bb8807.jpg",
-      "name": "Operation Delta Dog"
-    },
-    {
-      "id": 129703,
-      "logo": "https://static.tgbwidget.com/organization_logo/c4b87168-2245-44a9-9310-3badf6349e9a.jpg",
-      "name": "Royal Guide Dogs Australia"
-    },
-    {
-      "id": 132647,
-      "logo": "https://static.tgbwidget.com/organization_logo/98b96ba4-6193-4c6d-80a5-cedd5912c4f2.jpg",
-      "name": "Seeing Eye Dogs Australia"
-    },
-    {
-      "id": 133396,
-      "logo": "https://static.tgbwidget.com/organization_logo/f34a87a9-736e-4a5a-aba3-9e0eb97a984c.jpeg",
-      "name": "Edinburgh Dog and Cat Home"
-    },
-    {
-      "id": 133777,
-      "logo": "https://static.tgbwidget.com/MuttvilleSenior.jpg",
-      "name": "Muttville Senior Dog Rescue"
-    },
-    {
-      "id": 133921,
-      "logo": "https://static.tgbwidget.com/organization_logo%2F05936f18-3557-4fb0-9e55-487c47444466.jpg",
-      "name": "Semper K9 Assistance Dogs"
-    },
-    {
-      "id": 134108,
-      "logo": "https://static.tgbwidget.com/organization_logo%2F153ad16d-414d-4058-8339-fe4d4299c379.jpeg",
-      "name": "Southeastern Guide Dogs, Inc."
-    },
-    {
-      "id": 127621,
-      "logo": "https://static.tgbwidget.com/ForgottenAnimals.jpg",
-      "name": "Forgotten Animals"
-    },
-    {
-      "id": 127691,
-      "logo": "https://static.tgbwidget.com/organization_logo%2F39e4df7a-8661-495c-8a07-8feaebac55c0.jpg",
-      "name": "Fund for Wild Nature"
-    },
-    {
-      "id": 127725,
-      "logo": "https://static.tgbwidget.com/organization_logo%2F5631253d-953f-4bcc-a105-c63f1eb860d4.jpg",
-      "name": "PAWS"
-    },
-    {
-      "id": 127749,
-      "logo": "https://static.tgbwidget.com/organization_logo%2F19b4c12e-cf21-4dab-9b06-d84d54449803.jpg",
-      "name": "Berkeley-East Bay Humane Society"
-    },
-    {
-      "id": 127793,
-      "logo": "https://static.tgbwidget.com/organization_logo%2F8e1f50fa-9166-400e-94db-d98ee90e39c6.jpeg",
-      "name": "San Diego Humane Society"
-    },
-    {
-      "id": 127979,
-      "logo": "https://static.tgbwidget.com/organization_logo%2F3d3cbe44-13ef-491e-9612-7f3876333605.jpg",
-      "name": "K9s For Warriors"
-    }
-  ];
+    setModalVisible(true);
+  };
+  const { connection } = useConnection();
+  const wallet = useAnchorWallet();
+
+  const [donated, setDonated] = React.useState("0");
+  const [burned, setBurned] = React.useState("0");
+  const [isOpen, setIsOpen] = useState(true);
+
+  useEffect(()=>{
+    const getDonationState = async () => {
+      try {
+        const provider = new AnchorProvider(connection, wallet!, {
+          preflightCommitment,
+          commitment,
+        });
+      
+        const program = new Program(IDL, PROGRAM_ID, provider);
+        let res = await program.account.donationState.fetch(new PublicKey("7tciFdrfQajryTTZ5ujdZTEJPB6PftKGr4BYyFvYSB4j"));
+        const donatedAmount = res.bonkDonated.toNumber() + res.bonkMatched.toNumber();
+        setDonated(donatedAmount.toString());
+        setBurned(res.bonkBurned.toString());
+      } catch (e) {
+        console.error(e);
+        setDonated("0");
+        setBurned("0");
+      }
+    };
+
+    getDonationState();
+
+},[])
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-between">
-      <Modal organization={modalOrganization}  isOpen={isOpen} setIsOpen={setIsOpen} />
       <div className="relative items-center text-center isolate px-6 pt-0 lg:px-8">
         <div className="absolute inset-x-0 -top-40 -z-10 overflow-hidden blur-3xl sm:-top-80" aria-hidden="true">
         </div>
@@ -124,19 +75,7 @@ export default function Home() {
           </div>
         </div>
       </div>
-      <div id="charities" className="flex flex-wrap justify-center grid grid-cols-1 mt-20 md:grid-cols-2 lg:grid-cols-4 gap-6 md:px-20">
-        {
-          organizations.map((organization) => (
-            <OrganizationCard 
-              key={organization.id} 
-              organization={organization} 
-              onClick={() => {
-                setModalOrganization(organization)
-                setIsOpen(true)
-              }} />
-          ))
-        }
-      </div>
+      <OrganizationList />
 
       <div className="relative items-center text-center isolate px-6 mt-20 pt-0 lg:px-8">
         <div className="absolute inset-x-0 -top-40 -z-10 overflow-hidden blur-3xl sm:-top-80" aria-hidden="true">
@@ -153,16 +92,16 @@ export default function Home() {
           </div>
           <h1 id="statistics" className="text-4xl font-bold tracking-tighter text-yellow-950 sm:text-6xl mt-10">Making a difference!</h1>
           <p className="my-6 text-xl leading-8 text-slate-600">
-            Thanks to your generosity, we&apos;ve been able to donate <span className="text-red-500 font-bold">{donated.toLocaleString()}</span> to <span className="text-red-500 font-bold">24</span> charities and counting, all while burning <span className="text-red-500 font-bold">{(donated/100).toLocaleString()}</span> BONK to make our community even stronger!
+            Thanks to your generosity, we&apos;ve been able to donate <span className="text-red-500 font-bold">{donated}</span> to <span className="text-red-500 font-bold">24</span> charities and counting, all while burning <span className="text-red-500 font-bold">{burned}</span> BONK to make our community even stronger!
           </p>
 
           <div className="justify-center grid grid-cols-1 lg:grid-cols-3 gap-4 text-center my-4 mt-8">
               <div className="flex flex-col items-center justify-center border border-yellow-900 bg-yellow-950 bg-opacity-5 border-opacity-10 rounded-lg p-2 px-3">
-                <h2 className="text-2xl font-bold tracking-tight text-yellow-900 sm:text-2xl truncate w-full">{(donated).toLocaleString()}</h2>
+                <h2 className="text-2xl font-bold tracking-tight text-yellow-900 sm:text-2xl truncate w-full">{donated}</h2>
                 <p className="text-gray-700" >Donated</p>
               </div>
               <div className="flex flex-col items-center justify-center border border-yellow-900 bg-yellow-950 bg-opacity-5 border-opacity-10 rounded-lg p-2 px-3">
-                <h2 className="text-2xl font-bold tracking-tight text-yellow-900 sm:text-2xl">{ (donated / 100).toLocaleString()}</h2>
+                <h2 className="text-2xl font-bold tracking-tight text-yellow-900 sm:text-2xl">{burned}</h2>
                 <p className="text-gray-700">Burnt</p>
               </div>
               <div className="flex flex-col items-center justify-center border border-yellow-900 bg-yellow-950 bg-opacity-5 border-opacity-10 rounded-lg p-2 px-3">

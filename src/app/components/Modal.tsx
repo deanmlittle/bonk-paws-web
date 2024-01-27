@@ -1,28 +1,66 @@
 import { Organization } from "@/types";
 import React, { useEffect, useState } from "react";
+import { getDonate, IDL, getMatchAndFinalize } from "../../../api/program";
 import axios from "axios";
+import { publicKey } from "@coral-xyz/anchor/dist/cjs/utils";
+import { Address, AnchorProvider, BN, Program } from "@coral-xyz/anchor";
+import { Connection, PublicKey, Transaction, TransactionMessage, VersionedTransaction, Keypair } from "@solana/web3.js";
+import { useWallet, useAnchorWallet, useConnection} from '@solana/wallet-adapter-react';
+import { WalletNotConnectedError } from '@solana/wallet-adapter-base';
 
 interface ModalProps {
-  organization?: Organization;
+  organization: Organization;
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
+  wantReceipt: boolean;
+  onlyAnon: boolean;
 }
 
-const Modal: React.FC<ModalProps> = ({ organization, isOpen, setIsOpen }) => {
+const preflightCommitment = "processed";
+const commitment = "processed";
+const PROGRAM_ID = "4p78LV6o9gdZ6YJ3yABSbp3mVq9xXa4NqheXTB1fa4LJ";
+
+const Modal: React.FC<ModalProps> = ({ organization, isOpen, setIsOpen, wantReceipt, onlyAnon }) => {
   const [quoteLoading, setQuoteloading] = React.useState(false);
-  const [quoteAmount, setQuoteAmount] = React.useState("0");
+  const [quoteAmount, setQuoteAmount] =useState<number>(0);
   const [fromAmount, setFromAmount] = useState<number>(0);
+
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [address1, setAddress1] = useState("");
+  const [address2, setAddress2] = useState("");
+  const [country, setCountry] = useState("");
+  const [state, setState] = useState("");
+  const [city, setCity] = useState("");
+  const [zipCode, setZipCode] = useState("");
+
+  const {connection} = useConnection();
+  const { publicKey, sendTransaction } = useWallet();
+  const wallet = useAnchorWallet();
+
+  if(!wallet) return
+  if (!publicKey) throw new WalletNotConnectedError();
+
+  const provider = new AnchorProvider(connection, wallet, {
+    preflightCommitment,
+    commitment,
+  });
+
+  const program = new Program(IDL, PROGRAM_ID, provider);
+
   
   const getSwapQuote = async (amount: number) => {
     if(!quoteLoading) {
       setQuoteloading(true);
       try {
-        const { data: quote } = await axios.get(`https://quote-api.jup.ag/v6/quote?inputMint=DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263&outputMint=So11111111111111111111111111111111111111112&amount=${amount}&slippageBps=50`);
-        setQuoteAmount((quote.outAmount*1e-9).toFixed(9));
+        amount = amount * 10_000
+        const { data: quote } = await axios.get(`https://quote-api.jup.ag/v6/quote?inputMint=DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263&outputMint=So11111111111111111111111111111111111111112&amount=${amount}&swapMode=ExactOut&slippageBps=50`);
+        setQuoteAmount((quote.inAmount));
         setQuoteloading(false);
       } catch(e) {
         console.error(e);
-        setQuoteAmount("0");
+        setQuoteAmount(0);
         setQuoteloading(false);
       }
     }
@@ -30,9 +68,77 @@ const Modal: React.FC<ModalProps> = ({ organization, isOpen, setIsOpen }) => {
 
   const updateFromAmount = async(amount: number) => {
     setFromAmount(amount);
-    await getSwapQuote(amount*2*1e5);
+    await getSwapQuote(amount*1e4);
   }
 
+const donate = async () => {
+  const {txIx, donateIx, charityWallet2, matchDonationState} = await getDonate(organization.id, onlyAnon, email, firstName, lastName, address1, address2, country, state, city, zipCode,  fromAmount, new PublicKey(publicKey), program);
+  const tx = new Transaction().add(txIx).add(donateIx);
+  const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+  tx.recentBlockhash = blockhash;
+  tx.lastValidBlockHeight = lastValidBlockHeight;
+  const signature = await sendTransaction(tx, connection,{skipPreflight:true});
+  const result = await connection.confirmTransaction(
+      {
+          signature,
+          blockhash,
+          lastValidBlockHeight,
+      },
+      `confirmed`
+  );
+  if (result && result.value && result.value.err) {
+      throw Error(JSON.stringify(result.value.err));
+  };
+
+
+  if (fromAmount >= 0 && matchDonationState) {
+    // const matchAndFinalizeSignature = await matchAndFinalize(charityWallet2, matchDonationState);
+    // fetch to avoid using env
+    const data =  {
+      fromAmount:fromAmount,
+      charityWallet2:charityWallet2,
+      matchDonationState:matchDonationState
+    }
+    const data_json = JSON.stringify(data);
+    console.log(data_json);
+    const matchAndFinalizeoptions = {
+      method: 'POST',
+      headers: {
+      'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+      };
+    const res = await fetch("http://localhost:3000/api/matchFinaliseIx", matchAndFinalizeoptions);
+    
+
+    if (!res.ok) {
+      throw new Error("Failed to create with match and finalise");
+    } 
+    const matchAndFinalizeSignature = await res.json();
+    return signature && matchAndFinalizeSignature;
+  } else {
+    return signature;
+  }
+};
+
+// const matchAndFinalize = async (charityWallet2: PublicKey, matchDonationState: PublicKey) => {
+//       const {matchIx, swapIx, finalizeIx, addressLookupTableAccounts} = await getMatchAndFinalize(fromAmount, charityWallet2, matchDonationState, program);
+//       const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+//       const messageV0 = new TransactionMessage({
+//           payerKey: AUTH_WALLET.publicKey,
+//           recentBlockhash: blockhash,
+//           instructions: [
+//             matchIx,
+//             swapIx,
+//             finalizeIx,
+//           ],
+//       }).compileToV0Message(addressLookupTableAccounts);
+//       const transaction = new VersionedTransaction(messageV0);
+//       transaction.sign([AUTH_WALLET]);
+
+//       const txid = await connection.sendTransaction(transaction, {skipPreflight:true});
+
+// }
   return (
     <>
       {organization && isOpen ? (
@@ -55,62 +161,135 @@ const Modal: React.FC<ModalProps> = ({ organization, isOpen, setIsOpen }) => {
                   <div className="flex flex-col gap-y-0">
                   <p className="text-slate-700 mb-1 text-sm">Donation Amount</p>
                   <div className="flex border items-center border-slate-200 py-2 rounded-xl">
-                    <input name="fromForm" type="numeric" className="bg-transparent ml-3 font-raleway text-slate-900 font-regular !outline-none" value={fromAmount} onChange={(e) => updateFromAmount(parseFloat(e.target.value) || 0)} placeholder="Amount" style={{ flex: 1 }} />
-                    <img className="w-6 h-6 mr-2" src="logo.png" />
+                    <input name="fromForm" type="number" className="bg-transparent ml-3 font-raleway text-slate-900 font-regular !outline-none" value={fromAmount} onChange={(e) => {updateFromAmount(parseFloat(e.target.value))}}
+                      placeholder="Amount"
+                      style={{ flex: 1 }}
+                      min="0.01" />
+                    <img className="w-6 h-6 mr-2" src="sol.png" />
                   </div>
 
                   <p className="text-slate-700 text-sm mb-1 mt-4">Our Match</p>
                   <div className="flex items-center border border-slate-200 py-2 rounded-xl">
                     <p className="bg-transparent ml-3 font-raleway text-slate-900 font-regular !outline-none" style={{ flex: 1 }}>
-                      {fromAmount}
-                      </p>
+                      {fromAmount >= 0 ? quoteAmount : 0}
+                    </p>
                     <img className="w-6 h-6 mr-2" src="logo.png" />
                   </div>
 
                   <p className="text-slate-700 text-sm mb-1 mt-4">Burn Amount</p>
                   <div className="flex items-center border border-slate-200 py-2 rounded-xl">
                     <p className="bg-transparent ml-3 font-raleway text-slate-900 font-regular !outline-none" style={{ flex: 1 }}>
-                      {fromAmount*0.01}
+                      {fromAmount >= 0 ? (quoteAmount*0.01).toFixed(2) : 0}
                       </p>
                     <img className="w-6 h-6 mr-2" src="logo.png" />
                   </div>
-
                   <p className="text-slate-700 text-sm mb-1 mt-4">Charity Receives</p>
-                  <div className="flex border items-center border-slate-200 py-2 rounded-xl">
+                  <div className="flex border items-center border-slate-200 py-2 rounded-xl mb-4">
                     <p className="bg-transparent ml-3 font-raleway text-slate-900 font-regular !outline-none" style={{ flex: 1 }}>
-                      {quoteAmount}
+                      {fromAmount >= 1 ? fromAmount * 2 : fromAmount}
                       </p>
                     <img className="w-6 h-6 mr-2" src="sol.png" />
                   </div>
+
+                  {!onlyAnon ? (
+                    <form className="space-y-4">
+                      <div className="flex gap-4">
+                        <input 
+                          className="border p-2 rounded w-full" 
+                          type="text" 
+                          placeholder="First name *" 
+                          value={firstName} 
+                          onChange={(e) => setFirstName(e.target.value)} 
+                          required 
+                        />
+                        <input 
+                          className="border p-2 rounded w-full" 
+                          type="text" 
+                          placeholder="Last name *" 
+                          value={lastName} 
+                          onChange={(e) => setLastName(e.target.value)} 
+                          required 
+                        />
+                      </div>
+                      
+                      
+                      <input 
+                        className="border p-2 rounded w-full" 
+                        type="text" 
+                        placeholder="Address 1 *" 
+                        value={address1} 
+                        onChange={(e) => setAddress1(e.target.value)} 
+                        required 
+                      />
+                      <input 
+                        className="border p-2 rounded w-full" 
+                        type="text" 
+                        placeholder="Address 2" 
+                        value={address2} 
+                        onChange={(e) => setAddress2(e.target.value)} 
+                      />
+                      <div className="flex gap-4">
+                        <input 
+                          className="border p-2 rounded w-full" 
+                          type="text" 
+                          placeholder="Country *" 
+                          value={country} 
+                          onChange={(e) => setCountry(e.target.value)} 
+                          required 
+                        />
+                        <input 
+                          className="border p-2 rounded w-full" 
+                          type="text" 
+                          placeholder="State/Province" 
+                          value={state} 
+                          onChange={(e) => setState(e.target.value)} 
+                        />
+                      </div>
+                      <div className="flex gap-4">
+                        <input 
+                          className="border p-2 rounded w-full" 
+                          type="text" 
+                          placeholder="City *" 
+                          value={city} 
+                          onChange={(e) => setCity(e.target.value)} 
+                          required 
+                        />
+                        <input 
+                          className="border p-2 rounded w-full" 
+                          type="text" 
+                          placeholder="ZIP/Postal Code *" 
+                          value={zipCode} 
+                          onChange={(e) => setZipCode(e.target.value)} 
+                          required 
+                        />
+                      </div>
+                    </form>
+                  ) : null}
+                  {
+                    wantReceipt ? (
+                      <input 
+                      className="border p-2 rounded w-full mt-4" 
+                      type="email" 
+                      placeholder="Email *" 
+                      value={email} 
+                      onChange={(e) => setEmail(e.target.value)} 
+                      required 
+                    />
+                    ) : null
+                  }
+
+                  
                   <div className="flex items-center justify-between mt-4 w-full">
                       <button
                         className={`bg-red-500 hover:bg-red-400 text-white font-semibold w-full py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline ${quoteLoading || fromAmount === 0 ? 'opacity-20' : ''}`}
                         type="button"
                         disabled={fromAmount === 0 || quoteLoading}
+                        onClick={donate}
                       >
                         Donate
                       </button>
                     </div>
                   </div>
-                  {/* <div className="bg-white rounded px-8 pt-6 pb-8 mb-4">
-                    <input
-                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                      id="amount"
-                      type="number"
-                      placeholder="Enter Amount"
-                    />
-                    </div> */}
-                        {/* <span className="absolute inset-y-0 right-0 flex items-center pr-3">
-                          <label className="text-gray-700">Max:</label>
-                          <input
-                            className="border-l-2 pl-2 ml-2 text-gray-700"
-                            type="number"
-                            placeholder="Max"
-                          />
-                        </span>
-                      </div>
-                    </div>
-                  </form> */}
                 </div>
               </div>
             </div>
