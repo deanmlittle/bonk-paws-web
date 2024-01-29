@@ -2,7 +2,7 @@ import { Address, AnchorProvider, BN, Program, Wallet } from "@coral-xyz/anchor"
 import { ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, getAssociatedTokenAddressSync } from "@solana/spl-token";
 import { AddressLookupTableAccount, Connection, Ed25519Program, Keypair, LAMPORTS_PER_SOL, PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY, SystemProgram, TransactionInstruction, TransactionMessage,  VersionedTransaction} from "@solana/web3.js";
 import { NextResponse } from "next/server";
-import { BonkForPaws, IDL } from "../../../../api/program";
+import { BonkForPaws, IDL } from "../../../api/program";
 
 const PROGRAM_ID = "4p78LV6o9gdZ6YJ3yABSbp3mVq9xXa4NqheXTB1fa4LJ"
 const auth_keypair = JSON.parse(process.env.KEYPAIR!);
