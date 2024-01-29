@@ -1,17 +1,18 @@
 // api/organization.ts
 import axios from "axios";
-
-const [login, password, baseURL] = [
+import { NextApiRequest, NextApiResponse } from "next";
+const [login, password, baseURL, siteUrl] = [
   process.env.TGB_API_LOGIN, 
   process.env.TGB_API_PASSWORD, 
-  process.env.TGB_API_URL
+  process.env.TGB_API_URL,
+  process.env.VERCEL_URL || "http://localhost:3000/",
 ];
 
 
-export default async (req: Request, res: any) => {
+export default async (req: NextApiRequest, res: NextApiResponse) => {
   console.log(login, password, baseURL)
   console.log(req.url);
-  const { searchParams } = new URL(req.url, "http://localhost:3000");
+  const { searchParams } = new URL(req.url!, siteUrl);
   const organizationId = searchParams.get('id');
 
   const thegivingblock = axios.create({
@@ -23,19 +24,15 @@ export default async (req: Request, res: any) => {
   })
   try {
     const { data: loginData } = await thegivingblock.post("login", { login, password });
-    console.log(loginData);
     const { data } = await thegivingblock.get<{ data: any}>("organization/" + organizationId, { 
       headers: { 
         "Authorization": "Bearer " + loginData.data.accessToken 
       }
     }
     );
-
-    console.log(data);
     
-    res.status(200).json({ success: true, data });
+    return res.status(200).send({ success: true, data });
   } catch(e) {
-    // console.log(e)
-    res.status(400).json({ success: false, message: e });
+    return res.status(400).send({ success: false, error: e });
   }
 };
