@@ -204,7 +204,9 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
                   <p className="text-yellow-900 text-sm mb-1 mt-4">Our Match</p>
                   <div className="flex w-full items-center border border-yellow-900 bg-yellow-950 bg-opacity-5  border-opacity-40 focus:border-opacity-500 py-2 rounded-xl">
                     <p className="w-full text-start bg-transparent ml-3 font-raleway text-yellow-900 font-regular !outline-none">
-                      {fromAmount >= 0 ? quoteAmount : 0}
+                      {fromAmount >= 0
+                        ? Number(quoteAmount).toLocaleString()
+                        : 0}
                     </p>
                     <img className="w-6 h-6 mr-2" src="/logo.png" />
                   </div>
@@ -214,7 +216,9 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
                   </p>
                   <div className="flex w-full items-center border border-yellow-900 bg-yellow-950 bg-opacity-5  border-opacity-40 focus:border-opacity-500 py-2 rounded-xl">
                     <p className="w-full text-start bg-transparent ml-3 font-raleway text-yellow-900 font-regular !outline-none">
-                      {fromAmount >= 0 ? (quoteAmount * 0.01).toFixed(2) : 0}
+                      {fromAmount >= 0
+                        ? Number(quoteAmount * 0.01).toLocaleString()
+                        : 0}
                     </p>
                     <img className="w-6 h-6 mr-2" src="/logo.png" />
                   </div>
