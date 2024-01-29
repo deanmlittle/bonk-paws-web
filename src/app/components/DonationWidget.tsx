@@ -173,7 +173,7 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
     <>
       {organization ? (
         <>
-          <div className="justify-center text-black items-center flex overflow-x-hidden overflow-y-auto inset-0 z-50 outline-none focus:outline-none">
+          <div className="justify-center text-black items-center flex overflow-x-hidden overflow-y-auto inset-0 z-50 outline-none focus:outline-none max-h-[80vh]">
             <div className="relative w-full my-6 mx-auto h-full">
               <div className="flex flex-col text-center p-5 border-b border-solid border-yellow-800 border-opacity-40 rounded-t relative">
                 <span className="text-yellow-950 mb-2 text-3xl font-semibold">
@@ -181,7 +181,7 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
                 </span>
               </div>
               {/*body*/}
-              <div className="relative p-6 flex flex-col items-start w-full overflow-y-scroll">
+              <div className="relative p-6 flex flex-col items-start w-full ">
                 <p className="text-yellow-900 mb-1 text-sm">Donation Amount</p>
                 <div className="flex w-full justify-between border items-center border-yellow-900 bg-yellow-950 bg-opacity-5  border-opacity-40 focus:border-opacity-500 py-2 rounded-xl">
                   <input
