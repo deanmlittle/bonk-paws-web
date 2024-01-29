@@ -5,7 +5,7 @@ const [login, password, baseURL, siteUrl] = [
   process.env.TGB_API_LOGIN, 
   process.env.TGB_API_PASSWORD, 
   process.env.TGB_API_URL,
-  process.env.VERCEL_URL || "http://localhost:3000/",
+  process.env.VERCEL_URL || "http://localhost:3000",
 ];
 
 

@@ -56,7 +56,7 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
     commitment,
   });
 
-  // const program = new Program(IDL, PROGRAM_ID, provider);
+  const program = new Program(IDL, PROGRAM_ID, provider);
 
   const getSwapQuote = async (amount: number) => {
     if (!quoteLoading) {

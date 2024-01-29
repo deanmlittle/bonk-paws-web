@@ -3,10 +3,18 @@ import DonationWidget from "@/app/components/DonationWidget";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
-export default function Donate({ params }) {
-  const [organizations, setOrganizations] = useState([]);
-  const [currentOrg, setCurrentOrg] = useState(null);
-  const orgPage = organizations.find((org) => params.id === org.id.toString());
+type DonateProps = {
+  params: {
+    // Define the expected properties and their types here
+    id: string;
+    // Add more properties if needed
+  };
+};
+
+export default function Donate({ params }: DonateProps) {
+  const [organizations, setOrganizations] = useState<any>([]);
+  const [orgPage, setCurrentOrg] = useState<any>(null);
+  // const orgPage = organizations.find((org) => params.id === org.id.toString());
   useEffect(() => {
     const getAnimalCharityList = async () => {
       try {
@@ -27,9 +35,9 @@ export default function Donate({ params }) {
           `http://localhost:3000/api/organization?id=${params.id}`
         );
         console.log(res);
-        // const json = await res.json();
+        const json = await res.json();
 
-        // setCurrentOrg(json);
+        setCurrentOrg(json);
         // return json;
       } catch (err) {
         console.log(err);

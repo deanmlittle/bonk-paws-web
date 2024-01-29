@@ -26,7 +26,7 @@ const DonationHistory: React.FC<DonationProps> = ({ isOpen, setIsOpen }) => {
   const { connection } = useConnection();
   const wallet = useAnchorWallet();
 
-  const [organizations, setOrganizations] = useState([]);
+  const [organizations, setOrganizations] = useState<any[]>([]);
   useEffect(() => {
     const getAnimalCharityList = async () => {
       try {
