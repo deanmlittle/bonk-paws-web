@@ -79,15 +79,7 @@ export default function Donate({ params }) {
               </div>
             </div>
             <div className="col-span-2 w-full h-full custom-orange-bg border border-yellow-300 transition-all rounded-lg">
-              <div className="h-full w-full flex flex-col text-center border-top border-left border-right border-yellow-400 rounded-lg transition-all">
-                <div className="px-2 py-4 flex flex-col h-full">
-                  <DonationWidget
-                    organization={orgPage}
-                    wantReceipt={true}
-                    onlyAnon={false}
-                  />
-                </div>
-              </div>
+              <DonationWidget organization={orgPage} />
             </div>
           </div>
         )}
