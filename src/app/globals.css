@@ -27,6 +27,7 @@ body {
   max-height: 100vh;
   max-width: 100vw;
   animation: scroll-bg linear infinite 120s; /* Increased animation duration */
+  color:black;
 
   /* Remove !important from keyframes */
 }
@@ -184,4 +185,21 @@ body.modal-active {
 
 .custom-orange-bg {
   background: rgb(255, 250, 230)
+}
+
+/* reset */
+button {
+  all: unset;
+}
+
+:root {
+  --rt-color-white: #fff;
+  --rt-color-dark: #222;
+  --rt-color-success: #8dc572;
+  --rt-color-error: #be6464;
+  --rt-color-warning: #f0ad4e;
+  --rt-color-info: #337ab7;
+  --rt-opacity: 0.9;
+  --rt-transition-show-delay: 0.15s;
+  --rt-transition-closing-delay: 0.15s;
 }
