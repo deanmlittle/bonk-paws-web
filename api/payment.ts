@@ -2,7 +2,8 @@
 import axios from "axios";
 import { NextApiRequest, NextApiResponse } from "next";
 import { CreateEd25519InstructionWithPrivateKeyParams, Ed25519Program, Keypair, PublicKey } from "@solana/web3.js";
-import { APP_URL } from "@/constants";
+import { APP_URL, bonkFoundationDefaultDetails } from "@/constants";
+import { DepositDetails } from "@/types";
 
 const [login, password, baseURL] = [
   process.env.TGB_API_LOGIN, 
@@ -11,37 +12,6 @@ const [login, password, baseURL] = [
 ];
 
 const signingKey: Array<number> = JSON.parse(process.env.SIGNING_KEY!);
-
-type DepositDetails = {
-  organizationId: number,
-  isAnonymous?: boolean,
-  pledgeCurrency: 'SOL',
-  pledgeAmount?: string,
-  receiptEmail?: string,
-  firstName?: string,
-  lastName?: string,
-  addressLine1?: string,
-  addressLine2?: string,
-  country?: string,
-  state?: string,
-  city?: string,
-  zipcode?: string
-}
-
-const bonkFoundationDefaultDetails: DepositDetails = {
-  organizationId: 1,
-  isAnonymous: false,
-  pledgeCurrency: 'SOL',
-  pledgeAmount: "0",
-  receiptEmail: "donations@bonk.foundation",
-  firstName: "BONK",
-  lastName: "Foundation",
-  addressLine1: "123 Fake Street",
-  country: "Canada",
-  state: "ON",
-  city: "Toronto",
-  zipcode:" 1337"
-}
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   try {

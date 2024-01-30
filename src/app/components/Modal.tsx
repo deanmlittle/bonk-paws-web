@@ -8,7 +8,9 @@ import {
   useConnection,
 } from "@solana/wallet-adapter-react";
 import { WalletNotConnectedError } from "@solana/wallet-adapter-base";
-import { PROGRAM_ID } from "@/constants";
+import { PROGRAM_ID, PROGRAM_ID_PUBKEY } from "@/constants";
+import { IDL } from "@/idl";
+import { Transaction } from "@solana/web3.js";
 
 interface ModalProps {
   organization: Organization;
@@ -54,7 +56,7 @@ const Modal: React.FC<ModalProps> = ({
     commitment,
   });
 
-  const program = new Program(IDL, PROGRAM_ID!, provider);
+  const program = new Program(IDL, PROGRAM_ID_PUBKEY, provider);
 
   const getSwapQuote = async (amount: number) => {
     if (!quoteLoading) {
@@ -79,59 +81,59 @@ const Modal: React.FC<ModalProps> = ({
     await getSwapQuote(amount * 1e4);
   };
 
-  // const donate = async () => {
-  //   const { txIx, donateIx, charityWallet2, matchDonationState } =
-  //   const tx = new Transaction().add(txIx).add(donateIx);
-  //   const { blockhash, lastValidBlockHeight } =
-  //     await connection.getLatestBlockhash();
-  //   tx.recentBlockhash = blockhash;
-  //   tx.lastValidBlockHeight = lastValidBlockHeight;
-  //   const signature = await sendTransaction(tx, connection, {
-  //     skipPreflight: true,
-  //   });
-  //   const result = await connection.confirmTransaction(
-  //     {
-  //       signature,
-  //       blockhash,
-  //       lastValidBlockHeight,
-  //     },
-  //     `confirmed`
-  //   );
-  //   if (result && result.value && result.value.err) {
-  //     throw Error(JSON.stringify(result.value.err));
-  //   }
+  const donate = async () => {
+    // const { txIx, donateIx, charityWallet2, matchDonationState } =
+    // const tx = new Transaction().add(txIx).add(donateIx);
+    // const { blockhash, lastValidBlockHeight } =
+    //   await connection.getLatestBlockhash();
+    // tx.recentBlockhash = blockhash;
+    // tx.lastValidBlockHeight = lastValidBlockHeight;
+    // const signature = await sendTransaction(tx, connection, {
+    //   skipPreflight: true,
+    // });
+    // const result = await connection.confirmTransaction(
+    //   {
+    //     signature,
+    //     blockhash,
+    //     lastValidBlockHeight,
+    //   },
+    //   `confirmed`
+    // );
+    // if (result && result.value && result.value.err) {
+    //   throw Error(JSON.stringify(result.value.err));
+    // }
 
-  //   if (fromAmount >= 0 && matchDonationState) {
-  //     // const matchAndFinalizeSignature = await matchAndFinalize(charityWallet2, matchDonationState);
-  //     // fetch to avoid using env
-  //     const data = {
-  //       fromAmount: fromAmount,
-  //       charityWallet2: charityWallet2,
-  //       matchDonationState: matchDonationState,
-  //     };
-  //     const data_json = JSON.stringify(data);
-  //     console.log(data_json);
-  //     const matchAndFinalizeoptions = {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify(data),
-  //     };
-  //     const res = await fetch(
-  //       "http://localhost:3000/api/matchFinaliseIx",
-  //       matchAndFinalizeoptions
-  //     );
+    // if (fromAmount >= 0 && matchDonationState) {
+    //   // const matchAndFinalizeSignature = await matchAndFinalize(charityWallet2, matchDonationState);
+    //   // fetch to avoid using env
+    //   const data = {
+    //     fromAmount: fromAmount,
+    //     charityWallet2: charityWallet2,
+    //     matchDonationState: matchDonationState,
+    //   };
+    //   const data_json = JSON.stringify(data);
+    //   console.log(data_json);
+    //   const matchAndFinalizeoptions = {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify(data),
+    //   };
+    //   const res = await fetch(
+    //     "http://localhost:3000/api/matchFinaliseIx",
+    //     matchAndFinalizeoptions
+    //   );
 
-  //     if (!res.ok) {
-  //       throw new Error("Failed to create with match and finalise");
-  //     }
-  //     const matchAndFinalizeSignature = await res.json();
-  //     return signature && matchAndFinalizeSignature;
-  //   } else {
-  //     return signature;
-  //   }
-  // };
+    //   if (!res.ok) {
+    //     throw new Error("Failed to create with match and finalise");
+    //   }
+    //   const matchAndFinalizeSignature = await res.json();
+    //   return signature && matchAndFinalizeSignature;
+    // } else {
+    //   return signature;
+    // }
+  };
 
   // const matchAndFinalize = async (charityWallet2: PublicKey, matchDonationState: PublicKey) => {
   //       const {matchIx, swapIx, finalizeIx, addressLookupTableAccounts} = await getMatchAndFinalize(fromAmount, charityWallet2, matchDonationState, program);

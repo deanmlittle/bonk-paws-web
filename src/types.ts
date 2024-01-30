@@ -50,3 +50,19 @@ export interface OrganizationsResponse {
     success: boolean;
     message: Message;
 }
+
+export interface DepositDetails {
+    organizationId: number,
+    isAnonymous?: boolean,
+    pledgeCurrency: 'SOL',
+    pledgeAmount?: string,
+    receiptEmail?: string,
+    firstName?: string,
+    lastName?: string,
+    addressLine1?: string,
+    addressLine2?: string,
+    country?: string,
+    state?: string,
+    city?: string,
+    zipcode?: string
+}

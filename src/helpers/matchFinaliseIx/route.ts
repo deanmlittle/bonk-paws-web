@@ -2,7 +2,7 @@ import { Address, AnchorProvider, BN, Program, Wallet } from "@coral-xyz/anchor"
 import { ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, getAssociatedTokenAddressSync } from "@solana/spl-token";
 import { AddressLookupTableAccount, Connection, Ed25519Program, Keypair, LAMPORTS_PER_SOL, PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY, SystemProgram, TransactionInstruction, TransactionMessage,  VersionedTransaction} from "@solana/web3.js";
 import { NextResponse } from "next/server";
-import { BonkForPaws, IDL } from "../../../api/program";
+import { BonkPaws, IDL } from "../../idl";
 
 const [
   PROGRAM_ID,
@@ -19,7 +19,7 @@ const donor = new Wallet(AUTH_WALLET);
 
 
 const provider = new AnchorProvider(connection, donor, { commitment: "confirmed"});
-const program = new Program<BonkForPaws>(IDL, PROGRAM_ID as Address, provider);
+const program = new Program<BonkPaws>(IDL, PROGRAM_ID as Address, provider);
 
 export const deserializeInstruction = (instruction: any) => {
   return new TransactionInstruction({
@@ -94,107 +94,107 @@ export const getMatchAndFinalize = async (
   ).json();
   
 
-  const matchIx = await program.methods
-  .matchDonation(new BN(amountResponse.inAmount))
-  .accounts({
-    authority,
-    charity,
-    bonk,
-    authorityBonk,
-    wsol,
-    authorityWsol,
-    donationState, 
-    matchDonationState,
-    instructions: SYSVAR_INSTRUCTIONS_PUBKEY,
-    associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-    tokenProgram: TOKEN_PROGRAM_ID,
-    systemProgram: SystemProgram.programId,  
-  })
-  .instruction()
+  // const matchIx = await program.methods
+  // .matchDonation(new BN(amountResponse.inAmount))
+  // .accounts({
+  //   signer: authority,
+  //   charity,
+  //   bonk,
+  //   authorityBonk,
+  //   wsol,
+  //   authorityWsol,
+  //   donationState, 
+  //   matchDonationState,
+  //   instructions: SYSVAR_INSTRUCTIONS_PUBKEY,
+  //   associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+  //   tokenProgram: TOKEN_PROGRAM_ID,
+  //   systemProgram: SystemProgram.programId,  
+  // })
+  // .instruction()
     
-  const typedInstructions = instructions as {
-      tokenLedgerInstruction?: any,
-      computeBudgetInstructions?: any,
-      setupInstructions?: any,
-      swapInstruction?: any,
-      cleanupInstruction?: any,
-      addressLookupTableAddresses?: any,
-      error?: string
-  };
+  // const typedInstructions = instructions as {
+  //     tokenLedgerInstruction?: any,
+  //     computeBudgetInstructions?: any,
+  //     setupInstructions?: any,
+  //     swapInstruction?: any,
+  //     cleanupInstruction?: any,
+  //     addressLookupTableAddresses?: any,
+  //     error?: string
+  // };
 
-  if (typedInstructions.error) {
-      throw new Error("Failed to get swap instructions: " + typedInstructions.error);
-  }
+//   if (typedInstructions.error) {
+//       throw new Error("Failed to get swap instructions: " + typedInstructions.error);
+//   }
 
-  const {
-      tokenLedgerInstruction,
-      computeBudgetInstructions,
-      setupInstructions,
-      swapInstruction: swapInstructionPayload,
-      cleanupInstruction,
-      addressLookupTableAddresses,
-  } = typedInstructions;
+//   const {
+//       tokenLedgerInstruction,
+//       computeBudgetInstructions,
+//       setupInstructions,
+//       swapInstruction: swapInstructionPayload,
+//       cleanupInstruction,
+//       addressLookupTableAddresses,
+//   } = typedInstructions;
 
-  addressLookupTableAccounts.push(
-      ...(await getAddressLookupTableAccounts(addressLookupTableAddresses))
-  );
+//   addressLookupTableAccounts.push(
+//       ...(await getAddressLookupTableAccounts(addressLookupTableAddresses))
+//   );
 
-  const finalizeIx = await program.methods
-  .finalizeDonation()
-  .accounts({
-      donor: authority,
-      charity,
-      wsol,
-      donorWsol: authorityWsol,
-      instructions: SYSVAR_INSTRUCTIONS_PUBKEY,
-      associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-      tokenProgram: TOKEN_PROGRAM_ID,
-      systemProgram: SystemProgram.programId,
-  })
-  .instruction()
+//   const finalizeIx = await program.methods
+//   .finalizeDonation()
+//   .accounts({
+//       donor: authority,
+//       charity,
+//       wsol,
+//       donorWsol: authorityWsol,
+//       instructions: SYSVAR_INSTRUCTIONS_PUBKEY,
+//       associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+//       tokenProgram: TOKEN_PROGRAM_ID,
+//       systemProgram: SystemProgram.programId,
+//   })
+//   .instruction()
 
-  const swapIx = deserializeInstruction(swapInstructionPayload);
+//   const swapIx = deserializeInstruction(swapInstructionPayload);
 
-  return {
-      matchIx,
-      swapIx,
-      finalizeIx,
-      addressLookupTableAccounts,
-  };
-};
+//   return {
+//       matchIx,
+//       swapIx,
+//       finalizeIx,
+//       addressLookupTableAccounts,
+//   };
+// };
 
 
-  const matchAndFinalize = async (amountDonated: number, charityWallet2_str: string, matchDonationState_str: string) => {
-    const charityWallet2 = new PublicKey(charityWallet2_str);
-    const matchDonationState = new PublicKey(matchDonationState_str);
-    const {matchIx, swapIx, finalizeIx, addressLookupTableAccounts} = await getMatchAndFinalize(amountDonated, charityWallet2, matchDonationState);
-    const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
-    const messageV0 = new TransactionMessage({
-        payerKey: AUTH_WALLET.publicKey,
-        recentBlockhash: blockhash,
-        instructions: [
-          matchIx,
-          swapIx,
-          finalizeIx,
-        ],
-    }).compileToV0Message(addressLookupTableAccounts);
+//   const matchAndFinalize = async (amountDonated: number, charityWallet2_str: string, matchDonationState_str: string) => {
+//     const charityWallet2 = new PublicKey(charityWallet2_str);
+//     const matchDonationState = new PublicKey(matchDonationState_str);
+//     const {matchIx, swapIx, finalizeIx, addressLookupTableAccounts} = await getMatchAndFinalize(amountDonated, charityWallet2, matchDonationState);
+//     const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+//     const messageV0 = new TransactionMessage({
+//         payerKey: AUTH_WALLET.publicKey,
+//         recentBlockhash: blockhash,
+//         instructions: [
+//           matchIx,
+//           swapIx,
+//           finalizeIx,
+//         ],
+//     }).compileToV0Message(addressLookupTableAccounts);
 
-    const transaction = new VersionedTransaction(messageV0);
-    console.log(transaction);
-    transaction.sign([AUTH_WALLET]);
+//     const transaction = new VersionedTransaction(messageV0);
+//     console.log(transaction);
+//     transaction.sign([AUTH_WALLET]);
 
-    const txid = await connection.sendTransaction(transaction, {skipPreflight:true});
+//     const txid = await connection.sendTransaction(transaction, {skipPreflight:true});
      
-    return txid;
+//     return txid;
 
-}
+// }
 
-export async function POST(request:any){
-  const {
-    fromAmount,
-    charityWallet2,
-    matchDonationState,
-  } = await request.json();
-  const signature = await matchAndFinalize(fromAmount, charityWallet2, matchDonationState);
-  return NextResponse.json({matchAndFinalize:signature})
+// export async function POST(request:any){
+//   const {
+//     fromAmount,
+//     charityWallet2,
+//     matchDonationState,
+//   } = await request.json();
+//   const signature = await matchAndFinalize(fromAmount, charityWallet2, matchDonationState);
+//   return NextResponse.json({matchAndFinalize:signature})
 }
