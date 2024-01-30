@@ -22,13 +22,7 @@ const Balance = () => {
       if (!isLoading) {
         setIsLoading(true);
         try {
-          const acc = await connection.getAccountInfo(
-            publicKey,
-            "processed"
-          );
-          const balance = acc?.lamports
-          console.log("balance: ", balance);
-          setBalance(balance ? balance / 1e9 : 0);
+          await connection.getBalance(publicKey, "processed").then((b) => setBalance(b / 1e9));
         } catch (e) {
           console.log(e);
           setBalance(0);
@@ -36,16 +30,22 @@ const Balance = () => {
         setIsLoading(false);
       }
     };
-    if (publicKey) {
-      let timer = setTimeout(async () => {
+  
+    let timer: NodeJS.Timeout;
+  
+    const fetchData = async () => {
+      if (publicKey) {
         await getBalance(publicKey);
-      }, 15000);
-
-      return () => {
-        clearTimeout(timer);
-      };
-    }
-  }, [isLoading, publicKey]);
+        timer = setTimeout(fetchData, 15000); // Execute every 25 seconds
+      }
+    };
+  
+    fetchData(); // Initial execution
+  
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [publicKey]);
 
   if (!publicKey) return;
 
