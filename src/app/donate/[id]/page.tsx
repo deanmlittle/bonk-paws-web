@@ -13,14 +13,11 @@ type DonateProps = {
 export default function Donate({ params }: DonateProps) {
   const [currentOrg, setCurrentOrg] = useState<any>(null);
   useEffect(() => {
-
     const getCharityInfo = async () => {
       try {
-        const res = await fetch(
-          APP_URL + `/api/organization?id=${params.id}`
-        );
+        const res = await fetch(APP_URL + `/api/organization?id=${params.id}`);
         const json = await res.json();
-        setCurrentOrg(json?.data?.data?.organization); 
+        setCurrentOrg(json?.data?.data?.organization);
         return json;
       } catch (err) {
         console.log(err);
@@ -31,8 +28,8 @@ export default function Donate({ params }: DonateProps) {
 
   return (
     <main className="flex min-h-screen flex-col mt-8">
-      <div className="relative isolate px-6 pt-0 lg:px-8 mt-16 h-full">
-        {currentOrg && (
+      <div className="relative px-6 pt-0 lg:px-8 mt-16 h-full">
+        {currentOrg ? (
           <div className="w-full h-full grid grid-cols-1 lg:grid-cols-5 gap-y-10 lg:gap-16">
             <div className="col-span-3 flex flex-col">
               <h1 className="mt-5 font-bold tracking-tighter text-4xl py-4 text-yellow-950">
@@ -72,6 +69,21 @@ export default function Donate({ params }: DonateProps) {
               <DonationWidget organization={currentOrg} />
             </div>
           </div>
+        ) : (
+          <>
+            <div className="relative w-screen h-[70dvh] flex items-center justify-center animate-paws">
+              <img
+                src="/paw.png"
+                alt="Paw"
+                className="w-32 absolute transform translate-y-24 -translate-x-24 paw2"
+              ></img>
+              <img
+                src="/paw.png"
+                alt="Paw"
+                className="w-32 absolute paw1"
+              ></img>
+            </div>
+          </>
         )}
       </div>
     </main>
