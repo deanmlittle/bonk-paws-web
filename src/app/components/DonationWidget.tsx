@@ -13,6 +13,8 @@ import {
   TransactionInstruction,
   SystemProgram,
   SYSVAR_INSTRUCTIONS_PUBKEY,
+  TransactionInstructionCtorFields,
+  Ed25519Program,
 } from "@solana/web3.js";
 import {
   useWallet,
@@ -20,9 +22,10 @@ import {
   useConnection,
 } from "@solana/wallet-adapter-react";
 import { WalletNotConnectedError } from "@solana/wallet-adapter-base";
-import { APP_URL, PROGRAM_ID, PROGRAM_ID_PUBKEY } from "@/constants";
+import { APP_URL, PROGRAM_ID, PROGRAM_ID_PUBKEY, matchAmount, maxMatchAmount } from "@/constants";
 import { IDL } from "@/idl";
 import { randomBytes } from "crypto";
+import Loader from "./Loader";
 
 interface WidgetProps {
   organization: Organization;
@@ -32,21 +35,22 @@ const preflightCommitment = "processed";
 const commitment = "processed";
 
 const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
+  const [isLoading, setIsLoading] = useState(false);
   const [quoteLoading, setQuoteloading] = React.useState(false);
   const [quoteAmount, setQuoteAmount] = useState<number>(0);
   const [fromAmount, setFromAmount] = useState<number>(0);
   const [wantReceipt, setWantReceipt] = useState(false);
-  const [onlyAnon, setOnlyAnon] = useState(true);
+  const [isAnonymous, setIsAnonymous] = useState(true);
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [address1, setAddress1] = useState("");
-  const [address2, setAddress2] = useState("");
+  const [receiptEmail, setReceiptEmail] = useState("");
+  const [addressLine1, setaddressLine1] = useState("");
+  const [addressLine2, setaddressLine2] = useState("");
   const [country, setCountry] = useState("");
   const [state, setState] = useState("");
   const [city, setCity] = useState("");
-  const [zipCode, setZipCode] = useState("");
+  const [zipcode, setZipcode] = useState("");
 
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
@@ -63,10 +67,11 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
   const program = new Program(IDL, PROGRAM_ID, provider);
 
   const getSwapQuote = async (amount: number) => {
+    if (amount < matchAmount || isNaN(amount)) return;
     if (!quoteLoading) {
       setQuoteloading(true);
       try {
-        amount = amount * 10_000;
+        // amount = amount * 10_000;
         const { data: quote } = await axios.get(
           `https://quote-api.jup.ag/v6/quote?inputMint=DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263&outputMint=So11111111111111111111111111111111111111112&amount=${amount}&swapMode=ExactOut&slippageBps=50`
         );
@@ -81,72 +86,83 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
   };
 
   const updateFromAmount = async (amount: number) => {
-    setFromAmount(amount);
-    await getSwapQuote(amount * 1e4);
+    setFromAmount(Number(amount));
+    await getSwapQuote(Number(amount * 1e4));
   };
 
   const donate = async () => {
-    const data = {
-      organizationId: organization.id,
-      isAnon: onlyAnon,
-      pledgeCurrency: "SOL",
-      pledgeAmount: fromAmount.toString(),
-      receiptEmail: email,
-      firstName: firstName,
-      lastName: lastName,
-      addressLine1: address1,
-      addressLine2: address2 ,
-      country: country,
-      state: state,
-      city:city,
-      zipcode:zipCode
-    }
-    const options = {
-      method: 'POST',
-      headers: {
-      'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
+    setIsLoading(true);
+    try {
+      const data = {
+        organizationId: organization.id,
+        isAnonymous,
+        pledgeCurrency: "SOL",
+        pledgeAmount: fromAmount.toString(),
+        receiptEmail,
+        firstName,
+        lastName,
+        addressLine1,
+        addressLine2,
+        country,
+        state,
+        city,
+        zipcode
+      }
+      const options = {
+        method: 'POST',
+        headers: {
+        'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+        };
+      const res = await (await fetch(APP_URL + `/api/payment?id=${organization.id}`, options)).json();
+      const seed = new BN(randomBytes(8));
+      const charity = new PublicKey(res.data.donationAddress);
+      // const matchAddress = new PublicKey(res.data.matchAddress);
+      const signatureIxFields: TransactionInstructionCtorFields = {
+        keys: [],
+        programId: Ed25519Program.programId,
+        data: Buffer.from(res.data.signatureIx.data.data)
       };
-    const res = await (await fetch(APP_URL + `/api/payment?id=${organization.id}`, options)).json();
-    const seed = new BN(randomBytes(8));
-    const charity = new PublicKey(res.data.donationAddress);
-    const matchAddress = new PublicKey(res.data.matchAddress);
-    const signatureIx = new TransactionInstruction(res.data.ix);
-    const donationState = PublicKey.findProgramAddressSync([Buffer.from("donation_state")], PROGRAM_ID_PUBKEY)[0];
-    const matchDonationState = PublicKey.findProgramAddressSync([Buffer.from("match_donation"), seed.toArrayLike(Buffer, 'le', 8)], PROGRAM_ID_PUBKEY)[0];
-    const donationHistory = PublicKey.findProgramAddressSync([Buffer.from("donation_history"), seed.toArrayLike(Buffer, 'le', 8), publicKey.toBuffer()], PROGRAM_ID_PUBKEY)[0];
+      const signatureIx = new TransactionInstruction(signatureIxFields);
+      console.log(signatureIx);
+      const donationState = PublicKey.findProgramAddressSync([Buffer.from("donation_state")], PROGRAM_ID_PUBKEY)[0];
+      const matchDonationState = PublicKey.findProgramAddressSync([Buffer.from("match_donation"), seed.toArrayLike(Buffer, 'le', 8)], PROGRAM_ID_PUBKEY)[0];
+      const donationHistory = PublicKey.findProgramAddressSync([Buffer.from("donation_history"), seed.toArrayLike(Buffer, 'le', 8), publicKey.toBuffer()], PROGRAM_ID_PUBKEY)[0];
 
-    let amount = new BN(fromAmount*1e9);
-    const donateIx = await program.methods.donate(seed, amount)
-    .accounts({
-      donor: publicKey,
-      charity,
-      donationState,
-      matchDonationState,
-      donationHistory,
-      instructions: SYSVAR_INSTRUCTIONS_PUBKEY,
-      systemProgram: SystemProgram.programId
-    }).instruction();
+      let amount = new BN(fromAmount*1e9);
+      const donateIx = await program.methods.donate(seed, amount)
+      .accounts({
+        donor: publicKey,
+        charity,
+        donationState,
+        matchDonationState,
+        donationHistory,
+        instructions: SYSVAR_INSTRUCTIONS_PUBKEY,
+        systemProgram: SystemProgram.programId
+      }).instruction();
 
-    const tx = new Transaction().add(signatureIx).add(donateIx);
-    const { blockhash, lastValidBlockHeight } =
-      await connection.getLatestBlockhash();
-    tx.recentBlockhash = blockhash;
-    tx.lastValidBlockHeight = lastValidBlockHeight;
-    const signature = await sendTransaction(tx, connection, {
-      skipPreflight: true,
-    });
-    const result = await connection.confirmTransaction(
-      {
-        signature,
-        blockhash,
-        lastValidBlockHeight,
-      },
-      `confirmed`
-    );
-    if (result && result.value && result.value.err) {
-      throw Error(JSON.stringify(result.value.err));
+      let tx = new Transaction().add(signatureIx).add(donateIx);
+      const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+      tx.recentBlockhash = blockhash;
+      tx.lastValidBlockHeight = lastValidBlockHeight;
+      const signature = await sendTransaction(tx, connection, {
+        skipPreflight: true,
+      });
+      const result = await connection.confirmTransaction(
+        {
+          signature,
+          blockhash,
+          lastValidBlockHeight,
+        },
+        `confirmed`
+      );
+      if (result && result.value && result.value.err) {
+        throw Error(JSON.stringify(result.value.err));
+      }
+      setIsLoading(false)
+    } catch(e) {
+      setIsLoading(false);
     }
 
     // if (fromAmount >= 0 && matchDonationState) {
@@ -232,11 +248,10 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
                   <p className="text-yellow-900 text-sm mb-1 mt-4">Our Match</p>
                   <div className="flex w-full items-center border border-yellow-900 bg-yellow-950 bg-opacity-5  border-opacity-40 focus:border-opacity-500 py-2 rounded-xl">
                     <p className="w-full text-start bg-transparent ml-3 font-raleway text-yellow-900 font-regular !outline-none">
-                      {fromAmount >= 0
-                        ? Number(quoteAmount).toLocaleString()
+                      {fromAmount >= matchAmount ? Number(Math.min(maxMatchAmount,fromAmount)).toLocaleString()
                         : 0}
                     </p>
-                    <img className="w-6 h-6 mr-2" src="/logo.png" />
+                    <img className="w-6 h-6 mr-2" src="/sol.png" />
                   </div>
 
                   <p className="text-yellow-900 text-sm mb-1 mt-4">
@@ -255,7 +270,7 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
                   </p>
                   <div className="flex w-full border items-center border-yellow-900 bg-yellow-950 bg-opacity-5  border-opacity-40 focus:border-opacity-500 py-2 rounded-xl mb-4">
                     <p className="w-full text-start bg-transparent ml-3 font-raleway text-yellow-900 font-regular !outline-none">
-                      {fromAmount >= 1 ? fromAmount * 2 : fromAmount}
+                      {fromAmount >= matchAmount ? Number(fromAmount + Math.min(maxMatchAmount,fromAmount)).toLocaleString() : fromAmount}
                     </p>
                     <img className="w-6 h-6 mr-2" src="/sol.png" />
                   </div>
@@ -265,11 +280,11 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
                       <div className="flex items-center gap-x-3">
                         <div
                           className={`p-2 border-2 h-full cursor-pointer flex-shrink-0 hover:bg-opacity-20 rounded-xl bg-yellow-950 ${
-                            onlyAnon
+                            isAnonymous
                               ? "bg-opacity-10 border-2 border-red-500"
                               : "bg-opacity-[0.05] border-yellow-700 border-opacity-0"
                           }`}
-                          onClick={() => setOnlyAnon(!onlyAnon)}
+                          onClick={() => setIsAnonymous(!isAnonymous)}
                         >
                           <img
                             src="/anonymous.svg"
@@ -302,7 +317,7 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
                     )}
                   </div>
 
-                  {!onlyAnon ? (
+                  {!isAnonymous ? (
                     <form className="space-y-4">
                       <p className="text-yellow-900 text-sm mb-1 mt-4 text-left">
                         Personal Information
@@ -330,16 +345,16 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
                         className="w-full text-yellow-900 placeholder:text-yellow-800 px-3 flex focus:outline-none border items-center border-yellow-900 bg-yellow-950 bg-opacity-5  border-opacity-40 focus:border-opacity-500 py-2 rounded-xl mb-4"
                         type="text"
                         placeholder="Address 1 *"
-                        value={address1}
-                        onChange={(e) => setAddress1(e.target.value)}
+                        value={addressLine1}
+                        onChange={(e) => setaddressLine1(e.target.value)}
                         required
                       />
                       <input
                         className="w-full text-yellow-900 placeholder:text-yellow-800 px-3 flex focus:outline-none border items-center border-yellow-900 bg-yellow-950 bg-opacity-5  border-opacity-40 focus:border-opacity-500 py-2 rounded-xl mb-4"
                         type="text"
                         placeholder="Address 2"
-                        value={address2}
-                        onChange={(e) => setAddress2(e.target.value)}
+                        value={addressLine2}
+                        onChange={(e) => setaddressLine2(e.target.value)}
                       />
                       <div className="flex gap-4">
                         <input
@@ -371,8 +386,8 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
                           className="w-full text-yellow-900 placeholder:text-yellow-800 px-3 flex focus:outline-none border items-center border-yellow-900 bg-yellow-950 bg-opacity-5  border-opacity-40 focus:border-opacity-500 py-2 rounded-xl mb-4"
                           type="text"
                           placeholder="ZIP/Postal Code *"
-                          value={zipCode}
-                          onChange={(e) => setZipCode(e.target.value)}
+                          value={zipcode}
+                          onChange={(e) => setZipcode(e.target.value)}
                           required
                         />
                       </div>
@@ -386,8 +401,8 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
                         className="w-full text-yellow-900 placeholder:text-yellow-800 px-3 flex focus:outline-none border items-center border-yellow-900 bg-yellow-950 bg-opacity-5  border-opacity-40 focus:border-opacity-500 py-2 rounded-xl mb-4"
                         type="email"
                         placeholder="example@example.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        value={receiptEmail}
+                        onChange={(e) => setReceiptEmail(e.target.value)}
                         required
                       />
                     </>
@@ -404,7 +419,8 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
                 disabled={fromAmount === 0 || quoteLoading}
                 onClick={donate}
               >
-                Donate
+                { isLoading ? <Loader /> : "Donate"}
+                {/* Donate */}
               </button>
             </div>
           </div>

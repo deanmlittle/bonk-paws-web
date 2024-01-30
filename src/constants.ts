@@ -20,3 +20,8 @@ export const bonkFoundationDefaultDetails: DepositDetails = {
     city: "Toronto",
     zipcode:" 1337"
 }
+
+export const matchAmount = 1;
+export const burnAmount = 1;
+export const maxMatchAmount = 100;
+export const maxBurnAmount = 100;

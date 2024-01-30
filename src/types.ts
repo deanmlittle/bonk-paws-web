@@ -53,9 +53,9 @@ export interface OrganizationsResponse {
 
 export interface DepositDetails {
     organizationId: number,
-    isAnonymous?: boolean,
+    isAnonymous: boolean,
     pledgeCurrency: 'SOL',
-    pledgeAmount?: string,
+    pledgeAmount: string,
     receiptEmail?: string,
     firstName?: string,
     lastName?: string,

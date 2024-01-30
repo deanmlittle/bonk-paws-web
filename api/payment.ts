@@ -22,7 +22,29 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     const { searchParams } = new URL(req.url!, APP_URL);
     const organizationId = parseInt(searchParams.get('id')!);
 
-    const depositDetails: DepositDetails = req.body();
+    let depositDetails: DepositDetails = { ...req.body };
+    delete depositDetails.receiptEmail;
+    console.log(depositDetails);
+    
+    if (depositDetails.firstName === "") delete depositDetails.firstName;
+    if (depositDetails.lastName === "") delete depositDetails.lastName;
+    if (depositDetails.addressLine1 === "") delete depositDetails.addressLine1;
+    if (depositDetails.addressLine2 === "") delete depositDetails.addressLine2;
+    if (depositDetails.city === "") delete depositDetails.city;
+    if (depositDetails.country === "") delete depositDetails.country;
+    if (depositDetails.state === "") delete depositDetails.state;
+    if (depositDetails.zipcode === "") delete depositDetails.zipcode;
+    if(!depositDetails.isAnonymous) {
+      if (!depositDetails.state) throw ("State is required for non-anonymous donations");
+      if (!depositDetails.zipcode) throw ("Zipcode is required for non-anonymous donations");      
+      if (!depositDetails.firstName) throw ("First name is required for non-anonymous donations");
+      if (!depositDetails.lastName) throw ("Last name is required for non-anonymous donations");
+      if (!depositDetails.addressLine1) throw ("Address Line 1 is required for non-anonymous donations");
+      // if (!depositDetails.addressLine2) throw ("Address Line 2 is required for non-anonymous donations");
+      if (!depositDetails.country) throw ("Country is required for non-anonymous donations");
+      if (!depositDetails.state) throw ("State is required for non-anonymous donations");
+      if (!depositDetails.zipcode) throw ("Zipcode is required for non-anonymous donations");
+    }
   
     const thegivingblock = axios.create({
       baseURL,
@@ -39,7 +61,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         }
       }
     );
-
+    
     let bonkDepositDetails: DepositDetails = {
       ...bonkFoundationDefaultDetails,
       pledgeAmount: depositDetails.pledgeAmount,
@@ -47,7 +69,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     }
 
     const { data: match } = await thegivingblock.post(
-      "deposit-address", 
+      "deposit-address",
       // Use Bonk Foundation's details
       bonkDepositDetails,
       { 
@@ -83,7 +105,11 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         donationAddress, 
         matchAddress, 
         signer, 
-        signatureIx: ix.data.toString("hex")
+        signatureIx: {
+          keys: ix.keys,
+          programId: ix.programId,
+          data: ix.data
+        }
       }
     })
   } catch(e) {
