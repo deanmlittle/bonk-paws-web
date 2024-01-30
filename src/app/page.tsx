@@ -13,10 +13,10 @@ import { IDL, BonkForPaws } from "../../api/program";
 import { Address, AnchorProvider, Program } from "@coral-xyz/anchor";
 import { PublicKey } from "@solana/web3.js";
 import { WalletNotConnectedError } from "@solana/wallet-adapter-base";
+import { PROGRAM_ID, PROGRAM_ID_PUBKEY } from "@/constants";
 
 const preflightCommitment = "processed";
 const commitment = "processed";
-const PROGRAM_ID = "4p78LV6o9gdZ6YJ3yABSbp3mVq9xXa4NqheXTB1fa4LJ";
 
 export default function Home() {
   const { publicKey, connected } = useWallet();
@@ -40,8 +40,11 @@ export default function Home() {
         });
 
         const program = new Program(IDL, PROGRAM_ID, provider);
+
+        const donationState = PublicKey.createProgramAddressSync([Buffer.from("donation_state")], PROGRAM_ID_PUBKEY)
+
         let res = await program.account.donationState.fetch(
-          new PublicKey("7tciFdrfQajryTTZ5ujdZTEJPB6PftKGr4BYyFvYSB4j")
+          donationState
         );
         const donatedAmount =
           res.bonkDonated.toNumber() + res.bonkMatched.toNumber();

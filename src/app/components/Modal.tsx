@@ -18,6 +18,7 @@ import {
   useConnection,
 } from "@solana/wallet-adapter-react";
 import { WalletNotConnectedError } from "@solana/wallet-adapter-base";
+import { PROGRAM_ID } from "@/constants";
 
 interface ModalProps {
   organization: Organization;
@@ -29,7 +30,6 @@ interface ModalProps {
 
 const preflightCommitment = "processed";
 const commitment = "processed";
-const PROGRAM_ID = "4p78LV6o9gdZ6YJ3yABSbp3mVq9xXa4NqheXTB1fa4LJ";
 
 const Modal: React.FC<ModalProps> = ({
   organization,
@@ -64,7 +64,7 @@ const Modal: React.FC<ModalProps> = ({
     commitment,
   });
 
-  const program = new Program(IDL, PROGRAM_ID, provider);
+  const program = new Program(IDL, PROGRAM_ID!, provider);
 
   const getSwapQuote = async (amount: number) => {
     if (!quoteLoading) {

@@ -1,7 +1,7 @@
 // api/payment.js
 import axios from "axios";
 import { NextApiRequest, NextApiResponse } from "next";
-import { CreateEd25519InstructionWithPrivateKeyParams, Ed25519Program, PublicKey } from "@solana/web3.js";
+import { CreateEd25519InstructionWithPrivateKeyParams, Ed25519Program, Keypair, PublicKey } from "@solana/web3.js";
 
 const [login, password, baseURL] = [
   process.env.TGB_API_LOGIN, 
@@ -69,6 +69,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
     let donationAddress = new PublicKey(donation.data.depositAddress);
     let matchAddress = new PublicKey(match.data.depositAddress);
+    let signer = Keypair.fromSecretKey(new Uint8Array(signingKey)).publicKey.toBase58();
     let b = Buffer.allocUnsafe(8);
     b.writeBigUInt64LE(BigInt(organizationId));
     b = Buffer.concat([b, Buffer.from(donationAddress.toBytes()), Buffer.from(matchAddress.toBytes())]);
@@ -78,8 +79,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       message: b
     };
     let ix = Ed25519Program.createInstructionWithPrivateKey(ixOpts)
-    res.status(200).json({ success: true, message: { donationAddress, matchAddress, ix: ix.data.toString("hex") }});
+    res.status(200).json({ success: true, data: { donationAddress, matchAddress, signer, ix: ix.data.toString("hex") }});
   } catch(e) {
-    res.status(400).json({ success: false, message: e });
+    res.status(400).json({ success: false, error: e });
   }
 };

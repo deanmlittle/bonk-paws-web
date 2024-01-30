@@ -8,6 +8,7 @@ import {
 } from "@solana/wallet-adapter-react";
 import { WalletNotConnectedError } from "@solana/wallet-adapter-base";
 import Image from "next/image";
+import { PROGRAM_ID } from "@/constants";
 
 interface DonationProps {
   isOpen: boolean;
@@ -16,7 +17,6 @@ interface DonationProps {
 
 const preflightCommitment = "processed";
 const commitment = "processed";
-const PROGRAM_ID = "4p78LV6o9gdZ6YJ3yABSbp3mVq9xXa4NqheXTB1fa4LJ";
 
 const DonationHistory: React.FC<DonationProps> = ({ isOpen, setIsOpen }) => {
   const { publicKey, connected } = useWallet();
@@ -51,7 +51,7 @@ const DonationHistory: React.FC<DonationProps> = ({ isOpen, setIsOpen }) => {
             commitment,
           });
 
-          const program = new Program(IDL, PROGRAM_ID, provider);
+          const program = new Program(IDL, PROGRAM_ID!, provider);
 
           let fetchedHistory = await program.account.donationHistory.all([
             {

@@ -4,10 +4,17 @@ import { AddressLookupTableAccount, Connection, Ed25519Program, Keypair, LAMPORT
 import { NextResponse } from "next/server";
 import { BonkForPaws, IDL } from "../../../api/program";
 
-const PROGRAM_ID = "4p78LV6o9gdZ6YJ3yABSbp3mVq9xXa4NqheXTB1fa4LJ"
+const [
+  PROGRAM_ID,
+  RPC_URL
+ ] = [
+  process.env.PUBLIC_NEXT_PROGRAM_ID,
+  process.env.PUBLIC_NEXT_RPC_URL,
+ ];
+
 const auth_keypair = JSON.parse(process.env.KEYPAIR!);
 const AUTH_WALLET = Keypair.fromSecretKey(new Uint8Array(auth_keypair));
-const connection = new Connection("https://multi-compatible-dream.solana-mainnet.quiknode.pro/ab10715a148f3ffb855f7e7665821f318f1c2cb8/");
+const connection = new Connection(RPC_URL!);
 const donor = new Wallet(AUTH_WALLET);
 
 

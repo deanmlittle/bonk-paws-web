@@ -1,8 +1,7 @@
 import { Organization } from "@/types";
 import React, { useEffect, useState } from "react";
-import { getDonate, IDL, getMatchAndFinalize } from "../../../api/program";
+// import { getDonate, IDL, getMatchAndFinalize } from "../../../api/program";
 import axios from "axios";
-import { publicKey } from "@coral-xyz/anchor/dist/cjs/utils";
 import { Address, AnchorProvider, BN, Program } from "@coral-xyz/anchor";
 import {
   Connection,
@@ -11,6 +10,9 @@ import {
   TransactionMessage,
   VersionedTransaction,
   Keypair,
+  TransactionInstruction,
+  SystemProgram,
+  SYSVAR_INSTRUCTIONS_PUBKEY,
 } from "@solana/web3.js";
 import {
   useWallet,
@@ -18,6 +20,9 @@ import {
   useConnection,
 } from "@solana/wallet-adapter-react";
 import { WalletNotConnectedError } from "@solana/wallet-adapter-base";
+import { APP_URL, PROGRAM_ID, PROGRAM_ID_PUBKEY } from "@/constants";
+import { IDL } from "@/idl";
+import { randomBytes } from "crypto";
 
 interface WidgetProps {
   organization: Organization;
@@ -25,7 +30,6 @@ interface WidgetProps {
 
 const preflightCommitment = "processed";
 const commitment = "processed";
-const PROGRAM_ID = "4p78LV6o9gdZ6YJ3yABSbp3mVq9xXa4NqheXTB1fa4LJ";
 
 const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
   const [quoteLoading, setQuoteloading] = React.useState(false);
@@ -82,24 +86,50 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
   };
 
   const donate = async () => {
-    const { txIx, donateIx, charityWallet2, matchDonationState } =
-      await getDonate(
-        organization.id,
-        onlyAnon,
-        email,
-        firstName,
-        lastName,
-        address1,
-        address2,
-        country,
-        state,
-        city,
-        zipCode,
-        fromAmount,
-        new PublicKey(publicKey),
-        program
-      );
-    const tx = new Transaction().add(txIx).add(donateIx);
+    const data = {
+      organizationId: organization.id,
+      isAnon: onlyAnon,
+      pledgeCurrency: "SOL",
+      pledgeAmount: fromAmount.toString(),
+      receiptEmail: email,
+      firstName: firstName,
+      lastName: lastName,
+      addressLine1: address1,
+      addressLine2: address2 ,
+      country: country,
+      state: state,
+      city:city,
+      zipcode:zipCode
+    }
+    const options = {
+      method: 'POST',
+      headers: {
+      'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+      };
+    const res = await (await fetch(APP_URL + `/api/payment?id=${organization.id}`, options)).json();
+    const seed = new BN(randomBytes(8));
+    const charity = new PublicKey(res.data.donationAddress);
+    const matchAddress = new PublicKey(res.data.matchAddress);
+    const signatureIx = new TransactionInstruction(res.data.ix);
+    const donationState = PublicKey.findProgramAddressSync([Buffer.from("donation_state")], PROGRAM_ID_PUBKEY)[0];
+    const matchDonationState = PublicKey.findProgramAddressSync([Buffer.from("match_donation"), seed.toArrayLike(Buffer, 'le', 8)], PROGRAM_ID_PUBKEY)[0];
+    const donationHistory = PublicKey.findProgramAddressSync([Buffer.from("donation_history"), seed.toArrayLike(Buffer, 'le', 8), publicKey.toBuffer()], PROGRAM_ID_PUBKEY)[0];
+
+    let amount = new BN(fromAmount*1e9);
+    const donateIx = await program.methods.donate(seed, amount)
+    .accounts({
+      donor: publicKey,
+      charity,
+      donationState,
+      matchDonationState,
+      donationHistory,
+      instructions: SYSVAR_INSTRUCTIONS_PUBKEY,
+      systemProgram: SystemProgram.programId
+    }).instruction();
+
+    const tx = new Transaction().add(signatureIx).add(donateIx);
     const { blockhash, lastValidBlockHeight } =
       await connection.getLatestBlockhash();
     tx.recentBlockhash = blockhash;
@@ -119,36 +149,34 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
       throw Error(JSON.stringify(result.value.err));
     }
 
-    if (fromAmount >= 0 && matchDonationState) {
-      // const matchAndFinalizeSignature = await matchAndFinalize(charityWallet2, matchDonationState);
-      // fetch to avoid using env
-      const data = {
-        fromAmount: fromAmount,
-        charityWallet2: charityWallet2,
-        matchDonationState: matchDonationState,
-      };
-      const data_json = JSON.stringify(data);
-      console.log(data_json);
-      const matchAndFinalizeoptions = {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      };
-      const res = await fetch(
-        "http://localhost:3000/api/matchFinaliseIx",
-        matchAndFinalizeoptions
-      );
+    // if (fromAmount >= 0 && matchDonationState) {
+    //   const data = {
+    //     fromAmount: fromAmount,
+    //     charityWallet2: charityWallet2,
+    //     matchDonationState: matchDonationState,
+    //   };
+    //   const data_json = JSON.stringify(data);
+    //   console.log(data_json);
+    //   const matchAndFinalizeoptions = {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify(data),
+    //   };
+    //   const res = await fetch(
+    //     "http://localhost:3000/api/matchFinaliseIx",
+    //     matchAndFinalizeoptions
+    //   );
 
-      if (!res.ok) {
-        throw new Error("Failed to create with match and finalise");
-      }
-      const matchAndFinalizeSignature = await res.json();
-      return signature && matchAndFinalizeSignature;
-    } else {
-      return signature;
-    }
+    //   if (!res.ok) {
+    //     throw new Error("Failed to create with match and finalise");
+    //   }
+    //   const matchAndFinalizeSignature = await res.json();
+    //   return signature && matchAndFinalizeSignature;
+    // } else {
+    //   return signature;
+    // }
   };
 
   // const matchAndFinalize = async (charityWallet2: PublicKey, matchDonationState: PublicKey) => {

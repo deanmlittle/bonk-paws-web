@@ -4,14 +4,15 @@ import React, { useEffect, useState } from "react";
 import WalletButton from "./WalletButton";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
-import { PublicKey } from "@solana/web3.js";
+import { Connection, PublicKey } from "@solana/web3.js";
 import { getAssociatedTokenAddressSync } from "@solana/spl-token";
 import Loader from "./Loader";
 import DonationHistory from "./donationHistory";
 import Image from "next/image";
+import { RPC_URL } from "@/constants";
 
 const Balance = () => {
-  const { connection } = useConnection();
+  const connection = new Connection(RPC_URL);
   const { publicKey, connected } = useWallet();
   const [isLoading, setIsLoading] = useState(false);
   const [balance, setBalance] = useState(0);
@@ -26,6 +27,7 @@ const Balance = () => {
             publicKey
           );
           const balance = await connection.getTokenAccountBalance(ata);
+          console.log("balance: ", balance);
           setBalance(balance.value.uiAmount || 0);
         } catch (e) {
           console.log(e);

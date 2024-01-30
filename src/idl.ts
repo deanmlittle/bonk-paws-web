@@ -1,122 +1,4 @@
-import { PROGRAM_ID } from "@/constants";
-import { Address, AnchorProvider, BN, Program } from "@coral-xyz/anchor";
-import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
-import { ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, getAssociatedTokenAddressSync } from "@solana/spl-token";
-import { AddressLookupTableAccount, Connection, Ed25519Program, Keypair, LAMPORTS_PER_SOL, PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY, SystemProgram, TransactionInstruction } from "@solana/web3.js";
-import { randomBytes } from "crypto";
-import { NextResponse } from "next/server";
-
-const preflightCommitment = "processed";
-const commitment = "processed";
-const auth_keypair = JSON.parse(process.env.KEYPAIR!);
-const AUTH_WALLET = Keypair.fromSecretKey(new Uint8Array(auth_keypair));
-const connection = new Connection("https://api.mainnet-beta.solana.com");
-const wallet = new NodeWallet(Keypair.generate()); 
-
-const getProgram = () => {
-    const provider = new AnchorProvider(connection, wallet, {
-        preflightCommitment,
-        commitment,
-      });
-
-    return new Program(IDL, PROGRAM_ID, provider);
-};
-
-const getOrgData = async (
-  id: number,
-  match: boolean,
-  amountDonated: number,
-) => {
-  //need to fill thisdata with actual values
-  const data = {
-    organizationId: id,
-    isAnon: true,
-    pledgeCurrency: "SOL",
-    pledgeAmount: amountDonated.toString(),
-    receiptEmail: "test-email-address@thegivingblock.com"
-  }
-  const options = {
-    method: 'POST',
-    headers: {
-    'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-    };
-  const res = await fetch(`http://localhost:4500/api/getDonationAddress`, options);
-  const json = await res.json();
-  const charityWallet1 = new PublicKey(json.donationAddress);
-  let charityWallet2 = PublicKey.default;;
-  if (match) {
-    const res = await fetch(`http://localhost:4500/api/getDonationAddress`,options);
-    const json = await res.json();
-    charityWallet2 = new PublicKey(json.donationAddress);   
-  }
-  return {
-      charityWallet1,
-      charityWallet2,
-  }
-} 
-
-const getDonate = async (
-    id: number,
-    amountDonated: number,
-    donor: PublicKey,
-) => {
-    const program = getProgram(); 
-    const donationState = PublicKey.findProgramAddressSync([Buffer.from('donation_state')], program.programId)[0];
-
-    let seed = new BN(randomBytes(8));
-
-    let match, matchDonationState;
-    if (amountDonated > 1) {
-        matchDonationState = PublicKey.findProgramAddressSync([Buffer.from('match_donation'), seed.toBuffer("le", 8)], program.programId)[0];
-        match = true;
-    } else {
-        match = false;
-        matchDonationState = null;
-    }
-
-    const { charityWallet1, charityWallet2 } = await getOrgData(id, match, amountDonated);
-
-    const signatureIx = Ed25519Program.createInstructionWithPrivateKey({
-        // ADD THE PRIVATE KEY SIGNER HERE
-        privateKey: AUTH_WALLET.secretKey,
-        message: Buffer.concat([new BN(id).toBuffer('le', 8), charityWallet1.toBuffer(), charityWallet2.toBuffer()]),
-    });
-
-    const donateIx = await program.methods
-    .donate(seed, new BN(amountDonated * LAMPORTS_PER_SOL))
-    .accounts({
-        donor,
-        charity: charityWallet1,
-        donationState, 
-        matchDonationState,
-        instructions: SYSVAR_INSTRUCTIONS_PUBKEY,
-        systemProgram: SystemProgram.programId,
-    })
-    .instruction()
-    
-    return {
-        signatureIx,
-        donateIx,
-        charityWallet2,
-        matchDonationState
-    };
-};
-
-export async function POST(request:any){
-  const {
-    id,
-    amountDonated,
-    donor
-  } = await request.json();
-  const donate_ixs =  await getDonate(id, amountDonated, donor);
-  const donate_ixs_json = JSON.stringify(donate_ixs);
-  return NextResponse.json(donate_ixs_json,{status:201})
-
-}
-
-export type BonkForPaws = {
+export type BonkPaws = {
     "version": "0.1.0",
     "name": "bonk_paws",
     "instructions": [
@@ -168,6 +50,30 @@ export type BonkForPaws = {
             }
           },
           {
+            "name": "donationHistory",
+            "isMut": true,
+            "isSigner": false,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "type": "string",
+                  "value": "donation_history"
+                },
+                {
+                  "kind": "arg",
+                  "type": "u64",
+                  "path": "seed"
+                },
+                {
+                  "kind": "account",
+                  "type": "publicKey",
+                  "path": "donor"
+                }
+              ]
+            }
+          },
+          {
             "name": "instructions",
             "isMut": false,
             "isSigner": false
@@ -193,14 +99,9 @@ export type BonkForPaws = {
         "name": "matchDonation",
         "accounts": [
           {
-            "name": "authority",
+            "name": "signer",
             "isMut": true,
             "isSigner": true
-          },
-          {
-            "name": "charity",
-            "isMut": false,
-            "isSigner": false
           },
           {
             "name": "bonk",
@@ -208,7 +109,7 @@ export type BonkForPaws = {
             "isSigner": false
           },
           {
-            "name": "authorityBonk",
+            "name": "signerBonk",
             "isMut": true,
             "isSigner": false
           },
@@ -218,7 +119,7 @@ export type BonkForPaws = {
             "isSigner": false
           },
           {
-            "name": "authorityWsol",
+            "name": "signerWsol",
             "isMut": true,
             "isSigner": false
           },
@@ -257,6 +158,11 @@ export type BonkForPaws = {
             }
           },
           {
+            "name": "bonkVault",
+            "isMut": true,
+            "isSigner": false
+          },
+          {
             "name": "instructions",
             "isMut": false,
             "isSigner": false
@@ -277,12 +183,7 @@ export type BonkForPaws = {
             "isSigner": false
           }
         ],
-        "args": [
-          {
-            "name": "bonkDonation",
-            "type": "u64"
-          }
-        ]
+        "args": []
       },
       {
         "name": "finalizeDonation",
@@ -333,7 +234,7 @@ export type BonkForPaws = {
     ],
     "accounts": [
       {
-        "name": "DonationState",
+        "name": "donationState",
         "type": {
           "kind": "struct",
           "fields": [
@@ -372,6 +273,30 @@ export type BonkForPaws = {
             {
               "name": "seed",
               "type": "u64"
+            }
+          ]
+        }
+      },
+      {
+        "name": "donationHistory",
+        "type": {
+          "kind": "struct",
+          "fields": [
+            {
+              "name": "donor",
+              "type": "publicKey"
+            },
+            {
+              "name": "id",
+              "type": "u64"
+            },
+            {
+              "name": "donationAmount",
+              "type": "u64"
+            },
+            {
+              "name": "timestamp",
+              "type": "i64"
             }
           ]
         }
@@ -801,9 +726,9 @@ export type BonkForPaws = {
         "msg": "Invalid Match Key"
       }
     ]
-}
+  };
   
-export const IDL: BonkForPaws = {
+  export const IDL: BonkPaws = {
     "version": "0.1.0",
     "name": "bonk_paws",
     "instructions": [
@@ -855,6 +780,30 @@ export const IDL: BonkForPaws = {
             }
           },
           {
+            "name": "donationHistory",
+            "isMut": true,
+            "isSigner": false,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "type": "string",
+                  "value": "donation_history"
+                },
+                {
+                  "kind": "arg",
+                  "type": "u64",
+                  "path": "seed"
+                },
+                {
+                  "kind": "account",
+                  "type": "publicKey",
+                  "path": "donor"
+                }
+              ]
+            }
+          },
+          {
             "name": "instructions",
             "isMut": false,
             "isSigner": false
@@ -880,14 +829,9 @@ export const IDL: BonkForPaws = {
         "name": "matchDonation",
         "accounts": [
           {
-            "name": "authority",
+            "name": "signer",
             "isMut": true,
             "isSigner": true
-          },
-          {
-            "name": "charity",
-            "isMut": false,
-            "isSigner": false
           },
           {
             "name": "bonk",
@@ -895,7 +839,7 @@ export const IDL: BonkForPaws = {
             "isSigner": false
           },
           {
-            "name": "authorityBonk",
+            "name": "signerBonk",
             "isMut": true,
             "isSigner": false
           },
@@ -905,7 +849,7 @@ export const IDL: BonkForPaws = {
             "isSigner": false
           },
           {
-            "name": "authorityWsol",
+            "name": "signerWsol",
             "isMut": true,
             "isSigner": false
           },
@@ -944,6 +888,11 @@ export const IDL: BonkForPaws = {
             }
           },
           {
+            "name": "bonkVault",
+            "isMut": true,
+            "isSigner": false
+          },
+          {
             "name": "instructions",
             "isMut": false,
             "isSigner": false
@@ -964,12 +913,7 @@ export const IDL: BonkForPaws = {
             "isSigner": false
           }
         ],
-        "args": [
-          {
-            "name": "bonkDonation",
-            "type": "u64"
-          }
-        ]
+        "args": []
       },
       {
         "name": "finalizeDonation",
@@ -1020,7 +964,7 @@ export const IDL: BonkForPaws = {
     ],
     "accounts": [
       {
-        "name": "DonationState",
+        "name": "donationState",
         "type": {
           "kind": "struct",
           "fields": [
@@ -1059,6 +1003,30 @@ export const IDL: BonkForPaws = {
             {
               "name": "seed",
               "type": "u64"
+            }
+          ]
+        }
+      },
+      {
+        "name": "donationHistory",
+        "type": {
+          "kind": "struct",
+          "fields": [
+            {
+              "name": "donor",
+              "type": "publicKey"
+            },
+            {
+              "name": "id",
+              "type": "u64"
+            },
+            {
+              "name": "donationAmount",
+              "type": "u64"
+            },
+            {
+              "name": "timestamp",
+              "type": "i64"
             }
           ]
         }
@@ -1488,4 +1456,5 @@ export const IDL: BonkForPaws = {
         "msg": "Invalid Match Key"
       }
     ]
-}
+  };
+  
