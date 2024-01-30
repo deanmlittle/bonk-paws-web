@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import OrganizationCard from "./OrganizationCard";
-import DonationHistory from "./DonationHistory";
+// import DonationHistory from "./DonationHistory";
 import { Organization } from "@/types";
 import Modal from "@/app/components/Modal";
 import { ShortOrganization } from "@/types";
