@@ -38,7 +38,7 @@ export default function Home() {
 
         const program = new Program(IDL, PROGRAM_ID, provider);
 
-        const donationState = PublicKey.createProgramAddressSync([Buffer.from("donation_state")], PROGRAM_ID_PUBKEY)
+        const donationState = PublicKey.findProgramAddressSync([Buffer.from("donation_state")], PROGRAM_ID_PUBKEY)[0]
 
         let res = await program.account.donationState.fetch(
           donationState
