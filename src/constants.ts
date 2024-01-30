@@ -6,7 +6,6 @@ export const PROGRAM_ID_PUBKEY = new PublicKey(PROGRAM_ID!);
 export const APP_URL = process.env.NEXT_PUBLIC_APP_URL!;
 export const RPC_URL = process.env.NEXT_PUBLIC_RPC_URL!;
 
-
 export const bonkFoundationDefaultDetails: DepositDetails = {
     organizationId: 1,
     isAnonymous: false,

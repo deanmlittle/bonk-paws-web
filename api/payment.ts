@@ -2,7 +2,7 @@
 import axios from "axios";
 import { NextApiRequest, NextApiResponse } from "next";
 import { CreateEd25519InstructionWithPrivateKeyParams, Ed25519Program, Keypair, PublicKey } from "@solana/web3.js";
-import { APP_URL, bonkFoundationDefaultDetails } from "@/constants";
+import { APP_URL, bonkFoundationDefaultDetails } from "../src/constants";
 import { DepositDetails } from "@/types";
 
 const [login, password, baseURL] = [

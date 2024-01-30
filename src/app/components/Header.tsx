@@ -9,6 +9,7 @@ import Loader from "./Loader";
 import DonationHistory from "./DonationHistory";
 import Image from "next/image";
 import { RPC_URL } from "@/constants";
+import Link from "next/link";
 
 const Balance = () => {
   const { connection } = useConnection();
@@ -80,13 +81,13 @@ const Header: React.FC<{}> = () => {
           aria-label="Global"
         >
           <div className="flex lg:flex-1">
-            <a href="/" className="-m-1.5 p-1.5">
+            <Link href="/" className="-m-1.5 p-1.5">
               <img
                 className="h-10 w-auto"
                 src="/logo-horizontal.png"
                 alt="BONK for PAWS"
               />
-            </a>
+            </Link>
           </div>
           <div className="flex justify-end">
             {publicKey ? (

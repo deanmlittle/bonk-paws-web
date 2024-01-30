@@ -1,11 +1,12 @@
 // api/organization.ts
-import { APP_URL } from "@/constants";
+import { APP_URL } from "../src/constants";
 import axios from "axios";
 import { NextApiRequest, NextApiResponse } from "next";
 const [login, password, baseURL] = [
   process.env.TGB_API_LOGIN, 
   process.env.TGB_API_PASSWORD, 
-  process.env.TGB_API_URL
+  process.env.TGB_API_URL,
+  
 ];
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
