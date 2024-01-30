@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import React, { useEffect, useState } from "react";
 import WalletButton from "./WalletButton";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";

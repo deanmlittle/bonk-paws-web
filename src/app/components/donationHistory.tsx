@@ -17,7 +17,7 @@ interface DonationProps {
 const preflightCommitment = "processed";
 const commitment = "processed";
 
-const DonationHistory: React.FC<DonationProps> = ({ isOpen, setIsOpen }) => {
+export default function DonationHistory({ isOpen, setIsOpen }: DonationProps) {
   const { publicKey, connected } = useWallet();
   const [donationHistory, setDonationHistory] = useState<
     { id: BN; donationAmount: BN }[]
@@ -40,6 +40,8 @@ const DonationHistory: React.FC<DonationProps> = ({ isOpen, setIsOpen }) => {
     };
     getAnimalCharityList();
   }, []);
+
+  
 
   useEffect(() => {
     const getDonationHistory = async () => {
@@ -172,5 +174,3 @@ const DonationHistory: React.FC<DonationProps> = ({ isOpen, setIsOpen }) => {
     </>
   );
 };
-
-export default DonationHistory;
