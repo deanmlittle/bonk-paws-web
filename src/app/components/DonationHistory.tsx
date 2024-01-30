@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { IDL } from "../../idl";
+import *  as organizations from "../../../public/json/animal-charities.json";
 import { AnchorProvider, BN, Program } from "@coral-xyz/anchor";
 import {
   useWallet,
@@ -20,26 +21,26 @@ const commitment = "processed";
 export default function DonationHistory({ isOpen, setIsOpen }: DonationProps) {
   const { publicKey, connected } = useWallet();
   const [donationHistory, setDonationHistory] = useState<
-    { id: BN; donationAmount: BN }[]
+    { id: number; organization?: any; donationAmount: number; date: Date }[]
   >([]);
   const { connection } = useConnection();
   const wallet = useAnchorWallet();
 
-  const [organizations, setOrganizations] = useState<any[]>([]);
-  useEffect(() => {
-    const getAnimalCharityList = async () => {
-      try {
-        const res = await fetch("/json/animal-charities.json");
-        const json = await res.json();
+  // const [organizations, setOrganizations] = useState<any[]>([]);
+  // useEffect(() => {
+  //   const getAnimalCharityList = async () => {
+  //     try {
+  //       const res = await fetch("/json/animal-charities.json");
+  //       const json = await res.json();
 
-        setOrganizations(json);
-        return json;
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    getAnimalCharityList();
-  }, []);
+  //       setOrganizations(json);
+  //       return json;
+  //     } catch (err) {
+  //       console.log(err);
+  //     }
+  //   };
+  //   getAnimalCharityList();
+  // }, []);
 
   
 
@@ -63,8 +64,10 @@ export default function DonationHistory({ isOpen, setIsOpen }: DonationProps) {
             },
           ]);
           const history = fetchedHistory.map((item) => ({
-            id: item.account.id,
-            donationAmount: item.account.donationAmount,
+            id: item.account.id.toNumber(),
+            organization: organizations.find((o) => o.id === item.account.id.toNumber()),
+            donationAmount: item.account.donationAmount.toNumber(),
+            date: new Date(item.account.timestamp.toNumber()*1000)
           }));
           setDonationHistory(history);
         } catch (e) {
@@ -115,10 +118,10 @@ export default function DonationHistory({ isOpen, setIsOpen }: DonationProps) {
                       </span>
                       <span className="flex items-center gap-x-1 text-slate-700 text-sm pr-3">
                         <Image
-                          src="/logo.png"
+                          src="/sol.png"
                           width={16}
                           height={16}
-                          alt="BONK"
+                          alt="SOL"
                         />
                         Amount
                       </span>
@@ -131,9 +134,7 @@ export default function DonationHistory({ isOpen, setIsOpen }: DonationProps) {
                         </p>
                       ) : (
                         donationHistory.map((donation) => {
-                          const organization = organizations.find(
-                            (org) => org.id === donation.id
-                          );
+                          const { organization } = donation || undefined;
                           return (
                             <div
                               key={donation.id.toString()}
@@ -156,7 +157,7 @@ export default function DonationHistory({ isOpen, setIsOpen }: DonationProps) {
                                 </span>
                               </div>
                               <span className="font-semibold text-yellow-950">
-                                {donation.donationAmount.toString()}
+                                {(donation.donationAmount/1e9).toLocaleString()}
                               </span>
                             </div>
                           );
