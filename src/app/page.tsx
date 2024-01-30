@@ -14,6 +14,7 @@ import { IDL } from "@/idl";
 
 const preflightCommitment = "processed";
 const commitment = "processed";
+import { motion } from "framer-motion";
 
 export default function Home() {
   const { publicKey, connected } = useWallet();
@@ -38,11 +39,12 @@ export default function Home() {
 
         const program = new Program(IDL, PROGRAM_ID, provider);
 
-        const donationState = PublicKey.findProgramAddressSync([Buffer.from("donation_state")], PROGRAM_ID_PUBKEY)[0]
+        const donationState = PublicKey.findProgramAddressSync(
+          [Buffer.from("donation_state")],
+          PROGRAM_ID_PUBKEY
+        )[0];
 
-        let res = await program.account.donationState.fetch(
-          donationState
-        );
+        let res = await program.account.donationState.fetch(donationState);
         const donatedAmount =
           res.bonkDonated.toNumber() + res.bonkMatched.toNumber();
         setDonated(donatedAmount.toString());
@@ -66,42 +68,59 @@ export default function Home() {
         ></div>
         <div className="mx-auto max-w-2xl py-32 sm:py-0 lg:py-20">
           <div className="mx-auto ">
-            <div className="shiba-1 mx-auto w-40 max-w-40">
-              <img className="shiba-1-head" src="shiba-1-head.png" />
-              <img src="shiba-1-body.png" />
-            </div>
-            <div className="hidden sm:mb-8 sm:flex sm:justify-center">
-              <div className="relative rounded-full px-3 py-1 mt-10 text-sm leading-6 text-slate-600 ring-1 ring-gray-900/10 hover:ring-gray-900/20">
-                BONK for Paws is matching all BONK donations to animal-related
-                causes 100%{" "}
-                <a href="#statistics" className="font-semibold text-red-500">
-                  <span className="absolute inset-0" aria-hidden="true"></span>
-                  Read more <span aria-hidden="true">&darr;</span>
-                </a>
-              </div>
-            </div>
-            <h1
-              id="top"
-              className="text-4xl font-bold tracking-tighter text-yellow-950 sm:text-6xl mt-10"
+            <motion.div
+              initial={{ opacity: 0, scale: 0.7 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
             >
-              Lend a helping paw!
-            </h1>
-            <p className="my-6 text-lg leading-8 text-gray-600">
-              We&apos;re partnering with{" "}
-              <a
-                href="https://thegivingblock.com"
-                className="text-bold text-red-500"
-                target="_blank"
+              <div className="shiba-1 mx-auto w-40 max-w-40">
+                <img className="shiba-1-head" src="shiba-1-head.png" />
+                <img src="shiba-1-body.png" />
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              <div className="hidden sm:mb-8 sm:flex sm:justify-center">
+                <div className="relative rounded-full px-3 py-1 mt-10 text-sm leading-6 text-slate-600 ring-1 ring-gray-900/10 hover:ring-gray-900/20">
+                  BONK for Paws is matching all BONK donations to animal-related
+                  causes 100%{" "}
+                  <a href="#statistics" className="font-semibold text-red-500">
+                    <span
+                      className="absolute inset-0"
+                      aria-hidden="true"
+                    ></span>
+                    Read more <span aria-hidden="true">&darr;</span>
+                  </a>
+                </div>
+              </div>
+
+              <h1
+                id="top"
+                className="text-4xl font-bold tracking-tighter text-yellow-950 sm:text-6xl mt-10"
               >
-                The Giving Block
-              </a>{" "}
-              to match BONK donations to dog-related charities{" "}
-              <span className="text-bold text-red-500">100%</span>. We&apos;re
-              also burning <span className="text-bold text-red-500">1%</span> of
-              your donation amount from our treasury, making your generous
-              donations go even further!
-            </p>
-            {/* {publicKey && (
+                Lend a helping paw!
+              </h1>
+              <p className="my-6 text-lg leading-8 text-gray-600">
+                We&apos;re partnering with{" "}
+                <a
+                  href="https://thegivingblock.com"
+                  className="text-bold text-red-500"
+                  target="_blank"
+                >
+                  The Giving Block
+                </a>{" "}
+                to match BONK donations to dog-related charities{" "}
+                <span className="text-bold text-red-500">100%</span>. We&apos;re
+                also burning <span className="text-bold text-red-500">1%</span>{" "}
+                of your donation amount from our treasury, making your generous
+                donations go even further!
+              </p>
+
+              {/* {publicKey && (
               <a
                 className="bg-red-500 hover:bg-red-400 text-white font-semibold py-3 px-5 border border-red-600 hover:border-red-600 rounded-lg"
                 href="#charities"
@@ -109,9 +128,11 @@ export default function Home() {
                 Get started!
               </a>
             )} */}
+            </motion.div>
           </div>
         </div>
       </div>
+
       <OrganizationList />
 
       <div className="relative items-center text-center isolate px-6 mt-20 pt-0 lg:px-8">

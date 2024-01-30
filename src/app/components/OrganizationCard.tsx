@@ -13,7 +13,7 @@ const OrganizationCard: React.FC<{
   const route = useRouter();
   return (
     <div
-      className="hover:scale-105 hover:cursor-pointer custom-orange-bg border border-yellow-300 p-4 transition-all rounded-lg shadow hover:shadow-yellow-200 hover:shadow-lg"
+      className="h-full hover:scale-105 hover:cursor-pointer custom-orange-bg border border-yellow-300 p-4 transition-all rounded-lg shadow hover:shadow-yellow-200 hover:shadow-lg"
       onClick={() => {
         route.push(`/donate/${organization.id}`);
       }}

@@ -6,6 +6,7 @@ import { Organization } from "@/types";
 import Modal from "@/app/components/Modal";
 import { ShortOrganization } from "@/types";
 import { Tooltip } from "react-tooltip";
+import { motion } from "framer-motion";
 
 const OrganizationList: React.FC<{}> = () => {
   const [modalOrganization, setModalOrganization] = React.useState<
@@ -70,7 +71,12 @@ const OrganizationList: React.FC<{}> = () => {
       )}
 
       <div className="flex flex-nowrap w-full md:w-1/2 justify-center items-center mx-auto lg:px-20 px-6">
-        <div className="w-full h-[50px] flex space-x-4 items-center">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.5 }}
+          className="w-full h-[50px] flex space-x-4 items-center justify-center"
+        >
           <input
             className="text-yellow-950 h-[50px] p-3 w-full rounded-l-xl bg-transparent bg-yellow-950 bg-opacity-[0.08] border-2 rounded-xl border-yellow-800 border-opacity-20 focus:outline-none focus:border-yellow-700 transition ease-in placeholder:text-yellow-950"
             type="text"
@@ -132,7 +138,7 @@ const OrganizationList: React.FC<{}> = () => {
               />
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       <div
@@ -141,15 +147,22 @@ const OrganizationList: React.FC<{}> = () => {
       >
         {filterOrganizations(organizations)
           .slice(0, visibleCount)
-          .map((organization) => (
-            <OrganizationCard
-              key={organization["id"]}
-              organization={organization}
-              onClick={() => {
-                setModalOrganization(organization);
-                setIsOpen(true);
-              }}
-            />
+          .map((organization, index) => (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3, delay: 0.2 * index }}
+              className="h-full"
+            >
+              <OrganizationCard
+                key={organization["id"]}
+                organization={organization}
+                onClick={() => {
+                  setModalOrganization(organization);
+                  setIsOpen(true);
+                }}
+              />
+            </motion.div>
           ))}
       </div>
       {filterOrganizations(organizations).length > visibleCount && (
