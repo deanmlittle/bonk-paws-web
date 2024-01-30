@@ -1,19 +1,16 @@
 "use client";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import React, { useState, useEffect } from "react";
-import WalletButton from "./components/WalletButton";
 import {
   useAnchorWallet,
   useConnection,
   useWallet,
 } from "@solana/wallet-adapter-react";
 import OrganizationList from "./components/OrganizationList";
-// import DonationHistory from './components/donationHistory';
-import { IDL, BonkForPaws } from "../../api/program";
-import { Address, AnchorProvider, Program } from "@coral-xyz/anchor";
+import { AnchorProvider, Program } from "@coral-xyz/anchor";
 import { PublicKey } from "@solana/web3.js";
-import { WalletNotConnectedError } from "@solana/wallet-adapter-base";
 import { PROGRAM_ID, PROGRAM_ID_PUBKEY } from "@/constants";
+import { IDL } from "@/idl";
 
 const preflightCommitment = "processed";
 const commitment = "processed";

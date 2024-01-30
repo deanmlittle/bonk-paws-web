@@ -1,28 +1,30 @@
 // api/organization.ts
+import { APP_URL } from "@/constants";
 import axios from "axios";
 import { NextApiRequest, NextApiResponse } from "next";
-const [login, password, baseURL, siteUrl] = [
+const [login, password, baseURL] = [
   process.env.TGB_API_LOGIN, 
   process.env.TGB_API_PASSWORD, 
-  process.env.TGB_API_URL,
-  process.env.VERCEL_URL || "http://localhost:3000",
+  process.env.TGB_API_URL
 ];
 
-
 export default async (req: NextApiRequest, res: NextApiResponse) => {
-  console.log(login, password, baseURL)
-  console.log(req.url);
-  const { searchParams } = new URL(req.url!, siteUrl);
-  const organizationId = searchParams.get('id');
-
-  const thegivingblock = axios.create({
-    baseURL,
-    headers: {
-      "Accept": "application/json",
-      "Content-Type": "application/json;charset=UTF-8"
-    }
-  })
   try {
+    if (!login) throw ("TGB Login not set");
+    if (!password) throw ("TGB Password not set");
+    if (!baseURL) throw ("TGB API URL not set");
+
+    const { searchParams } = new URL(req.url!, APP_URL);
+    const organizationId = searchParams.get('id');
+
+    const thegivingblock = axios.create({
+      baseURL,
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json;charset=UTF-8"
+      }
+    })
+
     const { data: loginData } = await thegivingblock.post("login", { login, password });
     const { data } = await thegivingblock.get<{ data: any}>("organization/" + organizationId, { 
       headers: { 

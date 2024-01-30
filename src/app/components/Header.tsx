@@ -5,14 +5,13 @@ import WalletButton from "./WalletButton";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { Connection, PublicKey } from "@solana/web3.js";
-import { getAssociatedTokenAddressSync } from "@solana/spl-token";
 import Loader from "./Loader";
-import DonationHistory from "./donationHistory";
+import DonationHistory from "./DonationHistory";
 import Image from "next/image";
 import { RPC_URL } from "@/constants";
 
 const Balance = () => {
-  const connection = new Connection(RPC_URL);
+  const { connection } = useConnection();
   const { publicKey, connected } = useWallet();
   const [isLoading, setIsLoading] = useState(false);
   const [balance, setBalance] = useState(0);
@@ -22,13 +21,13 @@ const Balance = () => {
       if (!isLoading) {
         setIsLoading(true);
         try {
-          const ata = getAssociatedTokenAddressSync(
-            new PublicKey("DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263"),
-            publicKey
+          const acc = await connection.getAccountInfo(
+            publicKey,
+            "processed"
           );
-          const balance = await connection.getTokenAccountBalance(ata);
+          const balance = acc?.lamports
           console.log("balance: ", balance);
-          setBalance(balance.value.uiAmount || 0);
+          setBalance(balance ? balance / 1e9 : 0);
         } catch (e) {
           console.log(e);
           setBalance(0);
@@ -60,7 +59,7 @@ const Balance = () => {
           </span>
         )}
       </div>
-      <img src="/logo.png" alt="BONK" className="h-8 w-8 ml-2 my-auto" />
+      <img src="/sol.png" alt="sol" className="h-6 w-6 ml-2 my-auto" />
     </span>
   );
 };
@@ -85,7 +84,7 @@ const Header: React.FC<{}> = () => {
               <img
                 className="h-10 w-auto"
                 src="/logo-horizontal.png"
-                alt="BONK PAWS"
+                alt="BONK for PAWS"
               />
             </a>
           </div>

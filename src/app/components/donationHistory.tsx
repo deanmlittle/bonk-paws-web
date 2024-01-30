@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { IDL } from "../../../api/program";
+import { IDL } from "../../idl";
 import { AnchorProvider, BN, Program } from "@coral-xyz/anchor";
 import {
   useWallet,
   useAnchorWallet,
   useConnection,
 } from "@solana/wallet-adapter-react";
-import { WalletNotConnectedError } from "@solana/wallet-adapter-base";
 import Image from "next/image";
 import { PROGRAM_ID } from "@/constants";
 

@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import OrganizationCard from "./OrganizationCard";
-import DonationHistory from "./donationHistory";
+import DonationHistory from "./DonationHistory";
 import { Organization } from "@/types";
 import Modal from "@/app/components/Modal";
 import { ShortOrganization } from "@/types";
@@ -75,7 +75,7 @@ const OrganizationList: React.FC<{}> = () => {
             className="text-yellow-950 h-[50px] p-3 w-full rounded-l-xl bg-transparent bg-yellow-950 bg-opacity-[0.08] border-2 rounded-xl border-yellow-800 border-opacity-20 focus:outline-none focus:border-yellow-700 transition ease-in placeholder:text-yellow-950"
             type="text"
             id="search"
-            // autocomplete="off"
+            autocomplete="off"
             placeholder="Search for Charities..."
             onChange={(e) => setSearch(e.target.value)}
           />

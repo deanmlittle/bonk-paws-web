@@ -2,6 +2,7 @@
 import axios from "axios";
 import { NextApiRequest, NextApiResponse } from "next";
 import { CreateEd25519InstructionWithPrivateKeyParams, Ed25519Program, Keypair, PublicKey } from "@solana/web3.js";
+import { APP_URL } from "@/constants";
 
 const [login, password, baseURL] = [
   process.env.TGB_API_LOGIN, 
@@ -11,76 +12,114 @@ const [login, password, baseURL] = [
 
 const signingKey: Array<number> = JSON.parse(process.env.SIGNING_KEY!);
 
+type DepositDetails = {
+  organizationId: number,
+  isAnonymous?: boolean,
+  pledgeCurrency: 'SOL',
+  pledgeAmount?: string,
+  receiptEmail?: string,
+  firstName?: string,
+  lastName?: string,
+  addressLine1?: string,
+  addressLine2?: string,
+  country?: string,
+  state?: string,
+  city?: string,
+  zipcode?: string
+}
+
+const bonkFoundationDefaultDetails: DepositDetails = {
+  organizationId: 1,
+  isAnonymous: false,
+  pledgeCurrency: 'SOL',
+  pledgeAmount: "0",
+  receiptEmail: "donations@bonk.foundation",
+  firstName: "BONK",
+  lastName: "Foundation",
+  addressLine1: "123 Fake Street",
+  country: "Canada",
+  state: "ON",
+  city: "Toronto",
+  zipcode:" 1337"
+}
+
 export default async (req: NextApiRequest, res: NextApiResponse) => {
-  const { searchParams } = new URL(req.url!, "http://localhost:3000");
-  const organizationId = parseInt(searchParams.get('id')!);
-
-  const thegivingblock = axios.create({
-    baseURL,
-    headers: {
-      "Accept": "application/json",
-      "Content-Type": "application/json;charset=UTF-8"
-    }
-  })
   try {
-    const { data: loginData } = await thegivingblock.post("login", { login, password });
-    const { data: donation } = await thegivingblock.post("deposit-address", {
-      organizationId,
-      isAnonymous: false,
-      pledgeCurrency: 'SOL',
-      pledgeAmount: '0.1',
-      receiptEmail: 'test-email-address@thegivingblock.com',
-      firstName: 'Test',
-      lastName: 'User',
-      addressLine1: 'Street 4321',
-      addressLine2: 'Apt 55',
-      country: 'US',
-      state: 'NY',
-      city: 'New York',
-      zipcode: '442452'
-    }, { 
-      headers: { 
-        "Authorization": "Bearer " + loginData.data.accessToken 
-      }
-    }
-    );
+    if (!login) throw ("TGB Login not set");
+    if (!password) throw ("TGB Password not set");
+    if (!baseURL) throw ("TGB API URL not set");
 
-    const { data: match } = await thegivingblock.post("deposit-address", 
-    {
-      organizationId,
-      isAnonymous: false,
-      pledgeCurrency: 'SOL',
-      pledgeAmount: '0.1',
-      receiptEmail: 'test-email-address@thegivingblock.com',
-      firstName: 'Test',
-      lastName: 'User',
-      addressLine1: 'Street 4321',
-      addressLine2: 'Apt 55',
-      country: 'US',
-      state: 'NY',
-      city: 'New York',
-      zipcode: '442452'
-    },
-    { 
-      headers: { 
-        "Authorization": "Bearer " + loginData.data.accessToken 
+    const { searchParams } = new URL(req.url!, APP_URL);
+    const organizationId = parseInt(searchParams.get('id')!);
+
+    const depositDetails: DepositDetails = req.body();
+  
+    const thegivingblock = axios.create({
+      baseURL,
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json;charset=UTF-8"
       }
     })
+  
+    const { data: loginData } = await thegivingblock.post("login", { login, password });
+    const { data: donation } = await thegivingblock.post("deposit-address", depositDetails, { 
+        headers: { 
+          "Authorization": "Bearer " + loginData.data.accessToken 
+        }
+      }
+    );
 
+    let bonkDepositDetails: DepositDetails = {
+      ...bonkFoundationDefaultDetails,
+      pledgeAmount: depositDetails.pledgeAmount,
+      organizationId: depositDetails.organizationId
+    }
+
+    const { data: match } = await thegivingblock.post(
+      "deposit-address", 
+      // Use Bonk Foundation's details
+      bonkDepositDetails,
+      { 
+        headers: { 
+          "Authorization": "Bearer " + loginData.data.accessToken 
+        }
+      }
+    )
+
+    // Get two charity donation keys and signer
     let donationAddress = new PublicKey(donation.data.depositAddress);
     let matchAddress = new PublicKey(match.data.depositAddress);
     let signer = Keypair.fromSecretKey(new Uint8Array(signingKey)).publicKey.toBase58();
+    
+    // Organization name as u64LE
     let b = Buffer.allocUnsafe(8);
     b.writeBigUInt64LE(BigInt(organizationId));
+
+    // Concatenate ID and two donation keys for signing
     b = Buffer.concat([b, Buffer.from(donationAddress.toBytes()), Buffer.from(matchAddress.toBytes())]);
 
+    // Create Ed25519 instruction
     let ixOpts: CreateEd25519InstructionWithPrivateKeyParams = {
       privateKey: Uint8Array.from(signingKey),
       message: b
     };
     let ix = Ed25519Program.createInstructionWithPrivateKey(ixOpts)
-    res.status(200).json({ success: true, data: { donationAddress, matchAddress, signer, ix: ix.data.toString("hex") }});
+
+    // Return keys and serialized IX
+    res.status(200).json({ 
+      success: true, 
+      data: { 
+        donationAddress, 
+        matchAddress, 
+        signer, 
+        signatureIx: ix.data.toString("hex")
+      }
+    })
   } catch(e) {
-    res.status(400).json({ success: false, error: e });
+    res.status(400).json({ 
+      success: false, 
+      error: e 
+    })
   }
 };
