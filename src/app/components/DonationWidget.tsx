@@ -292,7 +292,7 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
                             className="w-full h-full mx-auto"
                           />
                         </div>
-                        I want to remain anonymous
+                        Give anonymously
                       </div>
                     )}
 

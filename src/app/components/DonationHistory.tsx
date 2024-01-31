@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { IDL } from "../../idl";
-import *  as organizations from "../../../public/json/animal-charities.json";
 import { AnchorProvider, BN, Program } from "@coral-xyz/anchor";
 import {
   useWallet,
@@ -9,6 +8,7 @@ import {
 } from "@solana/wallet-adapter-react";
 import Image from "next/image";
 import { PROGRAM_ID } from "@/constants";
+import { organizations } from "@/animal-charities";
 
 interface DonationProps {
   isOpen: boolean;
@@ -19,30 +19,12 @@ const preflightCommitment = "processed";
 const commitment = "processed";
 
 export default function DonationHistory({ isOpen, setIsOpen }: DonationProps) {
-  const { publicKey, connected } = useWallet();
+  const { publicKey } = useWallet();
   const [donationHistory, setDonationHistory] = useState<
     { id: number; organization?: any; donationAmount: number; date: Date }[]
   >([]);
   const { connection } = useConnection();
   const wallet = useAnchorWallet();
-
-  // const [organizations, setOrganizations] = useState<any[]>([]);
-  // useEffect(() => {
-  //   const getAnimalCharityList = async () => {
-  //     try {
-  //       const res = await fetch("/json/animal-charities.json");
-  //       const json = await res.json();
-
-  //       setOrganizations(json);
-  //       return json;
-  //     } catch (err) {
-  //       console.log(err);
-  //     }
-  //   };
-  //   getAnimalCharityList();
-  // }, []);
-
-  
 
   useEffect(() => {
     const getDonationHistory = async () => {
@@ -97,7 +79,6 @@ export default function DonationHistory({ isOpen, setIsOpen }: DonationProps) {
                     &times;
                   </button>
                 </div>
-                {/*body*/}
                 <div className="relative p-6 flex-auto">
                   <div className="flex flex-col gap-y-0 mb-4">
                     <p className="text-black mb-2 font-semibold">

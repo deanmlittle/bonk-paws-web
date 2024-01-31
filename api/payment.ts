@@ -23,9 +23,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     const organizationId = parseInt(searchParams.get('id')!);
 
     let depositDetails: DepositDetails = { ...req.body };
-    delete depositDetails.receiptEmail;
-    console.log(depositDetails);
-    
+    if (depositDetails.receiptEmail === "") delete depositDetails.receiptEmail;
     if (depositDetails.firstName === "") delete depositDetails.firstName;
     if (depositDetails.lastName === "") delete depositDetails.lastName;
     if (depositDetails.addressLine1 === "") delete depositDetails.addressLine1;
@@ -34,6 +32,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     if (depositDetails.country === "") delete depositDetails.country;
     if (depositDetails.state === "") delete depositDetails.state;
     if (depositDetails.zipcode === "") delete depositDetails.zipcode;
+    console.log(depositDetails);
     if(!depositDetails.isAnonymous) {
       if (!depositDetails.state) throw ("State is required for non-anonymous donations");
       if (!depositDetails.zipcode) throw ("Zipcode is required for non-anonymous donations");      

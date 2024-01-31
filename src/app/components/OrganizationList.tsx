@@ -20,15 +20,15 @@ const OrganizationList: React.FC<{}> = () => {
 
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [address1, setAddress1] = useState("");
-  const [address2, setAddress2] = useState("");
-  const [country, setCountry] = useState("");
-  const [state, setState] = useState("");
-  const [city, setCity] = useState("");
-  const [zipCode, setZipCode] = useState("");
+  // const [firstName, setFirstName] = useState("");
+  // const [lastName, setLastName] = useState("");
+  // const [email, setEmail] = useState("");
+  // const [address1, setAddress1] = useState("");
+  // const [address2, setAddress2] = useState("");
+  // const [country, setCountry] = useState("");
+  // const [state, setState] = useState("");
+  // const [city, setCity] = useState("");
+  // const [zipCode, setZipCode] = useState("");
   const [visibleCount, setVisibleCount] = useState(12);
 
   console.log(search);

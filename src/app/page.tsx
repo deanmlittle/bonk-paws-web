@@ -86,7 +86,7 @@ export default function Home() {
             >
               <div className="hidden sm:mb-8 sm:flex sm:justify-center">
                 <div className="relative rounded-full px-3 py-1 mt-10 text-sm leading-6 text-slate-600 ring-1 ring-gray-900/10 hover:ring-gray-900/20">
-                  BONK for Paws is matching all BONK donations to animal-related
+                  BONK for Paws is matching donations to animal-related
                   causes 100%{" "}
                   <a href="#statistics" className="font-semibold text-red-500">
                     <span
@@ -119,15 +119,6 @@ export default function Home() {
                 of your donation amount from our treasury, making your generous
                 donations go even further!
               </p>
-
-              {/* {publicKey && (
-              <a
-                className="bg-red-500 hover:bg-red-400 text-white font-semibold py-3 px-5 border border-red-600 hover:border-red-600 rounded-lg"
-                href="#charities"
-              >
-                Get started!
-              </a>
-            )} */}
             </motion.div>
           </div>
         </div>

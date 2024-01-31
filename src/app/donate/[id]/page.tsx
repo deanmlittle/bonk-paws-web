@@ -1,8 +1,11 @@
 "use client";
 import DonationWidget from "@/app/components/DonationWidget";
 import { APP_URL } from "@/constants";
+import { Organization } from "@/types";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { organizations } from "@/animal-charities";
+import OrganizationDonationHistory from "@/app/components/OrganizationDonationHistory";
 
 type DonateProps = {
   params: {
@@ -12,10 +15,12 @@ type DonateProps = {
 
 export default function Donate({ params }: DonateProps) {
   const [currentOrg, setCurrentOrg] = useState<any>(null);
+  const id = organizations.find((o) => { return o.slug === params.id })?.id.toString() || params.id;
+  
   useEffect(() => {
     const getCharityInfo = async () => {
       try {
-        const res = await fetch(APP_URL + `/api/organization?id=${params.id}`);
+        const res = await fetch(APP_URL + `/api/organization?id=${id}`);
         const json = await res.json();
         setCurrentOrg(json?.data?.data?.organization);
         return json;
@@ -30,7 +35,7 @@ export default function Donate({ params }: DonateProps) {
     <main className="flex min-h-screen flex-col mt-8">
       <div className="relative px-6 pt-0 lg:px-8 mt-16 h-full">
         {currentOrg ? (
-          <div className="w-full h-full grid grid-cols-1 lg:grid-cols-5 gap-y-10 lg:gap-16">
+          <div className="w-full h-full grid grid-cols-1 mx-auto lg:max-w-screen-xl lg:grid-cols-5 gap-y-10 lg:gap-16">
             <div className="col-span-3 flex flex-col">
               <h1 className="mt-5 font-bold tracking-tighter text-4xl py-4 text-yellow-950">
                 {currentOrg.name}
@@ -64,8 +69,12 @@ export default function Donate({ params }: DonateProps) {
                   alt={currentOrg.name}
                 />
               </div>
+              <h1 className="mt-10 font-bold tracking-tighter text-2xl text-yellow-950">
+                Donation History
+              </h1>
+              <OrganizationDonationHistory id={currentOrg.id} />
             </div>
-            <div className="col-span-2 w-full h-full custom-orange-bg border border-yellow-300 transition-all rounded-lg">
+            <div className="col-span-2 w-full custom-orange-bg border border-yellow-300 transition-all rounded-lg">
               <DonationWidget organization={currentOrg} />
             </div>
           </div>

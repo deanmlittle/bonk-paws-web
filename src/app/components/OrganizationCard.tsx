@@ -15,7 +15,7 @@ const OrganizationCard: React.FC<{
     <div
       className="h-full hover:scale-105 hover:cursor-pointer custom-orange-bg border border-yellow-300 p-4 transition-all rounded-lg shadow hover:shadow-yellow-200 hover:shadow-lg"
       onClick={() => {
-        route.push(`/donate/${organization.id}`);
+        route.push(`/donate/${organization.slug}`);
       }}
     >
       <div className="col-span-1 flex flex-col h-full text-center border-top border-left border-right border-yellow-400 rounded-lg transition-all">

@@ -9,19 +9,21 @@ export interface ShortOrganization {
     id: number;
     name: string;
     logo: string;
-    allowsAnon: string;
-    isReceiptEnabled: string;
+    slug: string;
+    allowsAnon: boolean;
+    isReceiptEnabled: boolean;
 }
 
 export interface Organization {
     id: number;
+    slug?: string;
     name: string;
     logo: string;
     country?: string;
-    allowsAnon?: string;
+    allowsAnon?: boolean;
     nonprofitTaxID?: string;
     areNotesEnabled?: boolean;
-    isReceiptEnabled?: string;
+    isReceiptEnabled?: boolean;
     createdAt?: string;
     state?: string;
     city?: string;

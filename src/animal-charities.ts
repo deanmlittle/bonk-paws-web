@@ -1,4 +1,6 @@
-[
+import { ShortOrganization } from "./types";
+
+export const organizations: Array<ShortOrganization> = [
     {
         "id": 1189133385,
         "logo": "https://static.tgbwidget.com/organization_logo/e47f71be-4b28-4851-8fa0-458794820dc9.jpg",
