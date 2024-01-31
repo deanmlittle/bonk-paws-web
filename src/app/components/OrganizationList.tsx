@@ -149,13 +149,13 @@ const OrganizationList: React.FC<{}> = () => {
           .slice(0, visibleCount)
           .map((organization, index) => (
             <motion.div
+              key={organization.id.toString()}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.3, delay: 0.2 * index }}
               className="h-full"
             >
               <OrganizationCard
-                key={organization.id.toString()}
                 organization={organization}
                 onClick={() => {
                   setModalOrganization(organization);

@@ -100,9 +100,10 @@ export default function DonationHistory({ isOpen, setIsOpen }: DonationProps) {
                       <span className="flex items-center gap-x-1 text-slate-700 text-sm pr-3">
                         <Image
                           src="/sol.png"
-                          width={16}
-                          height={16}
+                          width={0}
+                          height={0}
                           alt="SOL"
+                          className="w-5"
                         />
                         Amount
                       </span>
