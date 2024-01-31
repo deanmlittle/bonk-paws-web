@@ -15,6 +15,7 @@ import { IDL } from "@/idl";
 const preflightCommitment = "processed";
 const commitment = "processed";
 import { motion } from "framer-motion";
+import { organizations } from "@/animal-charities";
 
 export default function Home() {
   const { publicKey, connected } = useWallet();
@@ -150,7 +151,7 @@ export default function Home() {
           <p className="my-6 text-xl leading-8 text-slate-600">
             Thanks to your generosity, we&apos;ve been able to donate{" "}
             <span className="text-red-500 font-bold">{donated}</span> to{" "}
-            <span className="text-red-500 font-bold">24</span> charities and
+            <span className="text-red-500 font-bold">{organizations.length}</span> charities and
             counting, all while burning{" "}
             <span className="text-red-500 font-bold">{burned}</span> BONK to
             make our community even stronger!
@@ -171,7 +172,7 @@ export default function Home() {
             </div>
             <div className="flex flex-col items-center justify-center border border-yellow-900 bg-yellow-950 bg-opacity-5 border-opacity-10 rounded-lg p-2 px-3">
               <h2 className="text-lg font-bold tracking-tight text-yellow-900 sm:text-2xl">
-                24
+                {organizations.length}
               </h2>
               <p className="text-gray-700">Charities</p>
             </div>

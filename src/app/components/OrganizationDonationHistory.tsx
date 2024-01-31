@@ -93,10 +93,12 @@ export default function OrganizationDonationHistory({ id }: OrganizationDonation
                                 </span>
                               </div>
                               <span className="font-semibold text-yellow-950 flex space-x-2">
-                                <img
+                                <Image
                                   className="mr-1 w-5 my-auto"
                                   src="/sol.png"
                                   alt="SOL"
+                                  width={16}
+                                  height={16}
                                 />
                                 <span>
                                   {(donation.donationAmount/1e9).toLocaleString()}
