@@ -19,7 +19,7 @@ const commitment = "processed";
 
 export default function OrganizationDonationHistory({ id }: OrganizationDonationHistoryProps) {
   const [donationHistory, setDonationHistory] = useState<
-    { donationAmount: number; date: Date, donor: String }[]
+    { donationAmount: number; date: Date, donor: String, id: String }[]
   >([]);
   const { connection } = useConnection();
   const wallet = useAnchorWallet();
@@ -50,7 +50,8 @@ export default function OrganizationDonationHistory({ id }: OrganizationDonation
           const history = fetchedHistory.map((item) => ({
             donationAmount: item.account.donationAmount.toNumber(),
             date: new Date(item.account.timestamp.toNumber()*1000),
-            donor: item.account.donor.toBase58()
+            donor: item.account.donor.toBase58(),
+            id: item.account.id.toString()
           }));
           setDonationHistory(history);
         } catch (e) {
@@ -80,6 +81,7 @@ export default function OrganizationDonationHistory({ id }: OrganizationDonation
                         donationHistory.map((donation) => {
                           return (
                             <div
+                              key={donation.id.toString()}
                               className="flex justify-between items-center w-full p-3"
                             >
                               <div className="flex items-start flex-col">
