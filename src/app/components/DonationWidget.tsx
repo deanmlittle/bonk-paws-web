@@ -36,6 +36,7 @@ const commitment = "processed";
 
 const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [signature, setSignature] = useState("");
   const [quoteLoading, setQuoteloading] = React.useState(false);
   const [quoteAmount, setQuoteAmount] = useState<number>(0);
   const [fromAmount, setFromAmount] = useState<number>(0);
@@ -89,6 +90,10 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
     setFromAmount(Number(amount));
     await getSwapQuote(Number(amount * 1e4));
   };
+
+  const viewTx = async () => {
+    window.open(`https://explorer.solana.com/tx/${signature}`, '_blank', 'noopener,noreferrer')
+  }
 
   const donate = async () => {
     setIsLoading(true);
@@ -146,12 +151,12 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
       const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
       tx.recentBlockhash = blockhash;
       tx.lastValidBlockHeight = lastValidBlockHeight;
-      const signature = await sendTransaction(tx, connection, {
+      const sig = await sendTransaction(tx, connection, {
         skipPreflight: true,
       });
       const result = await connection.confirmTransaction(
         {
-          signature,
+          signature: sig,
           blockhash,
           lastValidBlockHeight,
         },
@@ -160,6 +165,7 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
       if (result && result.value && result.value.err) {
         throw Error(JSON.stringify(result.value.err));
       }
+      setSignature(sig)
       setIsLoading(false)
     } catch(e) {
       setIsLoading(false);
@@ -405,17 +411,27 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
               </div>
             </div>
             <div className="mt-auto w-full pt-4">
-              <button
-                className={`w-full cursor-pointer bg-red-500 hover:bg-red-400 text-white font-semibold py-3 rounded-lg focus:outline-none focus:shadow-outline ${
-                  quoteLoading || fromAmount === 0 ? "opacity-20" : ""
-                }`}
-                type="button"
-                disabled={fromAmount === 0 || quoteLoading}
-                onClick={donate}
-              >
-                { isLoading ? <Loader /> : "Donate"}
-                {/* Donate */}
-              </button>
+              {
+              signature ?
+                  <button
+                    className={`w-full flex justify-center text-center cursor-pointer bg-green-500 hover:bg-green-400 text-white font-semibold py-3 rounded-lg focus:outline-none focus:shadow-outline`}
+                    type="button"
+                    onClick={viewTx}
+                  >
+                    Success! View on explorer
+                  </button> 
+                :
+                <button
+                  className={`w-full flex justify-center text-center cursor-pointer bg-red-500 hover:bg-red-400 text-white font-semibold py-3 rounded-lg focus:outline-none focus:shadow-outline ${
+                    quoteLoading || fromAmount === 0 ? "opacity-20" : ""
+                  }`}
+                  type="button"
+                  disabled={fromAmount === 0 || quoteLoading}
+                  onClick={donate}
+                >
+                  { isLoading ? <span className="flex py-1 text-white"><Loader /></span> : "Donate"}
+                </button>
+              }
             </div>
           </div>
         </>
