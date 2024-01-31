@@ -155,7 +155,7 @@ const OrganizationList: React.FC<{}> = () => {
               className="h-full"
             >
               <OrganizationCard
-                key={organization["id"]}
+                key={organization.id.toString()}
                 organization={organization}
                 onClick={() => {
                   setModalOrganization(organization);
