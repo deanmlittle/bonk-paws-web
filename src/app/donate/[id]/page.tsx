@@ -74,7 +74,10 @@ export default function Donate({ params }: DonateProps) {
               </h1>
               <OrganizationDonationHistory id={currentOrg.id} />
             </div>
-            <div className="col-span-2 w-full custom-orange-bg border border-yellow-300 transition-all rounded-lg">
+            <div className="col-span-2 w-full transition-all rounded-lg">
+              <h1 className="mt-10 font-bold tracking-tighter text-2xl text-yellow-950">
+                Make a Donation!
+              </h1>
               <DonationWidget organization={currentOrg} />
             </div>
           </div>

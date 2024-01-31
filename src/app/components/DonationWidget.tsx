@@ -217,16 +217,10 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
     <>
       {organization ? (
         <>
-          <div className="h-full w-full flex flex-col text-center border-top border-left border-right border-yellow-400 rounded-lg transition-all max-h-[80vh] p-4">
-            <div className="justify-center text-black items-center flex overflow-x-hidden overflow-y-auto inset-0 z-50 outline-none focus:outline-none h-full">
-              <div className="relative w-full my-6 mx-auto h-full">
-                <div className="flex flex-col text-center p-5 border-b border-solid border-yellow-800 border-opacity-40 rounded-t relative">
-                  <span className="text-yellow-950 mb-2 text-3xl font-semibold">
-                    Make a Donation!
-                  </span>
-                </div>
-                {/*body*/}
-                <div className="relative p-6 flex flex-col items-start w-full ">
+          <div className="custom-orange-bg border border-yellow-300 mt-6 transition-all rounded-lg w-full flex flex-col text-center border-top border-left border-right border-yellow-400 rounded-lg transition-all p-8">
+            <div className="justify-center text-black items-center flex overflow-x-hidden inset-0 z-50 outline-none focus:outline-none h-full">
+              <div className="relative w-full mx-auto h-full">
+                <div className="relative flex flex-col items-start w-full ">
                   <p className="text-yellow-900 mb-1 text-sm">
                     Donation Amount
                   </p>
