@@ -67,7 +67,7 @@ export default function Home() {
           className="absolute inset-x-0 -top-40 -z-10 overflow-hidden blur-3xl sm:-top-80"
           aria-hidden="true"
         ></div>
-        <div className="mx-auto max-w-2xl py-32 sm:py-0 lg:py-20">
+        <div className="mx-auto max-w-3xl py-32 sm:py-0 lg:py-20">
           <div className="mx-auto ">
             <motion.div
               initial={{ opacity: 0, scale: 0.7 }}
@@ -136,7 +136,7 @@ export default function Home() {
           className="absolute inset-x-0 -top-40 -z-10 overflow-hidden blur-3xl sm:-top-80"
           aria-hidden="true"
         ></div>
-        <div className="mx-auto max-w-2xl py-32 sm:py-0 lg:py-20">
+        <div className="mx-auto max-w-3xl py-32 sm:py-0 lg:py-20">
           <div className="shiba-2 mx-auto w-40 max-w-40">
             <img className="" src="shiba-2-body.png" />
             <div className="shiba-2-eye"></div>
@@ -148,9 +148,9 @@ export default function Home() {
           </div>
           <h1
             id="statistics"
-            className="text-4xl font-bold tracking-tighter text-yellow-950 sm:text-6xl mt-10"
+            className="text-4xl font-bold tracking-tighter text-bonk-orange font-herborn sm:text-6xl mt-10"
           >
-            Making a difference!
+            Making a difference
           </h1>
           <p className="my-6 text-xl leading-8 text-slate-600">
             Thanks to your generosity, we&apos;ve been able to donate{" "}
@@ -164,23 +164,23 @@ export default function Home() {
           </p>
 
           <div className="justify-center grid grid-cols-1 lg:grid-cols-3 gap-4 text-center my-4 mt-8">
-            <div className="flex flex-col items-center justify-center border border-yellow-900 bg-yellow-950 bg-opacity-5 border-opacity-10 rounded-lg p-2 px-3">
-              <h2 className="text-2xl font-bold tracking-tight text-yellow-900 sm:text-2xl truncate w-full">
+            <div className="flex flex-col items-center justify-center bg-bonk-orange/10 border border-bonk-orange/50 rounded-lg p-2 px-3">
+              <h2 className="text-2xl font-bold tracking-tight text-bonk-orange sm:text-2xl truncate w-full">
                 {donated}
               </h2>
-              <p className="text-gray-700">Donated</p>
+              <p className="text-slate-600 font-herborn">Donated</p>
             </div>
-            <div className="flex flex-col items-center justify-center border border-yellow-900 bg-yellow-950 bg-opacity-5 border-opacity-10 rounded-lg p-2 px-3">
-              <h2 className="text-2xl font-bold tracking-tight text-yellow-900 sm:text-2xl">
+            <div className="flex flex-col items-center justify-center bg-bonk-orange/10 border border-bonk-orange/50 rounded-lg p-2 px-3">
+              <h2 className="text-2xl font-bold tracking-tight text-bonk-orange sm:text-2xl">
                 {burned}
               </h2>
-              <p className="text-gray-700">Burnt</p>
+              <p className="text-slate-600 font-herborn">Burnt</p>
             </div>
-            <div className="flex flex-col items-center justify-center border border-yellow-900 bg-yellow-950 bg-opacity-5 border-opacity-10 rounded-lg p-2 px-3">
-              <h2 className="text-lg font-bold tracking-tight text-yellow-900 sm:text-2xl">
+            <div className="flex flex-col items-center justify-center bg-bonk-orange/10 border border-bonk-orange/50 rounded-lg p-2 px-3">
+              <h2 className="text-lg font-bold tracking-tight text-bonk-orange sm:text-2xl">
                 {organizations.length}
               </h2>
-              <p className="text-gray-700">Charities</p>
+              <p className="text-slate-600 font-herborn">Charities</p>
             </div>
           </div>
         </div>
