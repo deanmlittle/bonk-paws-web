@@ -63,7 +63,14 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
   const { publicKey, sendTransaction } = useWallet();
   const wallet = useAnchorWallet();
 
-  if (!wallet) return;
+  if (!wallet)
+    return (
+      <div className="bg-bonk-white border border-bonk-orange mt-6 transition-all rounded-lg w-full flex flex-col text-center p-8">
+        <p className="italic text-bonk-orange font-mono">
+          Connect your wallet to make a donation
+        </p>
+      </div>
+    );
   if (!publicKey) throw new WalletNotConnectedError();
 
   const provider = new AnchorProvider(connection, wallet, {
