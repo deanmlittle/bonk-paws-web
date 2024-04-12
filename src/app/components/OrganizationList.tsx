@@ -7,6 +7,7 @@ import Modal from "@/app/components/Modal";
 import { ShortOrganization } from "@/types";
 import { Tooltip } from "react-tooltip";
 import { motion } from "framer-motion";
+import AnonymousSvg from "../../../public/anonymous.svg";
 
 const OrganizationList: React.FC<{}> = () => {
   const [modalOrganization, setModalOrganization] = React.useState<
@@ -153,12 +154,9 @@ const OrganizationList: React.FC<{}> = () => {
                 stroke-linecap="round"
                 stroke-linejoin="round"
               >
-                <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
-                <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
-                <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
-                <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
-                <circle cx="12" cy="12" r="1"></circle>
-                <path d="M5 12s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5"></path>
+                <rect width="18" height="18" x="3" y="3" rx="2"></rect>
+                <circle cx="12" cy="10" r="3"></circle>
+                <path d="M7 21v-2a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2"></path>
               </svg>
             </div>
           </div>
