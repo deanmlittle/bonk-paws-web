@@ -74,9 +74,9 @@ export default function Home() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
             >
-              <div className="shiba-1 mx-auto w-40 max-w-40">
-                <img className="shiba-1-head" src="shiba-1-head.png" />
-                <img src="shiba-1-body.png" />
+              <div className="shiba-1 mx-auto w-80 max-w-80">
+                {/* <img className="shiba-1-head" src="shiba-1-head.png" /> */}
+                <img src="/images/HelpingHand.png" />
               </div>
             </motion.div>
 
@@ -138,8 +138,8 @@ export default function Home() {
         ></div>
         <div className="mx-auto max-w-3xl py-32 sm:py-0 lg:py-20">
           <div className="shiba-2 mx-auto w-40 max-w-40">
-            <img className="" src="shiba-2-body.png" />
-            <div className="shiba-2-eye"></div>
+            <img className="" src="/images/ThumbsUp.png" />
+            {/* <div className="shiba-2-eye"></div> */}
             <div className="shiba-2-star-1"></div>
             <div className="shiba-2-star-2"></div>
             <div className="shiba-2-star-3"></div>
