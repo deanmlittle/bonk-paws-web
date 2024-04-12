@@ -17,9 +17,11 @@ interface OrganizationDonationHistoryProps {
 const preflightCommitment = "processed";
 const commitment = "processed";
 
-export default function OrganizationDonationHistory({ id }: OrganizationDonationHistoryProps) {
+export default function OrganizationDonationHistory({
+  id,
+}: OrganizationDonationHistoryProps) {
   const [donationHistory, setDonationHistory] = useState<
-    { donationAmount: number; date: Date, donor: String, id: String }[]
+    { donationAmount: number; date: Date; donor: String; id: String }[]
   >([]);
   const { connection } = useConnection();
   const wallet = useAnchorWallet();
@@ -49,9 +51,9 @@ export default function OrganizationDonationHistory({ id }: OrganizationDonation
           ]);
           const history = fetchedHistory.map((item) => ({
             donationAmount: item.account.donationAmount.toNumber(),
-            date: new Date(item.account.timestamp.toNumber()*1000),
+            date: new Date(item.account.timestamp.toNumber() * 1000),
             donor: item.account.donor.toBase58(),
-            id: item.account.id.toString()
+            id: item.account.id.toString(),
           }));
           setDonationHistory(history);
         } catch (e) {
@@ -64,54 +66,54 @@ export default function OrganizationDonationHistory({ id }: OrganizationDonation
   }, [wallet]);
 
   return (
-            <div className="relative w-full my-6 mx-auto">
-              <div className="rounded-lg custom-orange-bg border border-yellow-300 relative flex flex-col w-full bg-white outline-none focus:outline-none">
-                <div className="relative p-6 flex-auto">
-                  <div className="flex flex-col gap-y-0">
-                    <p className="text-black mb-2 font-semibold">
-                      Transaction History
-                    </p>
+    <div className="relative w-full my-6 mx-auto">
+      <div className="rounded-lg border bg-bonk-white border-bonk-orange relative flex flex-col w-full outline-none focus:outline-none">
+        <div className="relative p-6 flex-auto">
+          <div className="flex flex-col gap-y-0">
+            <p className="text-yellow-600 mb-2 font-semibold">
+              Transaction History
+            </p>
 
-                    <div className="flex flex-col border items-center border-slate-300 rounded-lg divide-y divide-y-slate-300">
-                      {donationHistory.length === 0 ? (
-                        <p className="text-slate-700 text-md py-6">
-                          No donations yet!
-                        </p>
-                      ) : (
-                        donationHistory.map((donation) => {
-                          return (
-                            <div
-                              key={donation.id.toString()}
-                              className="flex justify-between items-center w-full p-3"
-                            >
-                              <div className="flex items-start flex-col">
-                                <span className="text-slate-700 font-semibold">
-                                  {donation.donor}
-                                </span>
-                                <span className="text-slate-400 text-sm">
-                                  {donation.date.toDateString()}
-                                </span>
-                              </div>
-                              <span className="font-semibold text-yellow-950 flex space-x-2">
-                                <Image
-                                  className="mr-1 w-5 my-auto"
-                                  src="/sol.png"
-                                  alt="SOL"
-                                  width={16}
-                                  height={16}
-                                />
-                                <span>
-                                  {(donation.donationAmount/1e9).toLocaleString()}
-                                </span>
-                              </span>
-                            </div>
-                          );
-                        })
-                      )}
+            <div className="flex flex-col border items-center border-slate-300 rounded-lg divide-y divide-y-slate-300">
+              {donationHistory.length === 0 ? (
+                <p className="text-slate-700 text-md py-6 font-mono">
+                  No donations yet!
+                </p>
+              ) : (
+                donationHistory.map((donation) => {
+                  return (
+                    <div
+                      key={donation.id.toString()}
+                      className="flex justify-between items-center w-full p-3"
+                    >
+                      <div className="flex items-start flex-col">
+                        <span className="text-slate-700 font-semibold">
+                          {donation.donor}
+                        </span>
+                        <span className="text-slate-400 text-sm">
+                          {donation.date.toDateString()}
+                        </span>
+                      </div>
+                      <span className="font-semibold text-yellow-950 flex space-x-2">
+                        <Image
+                          className="mr-1 w-5 my-auto"
+                          src="/sol.png"
+                          alt="SOL"
+                          width={16}
+                          height={16}
+                        />
+                        <span>
+                          {(donation.donationAmount / 1e9).toLocaleString()}
+                        </span>
+                      </span>
                     </div>
-                  </div>
-                </div>
-              </div>
+                  );
+                })
+              )}
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
-};
+}

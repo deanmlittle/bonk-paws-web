@@ -22,7 +22,13 @@ import {
   useConnection,
 } from "@solana/wallet-adapter-react";
 import { WalletNotConnectedError } from "@solana/wallet-adapter-base";
-import { APP_URL, PROGRAM_ID, PROGRAM_ID_PUBKEY, matchAmount, maxMatchAmount } from "@/constants";
+import {
+  APP_URL,
+  PROGRAM_ID,
+  PROGRAM_ID_PUBKEY,
+  matchAmount,
+  maxMatchAmount,
+} from "@/constants";
 import { IDL } from "@/idl";
 import { randomBytes } from "crypto";
 import Loader from "./Loader";
@@ -92,8 +98,12 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
   };
 
   const viewTx = async () => {
-    window.open(`https://explorer.solana.com/tx/${signature}`, '_blank', 'noopener,noreferrer')
-  }
+    window.open(
+      `https://explorer.solana.com/tx/${signature}`,
+      "_blank",
+      "noopener,noreferrer"
+    );
+  };
 
   const donate = async () => {
     setIsLoading(true);
@@ -111,44 +121,62 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
         country,
         state,
         city,
-        zipcode
-      }
+        zipcode,
+      };
       const options = {
-        method: 'POST',
+        method: "POST",
         headers: {
-        'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
-        };
-      const res = await (await fetch(APP_URL + `/api/payment?id=${organization.id}`, options)).json();
+      };
+      const res = await (
+        await fetch(APP_URL + `/api/payment?id=${organization.id}`, options)
+      ).json();
       const seed = new BN(randomBytes(8));
       const charity = new PublicKey(res.data.donationAddress);
       // const matchAddress = new PublicKey(res.data.matchAddress);
       const signatureIxFields: TransactionInstructionCtorFields = {
         keys: [],
         programId: Ed25519Program.programId,
-        data: Buffer.from(res.data.signatureIx.data.data)
+        data: Buffer.from(res.data.signatureIx.data.data),
       };
       const signatureIx = new TransactionInstruction(signatureIxFields);
       console.log(signatureIx);
-      const donationState = PublicKey.findProgramAddressSync([Buffer.from("donation_state")], PROGRAM_ID_PUBKEY)[0];
-      const matchDonationState = PublicKey.findProgramAddressSync([Buffer.from("match_donation"), seed.toArrayLike(Buffer, 'le', 8)], PROGRAM_ID_PUBKEY)[0];
-      const donationHistory = PublicKey.findProgramAddressSync([Buffer.from("donation_history"), seed.toArrayLike(Buffer, 'le', 8), publicKey.toBuffer()], PROGRAM_ID_PUBKEY)[0];
+      const donationState = PublicKey.findProgramAddressSync(
+        [Buffer.from("donation_state")],
+        PROGRAM_ID_PUBKEY
+      )[0];
+      const matchDonationState = PublicKey.findProgramAddressSync(
+        [Buffer.from("match_donation"), seed.toArrayLike(Buffer, "le", 8)],
+        PROGRAM_ID_PUBKEY
+      )[0];
+      const donationHistory = PublicKey.findProgramAddressSync(
+        [
+          Buffer.from("donation_history"),
+          seed.toArrayLike(Buffer, "le", 8),
+          publicKey.toBuffer(),
+        ],
+        PROGRAM_ID_PUBKEY
+      )[0];
 
-      let amount = new BN(fromAmount*1e9);
-      const donateIx = await program.methods.donate(seed, amount)
-      .accounts({
-        donor: publicKey,
-        charity,
-        donationState,
-        matchDonationState,
-        donationHistory,
-        instructions: SYSVAR_INSTRUCTIONS_PUBKEY,
-        systemProgram: SystemProgram.programId
-      }).instruction();
+      let amount = new BN(fromAmount * 1e9);
+      const donateIx = await program.methods
+        .donate(seed, amount)
+        .accounts({
+          donor: publicKey,
+          charity,
+          donationState,
+          matchDonationState,
+          donationHistory,
+          instructions: SYSVAR_INSTRUCTIONS_PUBKEY,
+          systemProgram: SystemProgram.programId,
+        })
+        .instruction();
 
       let tx = new Transaction().add(signatureIx).add(donateIx);
-      const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+      const { blockhash, lastValidBlockHeight } =
+        await connection.getLatestBlockhash();
       tx.recentBlockhash = blockhash;
       tx.lastValidBlockHeight = lastValidBlockHeight;
       const sig = await sendTransaction(tx, connection, {
@@ -165,9 +193,9 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
       if (result && result.value && result.value.err) {
         throw Error(JSON.stringify(result.value.err));
       }
-      setSignature(sig)
-      setIsLoading(false)
-    } catch(e) {
+      setSignature(sig);
+      setIsLoading(false);
+    } catch (e) {
       setIsLoading(false);
     }
 
@@ -223,18 +251,18 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
     <>
       {organization ? (
         <>
-          <div className="custom-orange-bg border border-yellow-300 mt-6 transition-all rounded-lg w-full flex flex-col text-center border-top border-left border-right border-yellow-400 rounded-lg transition-all p-8">
+          <div className="bg-bonk-white border border-bonk-orange mt-6 transition-all rounded-lg w-full flex flex-col text-center p-8">
             <div className="justify-center text-black items-center flex overflow-x-hidden inset-0 z-50 outline-none focus:outline-none h-full">
               <div className="relative w-full mx-auto h-full">
                 <div className="relative flex flex-col items-start w-full ">
-                  <p className="text-yellow-900 mb-1 text-sm">
+                  <p className="text-bonk-orange mb-1 text-sm">
                     Donation Amount
                   </p>
-                  <div className="flex w-full justify-between border items-center border-yellow-900 bg-yellow-950 bg-opacity-5  border-opacity-40 focus:border-opacity-500 py-2 rounded-xl">
+                  <div className="flex w-full justify-between border items-center border-bonk-orange bg-bonk-orange/10 bg-opacity-5  border-opacity-40 focus:border-opacity-500 py-2 rounded-xl">
                     <input
                       name="fromForm"
                       type="number"
-                      className="w-full bg-transparent ml-3 font-raleway text-yellow-900 font-regular !outline-none placeholder:text-yellow-800"
+                      className="w-full bg-transparent ml-3 font-raleway text-bonk-orange font-regular !outline-none placeholder:text-bonk-orange"
                       value={fromAmount}
                       onChange={(e) => {
                         updateFromAmount(parseFloat(e.target.value));
@@ -245,32 +273,41 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
                     <img className="w-6 h-6 mr-2" src="/sol.png" />
                   </div>
 
-                  <p className="text-yellow-900 text-sm mb-1 mt-4">Our Match</p>
-                  <div className="flex w-full items-center border border-yellow-900 bg-yellow-950 bg-opacity-5  border-opacity-40 focus:border-opacity-500 py-2 rounded-xl">
-                    <p className="w-full text-start bg-transparent ml-3 font-raleway text-yellow-900 font-regular !outline-none">
-                      {fromAmount >= matchAmount ? Number(Math.min(maxMatchAmount,fromAmount)).toLocaleString()
+                  <p className="text-bonk-orange text-sm mb-1 mt-4">
+                    Our Match
+                  </p>
+                  <div className="flex w-full items-center border border-bonk-orange bg-bonk-orange/10 bg-opacity-5  border-opacity-40 focus:border-opacity-500 py-2 rounded-xl">
+                    <p className="w-full text-start bg-transparent ml-3 font-raleway text-bonk-orange font-regular !outline-none">
+                      {fromAmount >= matchAmount
+                        ? Number(
+                            Math.min(maxMatchAmount, fromAmount)
+                          ).toLocaleString()
                         : 0}
                     </p>
                     <img className="w-6 h-6 mr-2" src="/sol.png" />
                   </div>
 
-                  <p className="text-yellow-900 text-sm mb-1 mt-4">
+                  <p className="text-bonk-orange text-sm mb-1 mt-4">
                     Burn Amount
                   </p>
-                  <div className="flex w-full items-center border border-yellow-900 bg-yellow-950 bg-opacity-5  border-opacity-40 focus:border-opacity-500 py-2 rounded-xl">
-                    <p className="w-full text-start bg-transparent ml-3 font-raleway text-yellow-900 font-regular !outline-none">
+                  <div className="flex w-full items-center border border-bonk-orange bg-bonk-orange/10 bg-opacity-5  border-opacity-40 focus:border-opacity-500 py-2 rounded-xl">
+                    <p className="w-full text-start bg-transparent ml-3 font-raleway text-bonk-orange font-regular !outline-none">
                       {fromAmount >= 0
                         ? Number(quoteAmount * 0.01).toLocaleString()
                         : 0}
                     </p>
                     <img className="w-6 h-6 mr-2" src="/logo.png" />
                   </div>
-                  <p className="text-yellow-900 text-sm mb-1 mt-4">
+                  <p className="text-bonk-orange text-sm mb-1 mt-4">
                     Charity Receives
                   </p>
-                  <div className="flex w-full border items-center border-yellow-900 bg-yellow-950 bg-opacity-5  border-opacity-40 focus:border-opacity-500 py-2 rounded-xl mb-4">
-                    <p className="w-full text-start bg-transparent ml-3 font-raleway text-yellow-900 font-regular !outline-none">
-                      {fromAmount >= matchAmount ? Number(fromAmount + Math.min(maxMatchAmount,fromAmount)).toLocaleString() : fromAmount}
+                  <div className="flex w-full border items-center border-bonk-orange bg-bonk-orange/10 bg-opacity-5  border-opacity-40 focus:border-opacity-500 py-2 rounded-xl mb-4">
+                    <p className="w-full text-start bg-transparent ml-3 font-raleway text-bonk-orange font-regular !outline-none">
+                      {fromAmount >= matchAmount
+                        ? Number(
+                            fromAmount + Math.min(maxMatchAmount, fromAmount)
+                          ).toLocaleString()
+                        : fromAmount}
                     </p>
                     <img className="w-6 h-6 mr-2" src="/sol.png" />
                   </div>
@@ -319,12 +356,12 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
 
                   {!isAnonymous ? (
                     <form className="space-y-4">
-                      <p className="text-yellow-900 text-sm mb-1 mt-4 text-left">
+                      <p className="text-bonk-orange text-sm mb-1 mt-4 text-left">
                         Personal Information
                       </p>
                       <div className="flex gap-4">
                         <input
-                          className="w-full text-yellow-900 placeholder:text-yellow-800 px-3 flex focus:outline-none border items-center border-yellow-900 bg-yellow-950 bg-opacity-5  border-opacity-40 focus:border-opacity-500 py-2 rounded-xl mb-4"
+                          className="w-full text-bonk-orange placeholder:text-bonk-orange px-3 flex focus:outline-none border items-center border-bonk-orange bg-bonk-orange/10 bg-opacity-5  border-opacity-40 focus:border-opacity-500 py-2 rounded-xl mb-4"
                           type="text"
                           placeholder="First name *"
                           value={firstName}
@@ -332,7 +369,7 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
                           required
                         />
                         <input
-                          className="w-full text-yellow-900 placeholder:text-yellow-800 px-3 flex focus:outline-none border items-center border-yellow-900 bg-yellow-950 bg-opacity-5  border-opacity-40 focus:border-opacity-500 py-2 rounded-xl mb-4"
+                          className="w-full text-bonk-orange placeholder:text-bonk-orange px-3 flex focus:outline-none border items-center border-bonk-orange bg-bonk-orange/10 bg-opacity-5  border-opacity-40 focus:border-opacity-500 py-2 rounded-xl mb-4"
                           type="text"
                           placeholder="Last name *"
                           value={lastName}
@@ -342,7 +379,7 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
                       </div>
 
                       <input
-                        className="w-full text-yellow-900 placeholder:text-yellow-800 px-3 flex focus:outline-none border items-center border-yellow-900 bg-yellow-950 bg-opacity-5  border-opacity-40 focus:border-opacity-500 py-2 rounded-xl mb-4"
+                        className="w-full text-bonk-orange placeholder:text-bonk-orange px-3 flex focus:outline-none border items-center border-bonk-orange bg-bonk-orange/10 bg-opacity-5  border-opacity-40 focus:border-opacity-500 py-2 rounded-xl mb-4"
                         type="text"
                         placeholder="Address 1 *"
                         value={addressLine1}
@@ -350,7 +387,7 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
                         required
                       />
                       <input
-                        className="w-full text-yellow-900 placeholder:text-yellow-800 px-3 flex focus:outline-none border items-center border-yellow-900 bg-yellow-950 bg-opacity-5  border-opacity-40 focus:border-opacity-500 py-2 rounded-xl mb-4"
+                        className="w-full text-bonk-orange placeholder:text-bonk-orange px-3 flex focus:outline-none border items-center border-bonk-orange bg-bonk-orange/10 bg-opacity-5  border-opacity-40 focus:border-opacity-500 py-2 rounded-xl mb-4"
                         type="text"
                         placeholder="Address 2"
                         value={addressLine2}
@@ -358,7 +395,7 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
                       />
                       <div className="flex gap-4">
                         <input
-                          className="w-full text-yellow-900 placeholder:text-yellow-800 px-3 flex focus:outline-none border items-center border-yellow-900 bg-yellow-950 bg-opacity-5  border-opacity-40 focus:border-opacity-500 py-2 rounded-xl mb-4"
+                          className="w-full text-bonk-orange placeholder:text-bonk-orange px-3 flex focus:outline-none border items-center border-bonk-orange bg-bonk-orange/10 bg-opacity-5  border-opacity-40 focus:border-opacity-500 py-2 rounded-xl mb-4"
                           type="text"
                           placeholder="Country *"
                           value={country}
@@ -366,7 +403,7 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
                           required
                         />
                         <input
-                          className="w-full text-yellow-900 placeholder:text-yellow-800 px-3 flex focus:outline-none border items-center border-yellow-900 bg-yellow-950 bg-opacity-5  border-opacity-40 focus:border-opacity-500 py-2 rounded-xl mb-4"
+                          className="w-full text-bonk-orange placeholder:text-bonk-orange px-3 flex focus:outline-none border items-center border-bonk-orange bg-bonk-orange/10 bg-opacity-5  border-opacity-40 focus:border-opacity-500 py-2 rounded-xl mb-4"
                           type="text"
                           placeholder="State/Province"
                           value={state}
@@ -375,7 +412,7 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
                       </div>
                       <div className="flex gap-4">
                         <input
-                          className="w-full text-yellow-900 placeholder:text-yellow-800 px-3 flex focus:outline-none border items-center border-yellow-900 bg-yellow-950 bg-opacity-5  border-opacity-40 focus:border-opacity-500 py-2 rounded-xl mb-4"
+                          className="w-full text-bonk-orange placeholder:text-bonk-orange px-3 flex focus:outline-none border items-center border-bonk-orange bg-bonk-orange/10 bg-opacity-5  border-opacity-40 focus:border-opacity-500 py-2 rounded-xl mb-4"
                           type="text"
                           placeholder="City *"
                           value={city}
@@ -383,7 +420,7 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
                           required
                         />
                         <input
-                          className="w-full text-yellow-900 placeholder:text-yellow-800 px-3 flex focus:outline-none border items-center border-yellow-900 bg-yellow-950 bg-opacity-5  border-opacity-40 focus:border-opacity-500 py-2 rounded-xl mb-4"
+                          className="w-full text-bonk-orange placeholder:text-bonk-orange px-3 flex focus:outline-none border items-center border-bonk-orange bg-bonk-orange/10 bg-opacity-5  border-opacity-40 focus:border-opacity-500 py-2 rounded-xl mb-4"
                           type="text"
                           placeholder="ZIP/Postal Code *"
                           value={zipcode}
@@ -396,9 +433,11 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
 
                   {wantReceipt ? (
                     <>
-                      <p className="text-yellow-900 text-sm mb-1 mt-5">Email</p>
+                      <p className="text-bonk-orange text-sm mb-1 mt-5">
+                        Email
+                      </p>
                       <input
-                        className="w-full text-yellow-900 placeholder:text-yellow-800 px-3 flex focus:outline-none border items-center border-yellow-900 bg-yellow-950 bg-opacity-5  border-opacity-40 focus:border-opacity-500 py-2 rounded-xl mb-4"
+                        className="w-full text-bonk-orange placeholder:text-bonk-orange px-3 flex focus:outline-none border items-center border-bonk-orange bg-bonk-orange/10 bg-opacity-5  border-opacity-40 focus:border-opacity-500 py-2 rounded-xl mb-4"
                         type="email"
                         placeholder="example@example.com"
                         value={receiptEmail}
@@ -411,16 +450,15 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
               </div>
             </div>
             <div className="mt-auto w-full pt-4">
-              {
-              signature ?
-                  <button
-                    className={`w-full flex justify-center text-center cursor-pointer bg-green-500 hover:bg-green-400 text-white font-semibold py-3 rounded-lg focus:outline-none focus:shadow-outline`}
-                    type="button"
-                    onClick={viewTx}
-                  >
-                    Success! View on explorer
-                  </button> 
-                :
+              {signature ? (
+                <button
+                  className={`w-full flex justify-center text-center cursor-pointer bg-green-500 hover:bg-green-400 text-white font-semibold py-3 rounded-lg focus:outline-none focus:shadow-outline`}
+                  type="button"
+                  onClick={viewTx}
+                >
+                  Success! View on explorer
+                </button>
+              ) : (
                 <button
                   className={`w-full flex justify-center text-center cursor-pointer bg-red-500 hover:bg-red-400 text-white font-semibold py-3 rounded-lg focus:outline-none focus:shadow-outline ${
                     quoteLoading || fromAmount === 0 ? "opacity-20" : ""
@@ -429,9 +467,15 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
                   disabled={fromAmount === 0 || quoteLoading}
                   onClick={donate}
                 >
-                  { isLoading ? <span className="flex py-1 text-white"><Loader /></span> : "Donate"}
+                  {isLoading ? (
+                    <span className="flex py-1 text-white">
+                      <Loader />
+                    </span>
+                  ) : (
+                    "Donate"
+                  )}
                 </button>
-              }
+              )}
             </div>
           </div>
         </>
