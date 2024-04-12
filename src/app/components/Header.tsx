@@ -23,7 +23,9 @@ const Balance = () => {
       if (!isLoading) {
         setIsLoading(true);
         try {
-          await connection.getBalance(publicKey, "processed").then((b) => setBalance(b / 1e9));
+          await connection
+            .getBalance(publicKey, "processed")
+            .then((b) => setBalance(b / 1e9));
         } catch (e) {
           console.log(e);
           setBalance(0);
@@ -31,18 +33,18 @@ const Balance = () => {
         setIsLoading(false);
       }
     };
-  
+
     let timer: NodeJS.Timeout;
-  
+
     const fetchData = async () => {
       if (publicKey) {
         await getBalance(publicKey);
         timer = setTimeout(fetchData, 15000); // Execute every 25 seconds
       }
     };
-  
+
     fetchData(); // Initial execution
-  
+
     return () => {
       clearTimeout(timer);
     };
@@ -56,7 +58,7 @@ const Balance = () => {
         {isLoading ? (
           <Loader />
         ) : (
-          <span className="text-medium text-lg font-medium text-red-500 my-auto">
+          <span className="text-medium text-lg font-medium text-bonk-orange my-auto">
             {balance.toLocaleString()}
           </span>
         )}

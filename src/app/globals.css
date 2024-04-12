@@ -16,18 +16,17 @@
   }
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   scroll-behavior: smooth !important;
   color: rgb(var(--foreground-rgb));
-  background-color: #ffecb8;
   /* background-color: rgb(245, 245, 220); */
   /* background-image: linear-gradient(rgba(254, 249, 211, 1) 0%, rgba(254, 249, 211, 0.8) 100%), url("../../public/bg.jpg"); */
-  background-size: 400px auto;
-  background-attachment: fixed;
-  max-height: 100vh;
-  max-width: 100vw;
   animation: scroll-bg linear infinite 120s; /* Increased animation duration */
-  color:black;
+  color: black;
 
   /* Remove !important from keyframes */
 }
@@ -41,84 +40,88 @@ body {
   }
 }
 
-.shiba-1, .shiba-2 {
+.shiba-1,
+.shiba-2 {
   position: relative;
 }
 
 .shiba-2-eye {
   background-position: center center;
-  width:30px;
+  width: 30px;
   height: 30px;
   position: absolute;
-  top:29%;
-  left:56%;
+  top: 29%;
+  left: 56%;
   background: url("../../public/shiba-2-eye.png");
   background-repeat: no-repeat;
   background-size: 50% auto;
   animation: blink infinite 2s;
 }
 
-.shiba-2-star-1, .shiba-2-star-2, .shiba-2-star-3, .shiba-2-star-4, .shiba-2-star-5 {
+.shiba-2-star-1,
+.shiba-2-star-2,
+.shiba-2-star-3,
+.shiba-2-star-4,
+.shiba-2-star-5 {
   background-repeat: no-repeat;
   background-size: 50% auto;
   animation: twinkle infinite 0.9s linear;
 }
 
 .shiba-2-star-1 {
-  width:40px;
+  width: 40px;
   height: 40px;
   position: absolute;
-  top:6%;
-  left:3%;
+  top: 6%;
+  left: 3%;
   opacity: 0;
   background-image: url("../../public/sparkle-1.png");
   animation-delay: 0.5s;
 }
 .shiba-2-star-2 {
-  width:30px;
+  width: 30px;
   height: 30px;
   position: absolute;
-  top:24%;
-  left:0%;
+  top: 24%;
+  left: 0%;
   opacity: 0;
   background-image: url("../../public/sparkle-2.png");
   animation-delay: 0.25s;
 }
 .shiba-2-star-3 {
-  width:22px;
+  width: 22px;
   height: 22px;
   position: absolute;
-  top:43%;
-  left:8%;
+  top: 43%;
+  left: 8%;
   opacity: 0;
   background-image: url("../../public/sparkle-3.png");
 }
 .shiba-2-star-4 {
-  width:40px;
+  width: 40px;
   height: 40px;
   position: absolute;
-  top:23%;
-  left:92%;
+  top: 23%;
+  left: 92%;
   opacity: 0;
   background-image: url("../../public/sparkle-1.png");
   animation-delay: 0.2s;
 }
 .shiba-2-star-5 {
-  width:22px;
+  width: 22px;
   height: 22px;
   position: absolute;
-  top:45%;
-  left:88%;
+  top: 45%;
+  left: 88%;
   opacity: 0;
   background-image: url("../../public/sparkle-3.png");
   animation-delay: 0.4s;
 }
 
-
 .shiba-1-head {
   margin-bottom: -10%;
-  margin-left:6%;
-  animation:cubic-bezier(0.6, -0.28, 0.735, 0.045) roll infinite 3s;
+  margin-left: 6%;
+  animation: cubic-bezier(0.6, -0.28, 0.735, 0.045) roll infinite 3s;
 }
 
 @keyframes blink {
@@ -184,7 +187,7 @@ body.modal-active {
 }
 
 .custom-orange-bg {
-  background: rgb(255, 250, 230)
+  background: rgb(255, 250, 230);
 }
 
 /* reset */
@@ -214,22 +217,22 @@ button {
 
 @keyframes paws {
   0% {
-    opacity:0;
+    opacity: 0;
   }
   20% {
     opacity: 1;
   }
   70% {
-    opacity:1;
+    opacity: 1;
   }
   100% {
-    opacity:0;
+    opacity: 0;
   }
 }
 
 @keyframes paws2 {
   0% {
-    opacity:0;
+    opacity: 0;
   }
   20% {
     opacity: 0;
@@ -238,7 +241,19 @@ button {
     opacity: 1;
   }
   100% {
-    opacity:0;
+    opacity: 0;
   }
 }
 
+.font-herborn {
+  @apply tracking-widest;
+}
+
+.gradient-bg-white {
+  background: #ece9e6;
+  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to bottom, #ffffff, #ece9e6);
+  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to bottom, #ffffff, #ece9e6);
+  /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}

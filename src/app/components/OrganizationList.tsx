@@ -78,7 +78,7 @@ const OrganizationList: React.FC<{}> = () => {
           className="w-full h-[50px] flex space-x-4 items-center justify-center"
         >
           <input
-            className="text-yellow-950 h-[50px] p-3 w-full rounded-l-xl bg-transparent bg-yellow-950 bg-opacity-[0.08] border-2 rounded-xl border-yellow-800 border-opacity-20 focus:outline-none focus:border-yellow-700 transition ease-in placeholder:text-yellow-950"
+            className="text-bonk-orange h-[50px] p-3 w-full rounded-l-xl bg-transparent bg-bonk-orange bg-opacity-[0.08] border-2 rounded-xl border-bonk-orange border-opacity-20 focus:outline-none focus:border-bonk-orange transition ease-in placeholder:text-bonk-orange placeholder:font-herborn"
             type="text"
             id="search"
             autoComplete="off"
@@ -98,18 +98,29 @@ const OrganizationList: React.FC<{}> = () => {
             <div
               data-tooltip-id="wantReceiptTooltip"
               data-tooltip-content="Require Receipt"
-              className={`p-3 border-2 h-full cursor-pointer flex-shrink-0 hover:bg-opacity-20 rounded-xl bg-yellow-950 ${
+              className={`p-3 h-full cursor-pointer flex-shrink-0 rounded-xl text-bonk-orange duration-300 transition-all ${
                 wantReceipt
-                  ? "bg-opacity-10 border-2 border-red-500"
-                  : "bg-opacity-[0.05] border-yellow-700 border-opacity-0"
+                  ? "bg-bonk-orange text-bonk-white"
+                  : "bg-bonk-orange/10"
               }`}
               onClick={() => setWantReceipt(!wantReceipt)}
             >
-              <img
-                src="/receipt.svg"
-                alt="receipt"
-                className="w-full h-full mx-auto"
-              />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"></path>
+                <path d="M14 8H8"></path>
+                <path d="M16 12H8"></path>
+                <path d="M13 16H8"></path>
+              </svg>
             </div>
 
             <Tooltip
@@ -124,18 +135,31 @@ const OrganizationList: React.FC<{}> = () => {
             <div
               data-tooltip-id="wantRemainAnonymous"
               data-tooltip-content="Remain Anonymous"
-              className={`p-3 border-2 h-full cursor-pointer flex-shrink-0 hover:bg-opacity-20 rounded-xl bg-yellow-950 ${
+              className={`p-3 h-full cursor-pointer flex-shrink-0 rounded-xl text-bonk-orange duration-300 transition-all ${
                 onlyAnon
-                  ? "bg-opacity-10 border-2 border-red-500"
-                  : "bg-opacity-[0.05] border-yellow-700 border-opacity-0"
+                  ? "bg-bonk-orange text-bonk-white"
+                  : "bg-bonk-orange/10"
               }`}
               onClick={() => setOnlyAnon(!onlyAnon)}
             >
-              <img
-                src="/anonymous.svg"
-                alt="receipt"
-                className="w-full h-full mx-auto"
-              />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
+                <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
+                <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
+                <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+                <circle cx="12" cy="12" r="1"></circle>
+                <path d="M5 12s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5"></path>
+              </svg>
             </div>
           </div>
         </motion.div>

@@ -87,9 +87,12 @@ export default function Home() {
             >
               <div className="hidden sm:mb-8 sm:flex sm:justify-center">
                 <div className="relative rounded-full px-3 py-1 mt-10 text-sm leading-6 text-slate-600 ring-1 ring-gray-900/10 hover:ring-gray-900/20">
-                  BONK for Paws is matching donations to animal-related
-                  causes 100%{" "}
-                  <a href="#statistics" className="font-semibold text-red-500">
+                  BONK for Paws is matching donations to animal-related causes
+                  100%{" "}
+                  <a
+                    href="#statistics"
+                    className="font-semibold text-bonk-orange"
+                  >
                     <span
                       className="absolute inset-0"
                       aria-hidden="true"
@@ -101,23 +104,24 @@ export default function Home() {
 
               <h1
                 id="top"
-                className="text-4xl font-bold tracking-tighter text-yellow-950 sm:text-6xl mt-10"
+                className="text-4xl font-bold tracking-tighter text-bonk-orange font-herborn sm:text-6xl"
               >
-                Lend a helping paw!
+                Lend a helping paw
               </h1>
               <p className="my-6 text-lg leading-8 text-gray-600">
                 We&apos;re partnering with{" "}
                 <a
                   href="https://thegivingblock.com"
-                  className="text-bold text-red-500"
+                  className="text-bold text-bonk-orange"
                   target="_blank"
                 >
                   The Giving Block
                 </a>{" "}
                 to match BONK donations to dog-related charities{" "}
-                <span className="text-bold text-red-500">100%</span>. We&apos;re
-                also burning <span className="text-bold text-red-500">1%</span>{" "}
-                of your donation amount from our treasury, making your generous
+                <span className="text-bold text-bonk-orange">100%</span>.
+                We&apos;re also burning{" "}
+                <span className="text-bold text-bonk-orange">1%</span> of your
+                donation amount from our treasury, making your generous
                 donations go even further!
               </p>
             </motion.div>
@@ -150,10 +154,12 @@ export default function Home() {
           </h1>
           <p className="my-6 text-xl leading-8 text-slate-600">
             Thanks to your generosity, we&apos;ve been able to donate{" "}
-            <span className="text-red-500 font-bold">{donated}</span> to{" "}
-            <span className="text-red-500 font-bold">{organizations.length}</span> charities and
-            counting, all while burning{" "}
-            <span className="text-red-500 font-bold">{burned}</span> BONK to
+            <span className="text-bonk-orange font-bold">{donated}</span> to{" "}
+            <span className="text-bonk-orange font-bold">
+              {organizations.length}
+            </span>{" "}
+            charities and counting, all while burning{" "}
+            <span className="text-bonk-orange font-bold">{burned}</span> BONK to
             make our community even stronger!
           </p>
 
