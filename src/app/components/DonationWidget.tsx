@@ -316,18 +316,34 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
                     {organization.allowsAnon && (
                       <div className="flex items-center gap-x-3">
                         <div
-                          className={`p-2 border-2 h-full cursor-pointer flex-shrink-0 hover:bg-opacity-20 rounded-xl bg-yellow-950 ${
+                          className={`p-3 h-full cursor-pointer flex-shrink-0 rounded-xl text-bonk-orange duration-300 transition-all ${
                             isAnonymous
-                              ? "bg-opacity-10 border-2 border-red-500"
-                              : "bg-opacity-[0.05] border-yellow-700 border-opacity-0"
+                              ? "bg-bonk-orange text-bonk-white"
+                              : "bg-bonk-orange/10"
                           }`}
                           onClick={() => setIsAnonymous(!isAnonymous)}
                         >
-                          <img
-                            src="/anonymous.svg"
-                            alt="anonymous"
-                            className="w-full h-full mx-auto"
-                          />
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          >
+                            <rect
+                              width="18"
+                              height="18"
+                              x="3"
+                              y="3"
+                              rx="2"
+                            ></rect>
+                            <circle cx="12" cy="10" r="3"></circle>
+                            <path d="M7 21v-2a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2"></path>
+                          </svg>
                         </div>
                         Give anonymously
                       </div>
@@ -336,18 +352,29 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
                     {organization.isReceiptEnabled && (
                       <div className="flex items-center gap-x-3">
                         <div
-                          className={`p-2 border-2 h-full cursor-pointer flex-shrink-0 hover:bg-opacity-20 rounded-xl bg-yellow-950 ${
+                          className={`p-3 h-full cursor-pointer flex-shrink-0 rounded-xl text-bonk-orange duration-300 transition-all ${
                             wantReceipt
-                              ? "bg-opacity-10 border-2 border-red-500"
-                              : "bg-opacity-[0.05] border-yellow-700 border-opacity-0"
+                              ? "bg-bonk-orange text-bonk-white"
+                              : "bg-bonk-orange/10"
                           }`}
                           onClick={() => setWantReceipt(!wantReceipt)}
                         >
-                          <img
-                            src="/receipt.svg"
-                            alt="receipt"
-                            className="w-full h-full mx-auto"
-                          />
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          >
+                            <path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"></path>
+                            <path d="M14 8H8"></path>
+                            <path d="M16 12H8"></path>
+                            <path d="M13 16H8"></path>
+                          </svg>
                         </div>
                         I want to receive a receipt
                       </div>
@@ -460,8 +487,10 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
                 </button>
               ) : (
                 <button
-                  className={`w-full flex justify-center text-center cursor-pointer bg-red-500 hover:bg-red-400 text-white font-semibold py-3 rounded-lg focus:outline-none focus:shadow-outline ${
-                    quoteLoading || fromAmount === 0 ? "opacity-20" : ""
+                  className={`w-full flex justify-center text-center cursor-pointer bg-bonk-orange duration-300 transition-all text-white font-semibold py-3 rounded-lg focus:outline-none focus:shadow-outline ${
+                    quoteLoading || fromAmount === 0
+                      ? "opacity-20"
+                      : "hover:opacity-75"
                   }`}
                   type="button"
                   disabled={fromAmount === 0 || quoteLoading}
