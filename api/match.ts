@@ -32,6 +32,7 @@ const authorityBonk = getAssociatedTokenAddressSync(bonk, authority);
 const wsol = new PublicKey("So11111111111111111111111111111111111111112")
 const authorityWsol = getAssociatedTokenAddressSync(wsol, authority);
 
+/*
 export const getMatchAndFinalize = async (
   matchDonationState: PublicKey,
   program:Program<BonkPaws>
@@ -122,6 +123,7 @@ export const getMatchAndFinalize = async (
       addressLookupTableAccounts,
   };
 };
+*/
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   try {
