@@ -25,7 +25,6 @@ const provider = new AnchorProvider(connection, new Wallet(Keypair.fromSecretKey
 
 const program = new Program<BonkPaws>(IDL, PROGRAM_ID_PUBKEY, provider);
 
-const signingKey: Array<number> = JSON.parse(process.env.SIGNING_KEY!);
 const authority = new PublicKey("bfp1sHRTCvq7geo1hkBuaYbiFdEhsfeoidqimJDuSEy");
 const bonk = new PublicKey("DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263")
 const authorityBonk = getAssociatedTokenAddressSync(bonk, authority);
