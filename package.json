@@ -33,6 +33,7 @@
     "typescript": "5.2.2"
   },
   "devDependencies": {
+    "@types/node": "20.12.7",
     "@types/axios": "^0.14.0",
     "@types/bn.js": "^5.1.2"
   }

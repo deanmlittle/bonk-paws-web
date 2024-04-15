@@ -1,143 +1,235 @@
 // api/match.js
 import { NextApiRequest, NextApiResponse } from "next";
-import { AnchorProvider, BN, Program, Wallet } from "@coral-xyz/anchor";
+import { AnchorProvider, BN, Instruction, Program, Wallet } from "@coral-xyz/anchor";
 import { PROGRAM_ID_PUBKEY } from "../src/constants";
 import { BonkPaws, IDL } from "../src/idl";
 import { getAssociatedTokenAddressSync } from "@solana/spl-token";
-import { Connection, Keypair, PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY, SystemProgram } from "@solana/web3.js";
+import { AddressLookupTableAccount, ComputeBudgetProgram, Connection, Keypair, PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY, SystemProgram, TransactionInstruction, TransactionMessage, VersionedTransaction } from "@solana/web3.js";
 import { ASSOCIATED_PROGRAM_ID, TOKEN_PROGRAM_ID } from "@coral-xyz/anchor/dist/cjs/utils/token";
+
+type SwapQuote = {
+  inputMint: string;
+  inAmount: string;
+  outputMint: string;
+  outAmount: string;
+  otherAmountThreshold: string;
+  swapMode: string;
+  slippageBps: number;
+  platformFee: null | any; // Use 'any' for unknown structure
+  priceImpactPct: string;
+  routePlan: SwapPlan;
+  contextSlot: number;
+  timeTaken: number;
+};
+
+type SwapInfo = {
+  ammKey: string;
+  label: string;
+  inputMint: string;
+  outputMint: string;
+  inAmount: string;
+  outAmount: string;
+  feeAmount: string;
+  feeMint: string;
+};
+
+type SwapPlan = {
+  swapInfo: SwapInfo;
+  percent: number;
+};  
+
+type SwapInstruction = {
+  tokenLedgerInstruction: null | any; // Use 'any' for unknown structure
+  computeBudgetInstructions: {
+    programId: string;
+    accounts: any[]; // Use 'any' for unknown structure
+    data: string;
+  }[];
+  setupInstructions: {
+    programId: string;
+    accounts: any[]; // Use 'any' for unknown structure
+    data: string;
+  }[];
+  swapInstruction: {
+    programId: string;
+    accounts: any[][]; // Use 'any' for unknown structure
+    data: string;
+  };
+  cleanupInstruction: {
+    programId: string;
+    accounts: any[]; // Use 'any' for unknown structure
+    data: string;
+  };
+  addressLookupTableAddresses: string[];
+};
+
+
 if (!process.env.SIGNING_KEY) {
   throw new Error("Signing key missing")
 }
 if (!process.env.NEXT_PUBLIC_RPC_URL) {
   throw new Error("RPC missing")
 }
-const signer: number[] = process.env.SIGNING_KEY.split(",").map(n => parseInt(n));
+const API_ENDPOINT = "https://quote-api.jup.ag/v6";
+const signer = Keypair.fromSecretKey(new Uint8Array(process.env.SIGNING_KEY.split(",").map(n => parseInt(n))));
 const rpc: string = process.env.NEXT_PUBLIC_RPC_URL;
 const connection = new Connection(rpc)
 const preflightCommitment = "processed";
 const commitment = "processed";
 
-const provider = new AnchorProvider(connection, new Wallet(Keypair.fromSecretKey(new Uint8Array(signer))), {
+const provider = new AnchorProvider(connection, new Wallet(signer), {
   preflightCommitment,
   commitment,
 });
 
+const wallet = provider.wallet;
+
 const program = new Program<BonkPaws>(IDL, PROGRAM_ID_PUBKEY, provider);
 
-const authority = new PublicKey("bfp1sHRTCvq7geo1hkBuaYbiFdEhsfeoidqimJDuSEy");
 const bonk = new PublicKey("DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263")
-const authorityBonk = getAssociatedTokenAddressSync(bonk, authority);
+const signerBonk = getAssociatedTokenAddressSync(bonk, signer.publicKey);
 const wsol = new PublicKey("So11111111111111111111111111111111111111112")
-const authorityWsol = getAssociatedTokenAddressSync(wsol, authority);
+const signerWsol = getAssociatedTokenAddressSync(wsol, signer.publicKey);
+const donationState = PublicKey.findProgramAddressSync([Buffer.from("donation_state")], program.programId)[0];
 
-/*
-export const getMatchAndFinalize = async (
-  matchDonationState: PublicKey,
-  program:Program<BonkPaws>
-) => {
-  const amountResponse = await (
-    
-      await fetch(`https://quote-api.jup.ag/v6/quote?inputMint=DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263&outputMint=So11111111111111111111111111111111111111112&amount=${amountDonated}&swapMode=ExactOut&slippageBps=50`)
-  ).json() as { inAmount: string };
-  const quoteResponse = await (
-      await fetch(`https://quote-api.jup.ag/v6/quote?inputMint=DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263\&outputMint=So11111111111111111111111111111111111111112\&amount=${amountResponse.inAmount}\&slippageBps=50`)
-  ).json() as { outAmount: string };
-
-  const instructions = await (
-      await fetch('https://quote-api.jup.ag/v6/swap-instructions', {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-              quoteResponse,
-              userPublicKey: authority.toBase58(),
-          })
-      })
-  ).json();
-  
-
-  const matchIx = await program.methods
-  .matchDonation(new BN(amountResponse.inAmount))
-  .accounts({
-    authority,
-    charity,
-    bonk,
-    authorityBonk,
-    wsol,
-    authorityWsol,
-    donationState, 
-    matchDonationState,
-    instructions: SYSVAR_INSTRUCTIONS_PUBKEY,
-    associatedTokenProgram: ASSOCIATED_PROGRAM_ID,
-    tokenProgram: TOKEN_PROGRAM_ID,
-    systemProgram: SystemProgram.programId,  
-  })
-  .instruction()
-    
-  const typedInstructions = instructions as {
-      tokenLedgerInstruction?: any,
-      computeBudgetInstructions?: any,
-      setupInstructions?: any,
-      swapInstruction?: any,
-      cleanupInstruction?: any,
-      addressLookupTableAddresses?: any,
-      error?: string
-  };
-
-  if (typedInstructions.error) {
-      throw new Error("Failed to get swap instructions: " + typedInstructions.error);
-  }
-
-  const {
-      swapInstruction: swapInstructionPayload,
-      addressLookupTableAddresses,
-  } = typedInstructions;
-
-  addressLookupTableAccounts.push(
-      ...(await getAddressLookupTableAccounts(addressLookupTableAddresses))
-  );
-
-  const finalizeIx = await program.methods
-  .finalizeDonation()
-  .accounts({
-      donor: authority,
-      charity,
-      wsol,
-      donorWsol: authorityWsol,
-      instructions: SYSVAR_INSTRUCTIONS_PUBKEY,
-      associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-      tokenProgram: TOKEN_PROGRAM_ID,
-      systemProgram: SystemProgram.programId,
-  })
-  .instruction()
-
-  const swapIx = deserializeInstruction(swapInstructionPayload);
-
-  return {
-      matchIx,
-      swapIx,
-      finalizeIx,
-      addressLookupTableAccounts,
-  };
+const getQuote = async (
+  fromMint: PublicKey,
+  toMint: PublicKey,
+  amount: number
+): Promise<SwapQuote> => {
+  return fetch(
+    `${API_ENDPOINT}/quote?outputMint=${toMint.toBase58()}&inputMint=${fromMint.toBase58()}&amount=${amount}&swapMode=ExactOut&slippage=0.5`
+  ).then(async (response) => await response.json() as SwapQuote );
 };
-*/
+
+const getSwapIx = async (user: PublicKey, quote: any) => {
+  const data = {
+    quoteResponse: quote,
+    userPublicKey: user.toBase58(),
+  };
+
+  return fetch(`${API_ENDPOINT}/swap-instructions`, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  }).then(async (response) => await response.json() as SwapInstruction);
+}
+
+const deserializeInstruction = (instruction: any) => {
+  return new TransactionInstruction({
+    programId: new PublicKey(instruction.programId),
+    keys: instruction.accounts.map((key: any) => ({
+      pubkey: new PublicKey(key.pubkey),
+      isSigner: key.isSigner,
+      isWritable: key.isWritable,
+    })),
+    data: Buffer.from(instruction.data, "base64"),
+  });
+};
+
+const getAddressLookupTableAccounts = async (
+  keys: string[]
+): Promise<AddressLookupTableAccount[]> => {
+  const addressLookupTableAccountInfos =
+    await connection.getMultipleAccountsInfo(
+      keys.map((key) => new PublicKey(key))
+    );
+
+  return addressLookupTableAccountInfos.reduce((acc, accountInfo, index) => {
+    const addressLookupTableAddress = keys[index];
+    if (accountInfo) {
+      const addressLookupTableAccount = new AddressLookupTableAccount({
+        key: new PublicKey(addressLookupTableAddress),
+        state: AddressLookupTableAccount.deserialize(accountInfo.data),
+      });
+      acc.push(addressLookupTableAccount);
+    }
+
+    return acc;
+  }, new Array<AddressLookupTableAccount>());
+};
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     const state = await program.account.matchDonationState.all();
-    res.json(state);
-    // const matchIx = await program.methods.finalizeDonation(seed, amount)
-    //   .accounts({
-    //     donor: publicKey,
-    //     charity,
-    //     donationState,
-    //     matchDonationState,
-    //     donationHistory,
-    //     instructions: SYSVAR_INSTRUCTIONS_PUBKEY,
-    //     systemProgram: SystemProgram.programId
-    //   }).instruction();
+    if (!state.length) {
+      throw new Error("No open match states found")
+    }
+    const matchDonationState = state[0];
+    const matchIx = await program.methods
+    .matchDonation()
+    .accounts({
+      signer: signer.publicKey,
+      bonk,
+      signerBonk,
+      wsol,
+      signerWsol,
+      donationState, 
+      matchDonationState: matchDonationState.publicKey,
+      instructions: SYSVAR_INSTRUCTIONS_PUBKEY,
+      associatedTokenProgram: ASSOCIATED_PROGRAM_ID,
+      tokenProgram: TOKEN_PROGRAM_ID,
+      systemProgram: SystemProgram.programId,  
+    })
+    .instruction();
+
+    const finalizeIx = await program.methods
+    .finalizeDonation()
+    .accounts({
+      donor: signer.publicKey,
+      charity: matchDonationState.account.matchKey,
+      wsol,
+      donorWsol: signerWsol,
+      instructions: SYSVAR_INSTRUCTIONS_PUBKEY,
+      associatedTokenProgram: ASSOCIATED_PROGRAM_ID,
+      tokenProgram: TOKEN_PROGRAM_ID,
+      systemProgram: SystemProgram.programId,  
+    })
+    .instruction();
+
+    const quote = await getQuote(
+      bonk,
+      wsol,
+      matchDonationState.account.donationAmount.toNumber()
+    );
+
+    const {
+      // tokenLedgerInstruction, // If you are using `useTokenLedger = true`.
+      // computeBudgetInstructions, // The necessary instructions to setup the compute budget.
+      // setupInstructions, // Setup missing ATA for the users.
+      swapInstruction: swapInstructionPayload, // The actual swap instruction.
+      // cleanupInstruction, // Unwrap the SOL if `wrapAndUnwrapSol = true`.
+      addressLookupTableAddresses, // The lookup table addresses that you can use if you are using versioned transaction.
+    } = await getSwapIx(
+        wallet.publicKey,
+        quote
+    )
+
+    const addressLookupTableAccounts: AddressLookupTableAccount[] = [];
+
+    addressLookupTableAccounts.push(
+      ...(await getAddressLookupTableAccounts(addressLookupTableAddresses))
+    );
+
+    const recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+
+    const messageV0 = new TransactionMessage({
+      payerKey: signer.publicKey,
+      recentBlockhash,
+      instructions: [
+        ComputeBudgetProgram.setComputeUnitLimit({ units: 1_400_000 }),
+        ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 1458 }),
+        matchIx,
+        deserializeInstruction(swapInstructionPayload),
+        finalizeIx
+      ],
+    }).compileToV0Message(addressLookupTableAccounts);
+    let transaction = new VersionedTransaction(messageV0);
+    transaction.sign([signer]);
+    await provider.sendAndConfirm(transaction, [signer])
   } catch(e) {
     res.status(400).json({ 
       success: false, 
