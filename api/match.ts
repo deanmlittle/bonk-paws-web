@@ -1,6 +1,6 @@
 // api/match.js
 import { NextApiRequest, NextApiResponse } from "next";
-import { AnchorProvider, BN, Instruction, Program, Wallet } from "@coral-xyz/anchor";
+import { AnchorProvider, Program, Wallet } from "@coral-xyz/anchor";
 import { PROGRAM_ID_PUBKEY } from "../src/constants";
 import { BonkPaws, IDL } from "../src/idl";
 import { getAssociatedTokenAddressSync } from "@solana/spl-token";
@@ -197,11 +197,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     );
 
     const {
-      // tokenLedgerInstruction, // If you are using `useTokenLedger = true`.
-      // computeBudgetInstructions, // The necessary instructions to setup the compute budget.
-      // setupInstructions, // Setup missing ATA for the users.
       swapInstruction: swapInstructionPayload, // The actual swap instruction.
-      // cleanupInstruction, // Unwrap the SOL if `wrapAndUnwrapSol = true`.
       addressLookupTableAddresses, // The lookup table addresses that you can use if you are using versioned transaction.
     } = await getSwapIx(
         wallet.publicKey,
