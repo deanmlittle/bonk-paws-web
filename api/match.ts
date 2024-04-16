@@ -84,22 +84,23 @@ const provider = new AnchorProvider(connection, new Wallet(signer), {
 
 const wallet = provider.wallet;
 
-const program = new Program<BonkPaws>(IDL, PROGRAM_ID_PUBKEY, provider);
+const program = new Program<BonkPaws>(IDL, PROGRAM_ID_PUBKEY, provider)
 
 const bonk = new PublicKey("DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263")
-const signerBonk = getAssociatedTokenAddressSync(bonk, signer.publicKey);
+const signerBonk = getAssociatedTokenAddressSync(bonk, signer.publicKey)
 const wsol = new PublicKey("So11111111111111111111111111111111111111112")
-const signerWsol = getAssociatedTokenAddressSync(wsol, signer.publicKey);
-const donationState = PublicKey.findProgramAddressSync([Buffer.from("donation_state")], program.programId)[0];
+const signerWsol = getAssociatedTokenAddressSync(wsol, signer.publicKey)
+const donationState = PublicKey.findProgramAddressSync([Buffer.from("donation_state")], program.programId)[0]
+const bonkVault = getAssociatedTokenAddressSync(bonk, donationState, true);
 
 const getQuote = async (
   fromMint: PublicKey,
   toMint: PublicKey,
   amount: number
 ): Promise<SwapQuote> => {
-  return fetch(
+  return await fetch(
     `${API_ENDPOINT}/quote?outputMint=${toMint.toBase58()}&inputMint=${fromMint.toBase58()}&amount=${amount}&swapMode=ExactOut&slippage=0.5`
-  ).then(async (response) => await response.json() as SwapQuote );
+  ).then(async (response) => await response.json());
 };
 
 const getSwapIx = async (user: PublicKey, quote: any) => {
@@ -167,7 +168,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       signerBonk,
       wsol,
       signerWsol,
-      donationState, 
+      donationState,
+      bonkVault,
       matchDonationState: matchDonationState.publicKey,
       instructions: SYSVAR_INSTRUCTIONS_PUBKEY,
       associatedTokenProgram: ASSOCIATED_PROGRAM_ID,
@@ -179,10 +181,15 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     const finalizeIx = await program.methods
     .finalizeDonation()
     .accounts({
-      donor: signer.publicKey,
-      charity: matchDonationState.account.matchKey,
+      signer: signer.publicKey,
+      matchKey: matchDonationState.account.matchKey,
       wsol,
-      donorWsol: signerWsol,
+      signerWsol,
+      bonk,
+      signerBonk,
+      bonkVault,
+      donationState,
+      matchDonationState: matchDonationState.publicKey,
       instructions: SYSVAR_INSTRUCTIONS_PUBKEY,
       associatedTokenProgram: ASSOCIATED_PROGRAM_ID,
       tokenProgram: TOKEN_PROGRAM_ID,
@@ -225,7 +232,12 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     }).compileToV0Message(addressLookupTableAccounts);
     let transaction = new VersionedTransaction(messageV0);
     transaction.sign([signer]);
-    await provider.sendAndConfirm(transaction, [signer])
+    const signature = await provider.sendAndConfirm(transaction, [signer], { skipPreflight: true })
+    console.log(`https://explorer.solana.com/tx/${signature}`);
+    res.json({ 
+      success: true, 
+      signature 
+    })
   } catch(e) {
     res.status(400).json({ 
       success: false, 
