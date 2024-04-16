@@ -47,7 +47,7 @@ export default function Home() {
 
         let res = await program.account.donationState.fetch(donationState);
         const donatedAmount =
-          res.bonkDonated.toNumber() + res.bonkMatched.toNumber();
+          res.solDonated.toNumber() + res.solMatched.toNumber();
         setDonated(donatedAmount.toString());
         setBurned(res.bonkBurned.toString());
       } catch (e) {
