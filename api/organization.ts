@@ -8,39 +8,11 @@ const [login, password, baseURL] = [
   process.env.TGB_API_URL,
 ];
 
-// const allowCors = fn => async (req, res) => {
-//   res.setHeader('Access-Control-Allow-Credentials', true)
-//   res.setHeader('Access-Control-Allow-Origin', '*')
-//   // another common pattern
-//   // res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
-//   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT')
-//   res.setHeader(
-//     'Access-Control-Allow-Headers',
-//     'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-//   )
-//   if (req.method === 'OPTIONS') {
-//     res.status(200).end()
-//     return
-//   }
-//   return await fn(req, res)
-// }
-
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     if (!login) throw ("TGB Login not set");
     if (!password) throw ("TGB Password not set");
     if (!baseURL) throw ("TGB API URL not set");
-    // res.setHeader('Access-Control-Allow-Credentials', true)
-    res.setHeader('Access-Control-Allow-Origin', '*')
-    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT')
-    res.setHeader(
-      'Access-Control-Allow-Headers',
-      'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-    )
-    if (req.method === 'OPTIONS') {
-      res.status(200).end()
-      return
-    }
 
     const { searchParams } = new URL(req.url!, APP_URL);
     const organizationId = searchParams.get('id');
