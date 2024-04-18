@@ -8,8 +8,8 @@ import {
 } from "@solana/wallet-adapter-react";
 import OrganizationList from "./components/OrganizationList";
 import { AnchorProvider, Program } from "@coral-xyz/anchor";
-import { PublicKey } from "@solana/web3.js";
-import { PROGRAM_ID, PROGRAM_ID_PUBKEY } from "@/constants";
+import { Connection, PublicKey } from "@solana/web3.js";
+import { PROGRAM_ID, PROGRAM_ID_PUBKEY, RPC_URL } from "@/constants";
 import { IDL } from "@/idl";
 
 const preflightCommitment = "processed";
@@ -23,7 +23,7 @@ export default function Home() {
   const openWalletModal = () => {
     setModalVisible(true);
   };
-  const { connection } = useConnection();
+  const connection = new Connection(RPC_URL);
   const wallet = useAnchorWallet();
 
   const [donated, setDonated] = React.useState(0);
