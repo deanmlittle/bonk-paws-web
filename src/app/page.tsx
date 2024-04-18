@@ -150,10 +150,10 @@ export default function Home() {
           </h1>
           <p className="my-6 text-xl leading-8 text-slate-600">
             Thanks to your generosity, we&apos;ve been able to donate{" "}
-            <span className="text-red-500 font-bold">{donated}</span> to{" "}
+            <span className="text-red-500 font-bold">{donated/1e9}</span> SOL to{" "}
             <span className="text-red-500 font-bold">{organizations.length}</span> charities and
             counting, all while burning{" "}
-            <span className="text-red-500 font-bold">{burned}</span> BONK to
+            <span className="text-red-500 font-bold">{burned/1e5}</span> BONK to
             make our community even stronger!
           </p>
 
