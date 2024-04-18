@@ -26,8 +26,8 @@ export default function Home() {
   const { connection } = useConnection();
   const wallet = useAnchorWallet();
 
-  const [donated, setDonated] = React.useState("0");
-  const [burned, setBurned] = React.useState("0");
+  const [donated, setDonated] = React.useState(0);
+  const [burned, setBurned] = React.useState(0);
   const [isOpen, setIsOpen] = useState(true);
 
   useEffect(() => {
@@ -48,12 +48,12 @@ export default function Home() {
         let res = await program.account.donationState.fetch(donationState);
         const donatedAmount =
           res.solDonated.toNumber() + res.solMatched.toNumber();
-        setDonated(donatedAmount.toString());
-        setBurned(res.bonkBurned.toString());
+        setDonated(donatedAmount);
+        setBurned(res.bonkBurned.toNumber());
       } catch (e) {
         console.error(e);
-        setDonated("0");
-        setBurned("0");
+        setDonated(0);
+        setBurned(0);
       }
     };
 
@@ -160,15 +160,15 @@ export default function Home() {
           <div className="justify-center grid grid-cols-1 lg:grid-cols-3 gap-4 text-center my-4 mt-8">
             <div className="flex flex-col items-center justify-center border border-yellow-900 bg-yellow-950 bg-opacity-5 border-opacity-10 rounded-lg p-2 px-3">
               <h2 className="text-2xl font-bold tracking-tight text-yellow-900 sm:text-2xl truncate w-full">
-                {donated}
+                {donated/1e9}
               </h2>
-              <p className="text-gray-700">Donated</p>
+              <p className="text-gray-700">Sol Donated</p>
             </div>
             <div className="flex flex-col items-center justify-center border border-yellow-900 bg-yellow-950 bg-opacity-5 border-opacity-10 rounded-lg p-2 px-3">
               <h2 className="text-2xl font-bold tracking-tight text-yellow-900 sm:text-2xl">
-                {burned}
+                {burned/1e5}
               </h2>
-              <p className="text-gray-700">Burnt</p>
+              <p className="text-gray-700">Bonk Burned</p>
             </div>
             <div className="flex flex-col items-center justify-center border border-yellow-900 bg-yellow-950 bg-opacity-5 border-opacity-10 rounded-lg p-2 px-3">
               <h2 className="text-lg font-bold tracking-tight text-yellow-900 sm:text-2xl">
