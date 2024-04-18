@@ -150,23 +150,23 @@ export default function Home() {
           </h1>
           <p className="my-6 text-xl leading-8 text-slate-600">
             Thanks to your generosity, we&apos;ve been able to donate{" "}
-            <span className="text-red-500 font-bold">{donated/1e9}</span> SOL to{" "}
+            <span className="text-red-500 font-bold">{(donated/1e9).toLocaleString()}</span> SOL to{" "}
             <span className="text-red-500 font-bold">{organizations.length}</span> charities and
             counting, all while burning{" "}
-            <span className="text-red-500 font-bold">{burned/1e5}</span> BONK to
+            <span className="text-red-500 font-bold">{(burned/1e5).toLocaleString()}</span> BONK to
             make our community even stronger!
           </p>
 
           <div className="justify-center grid grid-cols-1 lg:grid-cols-3 gap-4 text-center my-4 mt-8">
             <div className="flex flex-col items-center justify-center border border-yellow-900 bg-yellow-950 bg-opacity-5 border-opacity-10 rounded-lg p-2 px-3">
               <h2 className="text-2xl font-bold tracking-tight text-yellow-900 sm:text-2xl truncate w-full">
-                {donated/1e9}
+                {(donated/1e9).toLocaleString()}
               </h2>
               <p className="text-gray-700">Sol Donated</p>
             </div>
             <div className="flex flex-col items-center justify-center border border-yellow-900 bg-yellow-950 bg-opacity-5 border-opacity-10 rounded-lg p-2 px-3">
               <h2 className="text-2xl font-bold tracking-tight text-yellow-900 sm:text-2xl">
-                {burned/1e5}
+                {(burned/1e5).toLocaleString()}
               </h2>
               <p className="text-gray-700">Bonk Burned</p>
             </div>
