@@ -41,7 +41,7 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
   const [quoteAmount, setQuoteAmount] = useState<number>(0);
   const [fromAmount, setFromAmount] = useState<number>(0);
   const [wantReceipt, setWantReceipt] = useState(false);
-  const [isAnonymous, setIsAnonymous] = useState(true);
+  const [isAnonymous, setIsAnonymous] = useState(false);
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -72,7 +72,6 @@ const DonationWidget: React.FC<WidgetProps> = ({ organization }) => {
     if (!quoteLoading) {
       setQuoteloading(true);
       try {
-        // amount = amount * 10_000;
         const { data: quote } = await axios.get(
           `https://quote-api.jup.ag/v6/quote?inputMint=DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263&outputMint=So11111111111111111111111111111111111111112&amount=${amount}&swapMode=ExactOut&slippageBps=50`
         );
