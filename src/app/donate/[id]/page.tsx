@@ -1,8 +1,6 @@
 "use client";
 import DonationWidget from "@/app/components/DonationWidget";
 import { APP_URL } from "@/constants";
-import { Organization } from "@/types";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { organizations } from "@/animal-charities";
 import OrganizationDonationHistory from "@/app/components/OrganizationDonationHistory";

@@ -8,8 +8,8 @@ import {
 } from "@solana/wallet-adapter-react";
 import OrganizationList from "./components/OrganizationList";
 import { AnchorProvider, Program } from "@coral-xyz/anchor";
-import { PublicKey } from "@solana/web3.js";
-import { PROGRAM_ID, PROGRAM_ID_PUBKEY } from "@/constants";
+import { Connection, PublicKey } from "@solana/web3.js";
+import { PROGRAM_ID, PROGRAM_ID_PUBKEY, RPC_URL } from "@/constants";
 import { IDL } from "@/idl";
 
 const preflightCommitment = "processed";
@@ -23,11 +23,11 @@ export default function Home() {
   const openWalletModal = () => {
     setModalVisible(true);
   };
-  const { connection } = useConnection();
+  const connection = new Connection(RPC_URL);
   const wallet = useAnchorWallet();
 
-  const [donated, setDonated] = React.useState("0");
-  const [burned, setBurned] = React.useState("0");
+  const [donated, setDonated] = React.useState(0);
+  const [burned, setBurned] = React.useState(0);
   const [isOpen, setIsOpen] = useState(true);
 
   useEffect(() => {
@@ -47,13 +47,13 @@ export default function Home() {
 
         let res = await program.account.donationState.fetch(donationState);
         const donatedAmount =
-          res.bonkDonated.toNumber() + res.bonkMatched.toNumber();
-        setDonated(donatedAmount.toString());
-        setBurned(res.bonkBurned.toString());
+          res.solDonated.toNumber() + res.solMatched.toNumber();
+        setDonated(donatedAmount);
+        setBurned(res.bonkBurned.toNumber());
       } catch (e) {
         console.error(e);
-        setDonated("0");
-        setBurned("0");
+        setDonated(0);
+        setBurned(0);
       }
     };
 
@@ -154,27 +154,32 @@ export default function Home() {
           </h1>
           <p className="my-6 text-xl leading-8 text-slate-600">
             Thanks to your generosity, we&apos;ve been able to donate{" "}
-            <span className="text-bonk-orange font-bold">{donated}</span> to{" "}
+            <span className="text-bonk-orange font-bold">
+              {(donated / 1e9).toLocaleString()}
+            </span>{" "}
+            SOL to{" "}
             <span className="text-bonk-orange font-bold">
               {organizations.length}
             </span>{" "}
             charities and counting, all while burning{" "}
-            <span className="text-bonk-orange font-bold">{burned}</span> BONK to
-            make our community even stronger!
+            <span className="text-bonk-orange font-bold">
+              {(burned / 1e5).toLocaleString()}
+            </span>{" "}
+            BONK to make our community even stronger!
           </p>
 
           <div className="justify-center grid grid-cols-1 lg:grid-cols-3 gap-4 text-center my-4 mt-8">
             <div className="flex flex-col items-center justify-center bg-bonk-orange/10 border border-bonk-orange/50 rounded-lg p-2 px-3">
               <h2 className="text-2xl font-bold tracking-tight text-bonk-orange sm:text-2xl truncate w-full">
-                {donated}
+                {(donated / 1e9).toLocaleString()}
               </h2>
-              <p className="text-slate-600 font-herborn">Donated</p>
+              <p className="text-slate-600 font-herborn">Sol Donated</p>
             </div>
             <div className="flex flex-col items-center justify-center bg-bonk-orange/10 border border-bonk-orange/50 rounded-lg p-2 px-3">
               <h2 className="text-2xl font-bold tracking-tight text-bonk-orange sm:text-2xl">
-                {burned}
+                {(burned / 1e5).toLocaleString()}
               </h2>
-              <p className="text-slate-600 font-herborn">Burnt</p>
+              <p className="text-slate-600 font-herborn">Bonk Burned</p>
             </div>
             <div className="flex flex-col items-center justify-center bg-bonk-orange/10 border border-bonk-orange/50 rounded-lg p-2 px-3">
               <h2 className="text-lg font-bold tracking-tight text-bonk-orange sm:text-2xl">

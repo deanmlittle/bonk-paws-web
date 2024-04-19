@@ -11,7 +11,7 @@ const [login, password, baseURL] = [
   process.env.TGB_API_URL
 ];
 
-const signingKey: Array<number> = JSON.parse(process.env.SIGNING_KEY!);
+const signingKey: number[] = process.env.SIGNING_KEY!.split(",").map(n => parseInt(n));
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   try {

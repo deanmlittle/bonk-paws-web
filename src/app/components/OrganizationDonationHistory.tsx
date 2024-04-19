@@ -7,8 +7,9 @@ import {
   useConnection,
 } from "@solana/wallet-adapter-react";
 import Image from "next/image";
-import { PROGRAM_ID } from "@/constants";
+import { PROGRAM_ID, RPC_URL } from "@/constants";
 import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
+import { Connection } from "@solana/web3.js";
 
 interface OrganizationDonationHistoryProps {
   id: number;
@@ -23,7 +24,7 @@ export default function OrganizationDonationHistory({
   const [donationHistory, setDonationHistory] = useState<
     { donationAmount: number; date: Date; donor: String; id: String }[]
   >([]);
-  const { connection } = useConnection();
+  const connection = new Connection(RPC_URL);
   const wallet = useAnchorWallet();
 
   useEffect(() => {

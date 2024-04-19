@@ -6,7 +6,6 @@ const [login, password, baseURL] = [
   process.env.TGB_API_LOGIN, 
   process.env.TGB_API_PASSWORD, 
   process.env.TGB_API_URL,
-  
 ];
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
